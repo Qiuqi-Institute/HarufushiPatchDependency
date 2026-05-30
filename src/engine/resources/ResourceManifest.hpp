@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/resources/ResourceId.hpp"
+#include "ResourceId.hpp"
 
 #include <cstddef>
 #include <string>

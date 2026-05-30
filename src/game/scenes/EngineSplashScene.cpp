@@ -1,4 +1,4 @@
-#include "game/scenes/EngineSplashScene.hpp"
+#include "EngineSplashScene.hpp"
 
 #include <algorithm>
 

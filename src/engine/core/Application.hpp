@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/core/FrameLoop.hpp"
+#include "FrameLoop.hpp"
 
 #include <string>
 

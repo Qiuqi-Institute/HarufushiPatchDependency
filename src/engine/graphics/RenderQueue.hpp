@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/graphics/Color.hpp"
-#include "engine/graphics/Geometry.hpp"
+#include "Color.hpp"
+#include "Geometry.hpp"
 
 #include <string>
 #include <vector>

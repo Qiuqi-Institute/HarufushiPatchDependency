@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/core/Application.hpp"
+#include <HaruApplication>
 
 #include <string>
 

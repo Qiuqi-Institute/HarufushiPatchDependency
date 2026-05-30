@@ -1,4 +1,4 @@
-#include "game/systems/HarufushiGame.hpp"
+#include "HarufushiGame.hpp"
 
 namespace haru::game {
 

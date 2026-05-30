@@ -4,7 +4,7 @@ project(HarufushiPatchDependency LANGUAGES CXX)
 
 include(cmake/ProjectOptions.cmake)
 
-add_library(harufushi_engine STATIC
+add_library(harufushi_engine SHARED
     src/engine/core/Application.cpp
     src/engine/core/FrameLoop.cpp
     src/engine/graphics/RenderQueue.cpp
@@ -20,11 +20,19 @@ add_library(harufushi_engine STATIC
 
 target_include_directories(harufushi_engine
     PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/include
+    PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_compile_features(harufushi_engine PUBLIC cxx_std_17)
 harufushi_apply_common_options(harufushi_engine)
+
+set_target_properties(harufushi_engine PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
 
 if(WIN32)
     target_sources(harufushi_engine
@@ -42,7 +50,7 @@ add_library(harufushi_game STATIC
 
 target_include_directories(harufushi_game
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/game
 )
 
 target_link_libraries(harufushi_game PUBLIC harufushi_engine)
@@ -62,6 +70,18 @@ set_target_properties(harufushi_app PROPERTIES
 )
 
 enable_testing()
+
+add_executable(harufushi_public_api_smoke
+    test/engine/PublicApiSmoke.cpp
+)
+
+target_link_libraries(harufushi_public_api_smoke PRIVATE harufushi_engine)
+target_compile_features(harufushi_public_api_smoke PRIVATE cxx_std_17)
+harufushi_apply_common_options(harufushi_public_api_smoke)
+
+set_target_properties(harufushi_public_api_smoke PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
+)
 
 add_executable(harufushi_tests
     test/Main.cpp
@@ -93,3 +113,10 @@ set_target_properties(harufushi_tests PROPERTIES
 )
 
 add_test(NAME harufushi_tests COMMAND harufushi_tests)
+add_test(NAME harufushi_public_api_smoke COMMAND harufushi_public_api_smoke)
+add_test(
+    NAME harufushi_engine_dll_layout
+    COMMAND ${CMAKE_COMMAND}
+        -DENGINE_BINARY=$<TARGET_FILE:harufushi_engine>
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertEngineDll.cmake
+)

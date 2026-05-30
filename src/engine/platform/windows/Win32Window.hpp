@@ -8,7 +8,7 @@
 #define NOMINMAX
 #endif
 
-#include "engine/platform/Window.hpp"
+#include "../Window.hpp"
 
 #include <windows.h>
 

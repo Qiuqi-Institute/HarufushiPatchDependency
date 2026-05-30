@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/graphics/Geometry.hpp"
-#include "engine/graphics/RenderQueue.hpp"
+#include <HaruGeometry>
+#include <HaruRenderQueue>
 
 namespace haru::game::scenes {
 

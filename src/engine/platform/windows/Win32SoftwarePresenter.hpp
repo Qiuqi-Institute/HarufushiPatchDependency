@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/graphics/RenderQueue.hpp"
-#include "engine/graphics/SoftwareSurface.hpp"
-#include "engine/platform/windows/Win32Window.hpp"
+#include "../../graphics/RenderQueue.hpp"
+#include "../../graphics/SoftwareSurface.hpp"
+#include "Win32Window.hpp"
 
 namespace haru::engine::platform::windows {
 

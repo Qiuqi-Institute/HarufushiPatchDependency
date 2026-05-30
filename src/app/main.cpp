@@ -1,14 +1,15 @@
-#include "engine/core/Application.hpp"
-#include "game/scenes/EngineSplashScene.hpp"
-#include "game/systems/HarufushiGame.hpp"
+#include <HaruApplication>
+
+#include "scenes/EngineSplashScene.hpp"
+#include "systems/HarufushiGame.hpp"
 
 #ifdef _WIN32
-#include "engine/graphics/RenderQueue.hpp"
-#include "engine/graphics/SoftwareSurface.hpp"
-#include "engine/platform/windows/Win32SoftwarePresenter.hpp"
-#include "engine/platform/windows/Win32Window.hpp"
-#include "engine/ui/Button.hpp"
-#include "engine/ui/UiNode.hpp"
+#include <HaruButton>
+#include <HaruRenderQueue>
+#include <HaruSoftwareSurface>
+#include <HaruUiNode>
+#include <HaruWin32SoftwarePresenter>
+#include <HaruWin32Window>
 #endif
 
 #include <cstring>

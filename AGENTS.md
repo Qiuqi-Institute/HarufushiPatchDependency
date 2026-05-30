@@ -85,6 +85,7 @@
 
 - `src/app/`：程序入口和启动编排。
 - `src/engine/core/`：生命周期、错误、日志、时间、基础类型。
+- `src/engine/include/`：引擎公开框架入口，采用无扩展名 `Haru*` 头文件，例如 `#include <HaruButton>`。
 - `src/engine/platform/`：Windows、文件系统、窗口、线程、系统服务适配。
 - `src/engine/graphics/`：渲染抽象、纹理、字体、后端接口。
 - `src/engine/audio/`：音频抽象、混音、音量、后端接口。
@@ -112,6 +113,7 @@
 - 不提交未加密的商业素材到发售包。
 - 不把语言列表写死在 C++ 分支里。
 - 不让游戏逻辑直接依赖平台 API；平台差异在 `src/engine/platform/` 内结束。
+- 不让游戏逻辑直接包含 `src/engine/**` 内部路径；游戏层调用引擎必须优先使用 `src/engine/include/` 暴露的 `Haru*` 公开头。
 - 不让游戏逻辑直接依赖资源文件路径；业务层只使用资源 ID 或内容句柄。
 
 ## Commit Convention

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/resources/ResourceId.hpp"
-#include "engine/resources/ResourceManifest.hpp"
-#include "engine/security/ContentCipher.hpp"
+#include "../security/ContentCipher.hpp"
+#include "ResourceId.hpp"
+#include "ResourceManifest.hpp"
 
 #include <cstddef>
 #include <functional>

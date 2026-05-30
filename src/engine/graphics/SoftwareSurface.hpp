@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/graphics/Color.hpp"
-#include "engine/graphics/Geometry.hpp"
-#include "engine/graphics/RenderQueue.hpp"
+#include "Color.hpp"
+#include "Geometry.hpp"
+#include "RenderQueue.hpp"
 
 #include <vector>
 
