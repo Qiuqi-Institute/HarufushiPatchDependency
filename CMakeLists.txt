@@ -28,9 +28,10 @@ harufushi_apply_common_options(harufushi_engine)
 if(WIN32)
     target_sources(harufushi_engine
         PRIVATE
+            src/engine/platform/windows/Win32SoftwarePresenter.cpp
             src/engine/platform/windows/Win32Window.cpp
     )
-    target_link_libraries(harufushi_engine PUBLIC user32)
+    target_link_libraries(harufushi_engine PUBLIC gdi32 user32)
 endif()
 
 add_library(harufushi_game STATIC
