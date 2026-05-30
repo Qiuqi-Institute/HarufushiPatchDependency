@@ -19,7 +19,7 @@ HARU_TEST(window_config_rejects_empty_title_and_zero_size) {
 HARU_TEST(window_config_has_stable_default_game_size) {
     const auto config = haru::engine::platform::WindowConfig::defaultGameWindow();
 
-    HARU_EXPECT_EQ(config.title, "春伏补丁依存症");
+    HARU_EXPECT_EQ(config.title, "Harufushi Patch Dependency");
     HARU_EXPECT_EQ(config.width, 1280);
     HARU_EXPECT_EQ(config.height, 720);
 }

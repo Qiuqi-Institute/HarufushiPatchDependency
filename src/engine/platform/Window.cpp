@@ -3,7 +3,7 @@
 namespace haru::engine::platform {
 
 WindowConfig WindowConfig::defaultGameWindow() {
-    return {"春伏补丁依存症", 1280, 720};
+    return {"Harufushi Patch Dependency", 1280, 720};
 }
 
 bool WindowConfig::valid() const {

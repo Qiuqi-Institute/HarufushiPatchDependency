@@ -1,6 +1,7 @@
 #include "engine/core/HaruFrame.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace haru::engine {
 
@@ -36,6 +37,10 @@ void HaruFrame::updateOpening(double deltaSeconds) {
 void HaruFrame::renderOpening(graphics::RenderQueue& queue, graphics::Size surfaceSize) const {
     const graphics::Color white{255, 255, 255, 255};
     const graphics::Color splashTeal{11, 119, 155, 255};
+    const double beat = openingElapsedSeconds_ * 8.0;
+    const int armSwing = static_cast<int>(std::round(std::sin(beat) * 10.0));
+    const int legSwing = static_cast<int>(std::round(std::sin(beat + 1.2) * 8.0));
+    const int textBounce = static_cast<int>(std::round(std::abs(std::sin(beat + 0.4)) * 14.0));
     queue.clear(white);
 
     const int centerX = surfaceSize.width / 2;
@@ -68,14 +73,16 @@ void HaruFrame::renderOpening(graphics::RenderQueue& queue, graphics::Size surfa
     queue.fillRect({markX + markSize - 96, markY + markSize - 26, 18, 18}, splashTeal);
     queue.fillRect({markX + markSize - 60, markY + markSize - 26, 18, 18}, splashTeal);
 
-    queue.fillRect({markX + 22, markY + 76, 20, 8}, splashTeal);
-    queue.fillRect({markX + 10, markY + 84, 12, 12}, splashTeal);
-    queue.fillRect({markX + markSize - 42, markY + 76, 20, 8}, splashTeal);
-    queue.fillRect({markX + markSize - 22, markY + 84, 12, 12}, splashTeal);
-    queue.fillRect({markX + 86, markY + markSize - 54, 12, 12}, splashTeal);
-    queue.fillRect({markX + markSize - 98, markY + markSize - 54, 12, 12}, splashTeal);
+    queue.fillRect({markX + 22, markY + 76 + armSwing, 20, 8}, splashTeal);
+    queue.fillRect({markX + 10, markY + 84 + armSwing, 12, 12}, splashTeal);
+    queue.fillRect({markX + markSize - 42, markY + 76 - armSwing, 20, 8}, splashTeal);
+    queue.fillRect({markX + markSize - 22, markY + 84 - armSwing, 12, 12}, splashTeal);
+    queue.fillRect({markX + 86 - legSwing, markY + markSize - 54, 12, 12}, splashTeal);
+    queue.fillRect({markX + markSize - 98 + legSwing, markY + markSize - 54, 12, 12}, splashTeal);
 
-    queue.drawText({centerX - 260, centerY + 76, 520, 68}, "Harufushi Frame", splashTeal);
+    queue.drawText({centerX - 260, centerY + 76 - textBounce, 520, 68},
+                   "Harufushi Frame",
+                   splashTeal);
 }
 
 } // namespace haru::engine
