@@ -11,6 +11,13 @@ int Application::run(GameRuntime& runtime) {
     return 0;
 }
 
+int Application::run(GameRuntime& runtime, const FrameCallback& onFrame) {
+    runtime.start(config_);
+    FrameLoop loop;
+    loop.run(onFrame);
+    return 0;
+}
+
 const ApplicationConfig& Application::config() const {
     return config_;
 }

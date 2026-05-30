@@ -6,7 +6,9 @@ include(cmake/ProjectOptions.cmake)
 
 add_library(harufushi_engine STATIC
     src/engine/core/Application.cpp
+    src/engine/core/FrameLoop.cpp
     src/engine/localization/LocaleRegistry.cpp
+    src/engine/platform/Window.cpp
     src/engine/resources/ProtectedResourceStore.cpp
     src/engine/resources/ResourceId.cpp
     src/engine/resources/ResourceManifest.cpp
@@ -51,8 +53,10 @@ add_executable(harufushi_tests
     test/Main.cpp
     test/support/TestHarness.cpp
     test/engine/ApplicationTests.cpp
+    test/engine/FrameLoopTests.cpp
     test/engine/LocalizationTests.cpp
     test/engine/ResourceTests.cpp
+    test/engine/WindowConfigTests.cpp
 )
 
 target_include_directories(harufushi_tests

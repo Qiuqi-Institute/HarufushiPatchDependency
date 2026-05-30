@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine/core/FrameLoop.hpp"
+
 #include <string>
 
 namespace haru::engine::core {
@@ -21,6 +23,7 @@ public:
     explicit Application(ApplicationConfig config);
 
     int run(GameRuntime& runtime);
+    int run(GameRuntime& runtime, const FrameCallback& onFrame);
     const ApplicationConfig& config() const;
 
 private:
