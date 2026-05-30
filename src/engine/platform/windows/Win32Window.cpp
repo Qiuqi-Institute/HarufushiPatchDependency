@@ -114,11 +114,11 @@ ATOM Win32Window::ensureWindowClass(HINSTANCE instance) {
 
     WNDCLASSEXW windowClass{};
     windowClass.cbSize = sizeof(WNDCLASSEXW);
-    windowClass.style = CS_HREDRAW | CS_VREDRAW;
+    windowClass.style = 0;
     windowClass.lpfnWndProc = &Win32Window::staticWindowProc;
     windowClass.hInstance = instance;
     windowClass.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512));
-    windowClass.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+    windowClass.hbrBackground = nullptr;
     windowClass.lpszClassName = windowClassName();
 
     registeredClass = RegisterClassExW(&windowClass);
@@ -155,6 +155,14 @@ LRESULT Win32Window::handleMessage(UINT message, WPARAM wordParam, LPARAM longPa
     case WM_CLOSE:
         requestClose();
         return 0;
+    case WM_ERASEBKGND:
+        return 1;
+    case WM_PAINT: {
+        PAINTSTRUCT paint{};
+        BeginPaint(handle_, &paint);
+        EndPaint(handle_, &paint);
+        return 0;
+    }
     case WM_SIZE:
         pendingEvents_.push_back({WindowEventKind::Resized,
                                   static_cast<int>(LOWORD(longParam)),

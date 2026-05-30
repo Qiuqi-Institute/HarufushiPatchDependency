@@ -12,8 +12,10 @@
 #endif
 
 #include <cstring>
+#include <chrono>
 #include <exception>
 #include <iostream>
+#include <thread>
 
 int main(int argc, char** argv) {
     haru::engine::core::Application app({"春伏补丁依存症", "0.0.1"});
@@ -76,6 +78,7 @@ int main(int argc, char** argv) {
 
             surface.draw(queue, haru::engine::graphics::TextRasterization::Skip);
             presenter.present(window, surface, queue);
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
 
             return window.shouldClose() ? haru::engine::core::LoopDecision::Stop
                                         : haru::engine::core::LoopDecision::Continue;

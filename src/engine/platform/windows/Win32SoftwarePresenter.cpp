@@ -1,5 +1,6 @@
 #include "engine/platform/windows/Win32SoftwarePresenter.hpp"
 
+#include <cstring>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -48,75 +49,35 @@ COLORREF toColorRef(graphics::Color color) {
     return RGB(color.r, color.g, color.b);
 }
 
-} // namespace
-
-void Win32SoftwarePresenter::present(const Win32Window& window,
-                                     const graphics::SoftwareSurface& surface) const {
-    HDC deviceContext = GetDC(window.nativeHandle());
-    if (deviceContext == nullptr) {
-        throw std::runtime_error("failed to acquire window device context");
-    }
-
-    BITMAPINFO bitmapInfo{};
-    bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bitmapInfo.bmiHeader.biWidth = surface.width();
-    bitmapInfo.bmiHeader.biHeight = -surface.height();
-    bitmapInfo.bmiHeader.biPlanes = 1;
-    bitmapInfo.bmiHeader.biBitCount = 32;
-    bitmapInfo.bmiHeader.biCompression = BI_RGB;
-
-    const auto pixels = toBgraPixels(surface);
-    const int scanLines = SetDIBitsToDevice(deviceContext,
-                                            0,
-                                            0,
-                                            static_cast<DWORD>(surface.width()),
-                                            static_cast<DWORD>(surface.height()),
-                                            0,
-                                            0,
-                                            0,
-                                            static_cast<UINT>(surface.height()),
-                                            pixels.data(),
-                                            &bitmapInfo,
-                                            DIB_RGB_COLORS);
-
-    ReleaseDC(window.nativeHandle(), deviceContext);
-
-    if (scanLines == 0) {
-        throw std::runtime_error("failed to present software surface");
-    }
+HFONT createFontForText(const std::string& text) {
+    const bool splashTitle = text == "Harufushi Frame";
+    return CreateFontW(splashTitle ? -42 : -20,
+                       0,
+                       0,
+                       0,
+                       splashTitle ? FW_BOLD : FW_SEMIBOLD,
+                       FALSE,
+                       FALSE,
+                       FALSE,
+                       DEFAULT_CHARSET,
+                       OUT_DEFAULT_PRECIS,
+                       CLIP_DEFAULT_PRECIS,
+                       CLEARTYPE_QUALITY,
+                       DEFAULT_PITCH | FF_DONTCARE,
+                       splashTitle ? L"Segoe Print" : L"Microsoft YaHei UI");
 }
 
-void Win32SoftwarePresenter::present(const Win32Window& window,
-                                     const graphics::SoftwareSurface& surface,
-                                     const graphics::RenderQueue& textSource) const {
-    present(window, surface);
-
-    HDC deviceContext = GetDC(window.nativeHandle());
-    if (deviceContext == nullptr) {
-        throw std::runtime_error("failed to acquire window device context for text");
-    }
-
-    HFONT font = CreateFontW(-20,
-                             0,
-                             0,
-                             0,
-                             FW_SEMIBOLD,
-                             FALSE,
-                             FALSE,
-                             FALSE,
-                             DEFAULT_CHARSET,
-                             OUT_DEFAULT_PRECIS,
-                             CLIP_DEFAULT_PRECIS,
-                             CLEARTYPE_QUALITY,
-                             DEFAULT_PITCH | FF_DONTCARE,
-                             L"Microsoft YaHei UI");
-    const HGDIOBJ previousFont = font != nullptr ? SelectObject(deviceContext, font) : nullptr;
+void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource) {
     const int previousBkMode = SetBkMode(deviceContext, TRANSPARENT);
 
     for (const auto& command : textSource.commands()) {
         if (command.kind != graphics::DrawCommandKind::Text || command.text.empty()) {
             continue;
         }
+
+        HFONT font = createFontForText(command.text);
+        const HGDIOBJ previousFont =
+            font != nullptr ? SelectObject(deviceContext, font) : nullptr;
 
         SetTextColor(deviceContext, toColorRef(command.color));
         RECT rect{command.rect.x,
@@ -128,18 +89,93 @@ void Win32SoftwarePresenter::present(const Win32Window& window,
                   text.c_str(),
                   static_cast<int>(text.size()),
                   &rect,
-                  DT_LEFT | DT_TOP | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+                  DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+
+        if (previousFont != nullptr) {
+            SelectObject(deviceContext, previousFont);
+        }
+        if (font != nullptr) {
+            DeleteObject(font);
+        }
     }
 
     SetBkMode(deviceContext, previousBkMode);
-    if (previousFont != nullptr) {
-        SelectObject(deviceContext, previousFont);
-    }
-    if (font != nullptr) {
-        DeleteObject(font);
+}
+
+void presentComposited(const Win32Window& window,
+                       const graphics::SoftwareSurface& surface,
+                       const graphics::RenderQueue* textSource) {
+    HDC windowContext = GetDC(window.nativeHandle());
+    if (windowContext == nullptr) {
+        throw std::runtime_error("failed to acquire window device context");
     }
 
-    ReleaseDC(window.nativeHandle(), deviceContext);
+    HDC memoryContext = CreateCompatibleDC(windowContext);
+    if (memoryContext == nullptr) {
+        ReleaseDC(window.nativeHandle(), windowContext);
+        throw std::runtime_error("failed to create offscreen device context");
+    }
+
+    BITMAPINFO bitmapInfo{};
+    bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bitmapInfo.bmiHeader.biWidth = surface.width();
+    bitmapInfo.bmiHeader.biHeight = -surface.height();
+    bitmapInfo.bmiHeader.biPlanes = 1;
+    bitmapInfo.bmiHeader.biBitCount = 32;
+    bitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+    void* bitmapBits = nullptr;
+    HBITMAP bitmap = CreateDIBSection(windowContext,
+                                      &bitmapInfo,
+                                      DIB_RGB_COLORS,
+                                      &bitmapBits,
+                                      nullptr,
+                                      0);
+    if (bitmap == nullptr || bitmapBits == nullptr) {
+        DeleteDC(memoryContext);
+        ReleaseDC(window.nativeHandle(), windowContext);
+        throw std::runtime_error("failed to create offscreen DIB section");
+    }
+
+    const HGDIOBJ previousBitmap = SelectObject(memoryContext, bitmap);
+    const auto pixels = toBgraPixels(surface);
+    std::memcpy(bitmapBits, pixels.data(), pixels.size() * sizeof(std::uint32_t));
+
+    if (textSource != nullptr) {
+        drawTextCommands(memoryContext, *textSource);
+    }
+
+    const BOOL copied = BitBlt(windowContext,
+                               0,
+                               0,
+                               surface.width(),
+                               surface.height(),
+                               memoryContext,
+                               0,
+                               0,
+                               SRCCOPY);
+
+    SelectObject(memoryContext, previousBitmap);
+    DeleteObject(bitmap);
+    DeleteDC(memoryContext);
+    ReleaseDC(window.nativeHandle(), windowContext);
+
+    if (copied == FALSE) {
+        throw std::runtime_error("failed to present composited software surface");
+    }
+}
+
+} // namespace
+
+void Win32SoftwarePresenter::present(const Win32Window& window,
+                                     const graphics::SoftwareSurface& surface) const {
+    presentComposited(window, surface, nullptr);
+}
+
+void Win32SoftwarePresenter::present(const Win32Window& window,
+                                     const graphics::SoftwareSurface& surface,
+                                     const graphics::RenderQueue& textSource) const {
+    presentComposited(window, surface, &textSource);
 }
 
 } // namespace haru::engine::platform::windows
