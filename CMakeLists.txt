@@ -112,7 +112,21 @@ target_compile_features(harufushi_app PRIVATE cxx_std_17)
 harufushi_apply_common_options(harufushi_app)
 
 set_target_properties(harufushi_app PROPERTIES
+    OUTPUT_NAME HarufushiPatchDependency
     RUNTIME_OUTPUT_DIRECTORY ${HARUFUSHI_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+if(WIN32)
+    set_target_properties(harufushi_app PROPERTIES WIN32_EXECUTABLE TRUE)
+    if(MSVC)
+        target_link_options(harufushi_app PRIVATE /ENTRY:mainCRTStartup)
+    endif()
+endif()
+
+add_custom_command(TARGET harufushi_app POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rm -f
+        ${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIG>/harufushi_app.exe
+        ${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIG>/harufushi_app.pdb
 )
 
 enable_testing()
@@ -177,3 +191,20 @@ add_test(
         -DPUBLIC_INCLUDE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/engine/include
         -P ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertHaruFramePublicHeaders.cmake
 )
+add_test(
+    NAME harufushi_app_executable_layout
+    COMMAND ${CMAKE_COMMAND}
+        -DAPP_BINARY=$<TARGET_FILE:harufushi_app>
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertAppExecutable.cmake
+)
+
+if(WIN32)
+    add_test(
+        NAME harufushi_app_windows_gui_subsystem
+        COMMAND powershell
+            -NoProfile
+            -ExecutionPolicy Bypass
+            -File ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertWindowsGuiSubsystem.ps1
+            -AppBinary $<TARGET_FILE:harufushi_app>
+    )
+endif()
