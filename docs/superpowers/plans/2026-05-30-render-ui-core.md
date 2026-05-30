@@ -1,6 +1,6 @@
 # Render UI Core Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build the first renderable vertical slice: platform-neutral draw commands, a software pixel surface, a project-owned UI tree, and Win32 presentation.
 
@@ -35,7 +35,7 @@
 - Create: `test/engine/SoftwareSurfaceTests.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```cpp
 HARU_TEST(render_queue_records_clear_and_rect_commands_in_order) {
@@ -60,17 +60,17 @@ HARU_TEST(software_surface_clips_filled_rectangles_to_surface_bounds) {
 }
 ```
 
-- [ ] **Step 2: Run failing build**
+- [x] **Step 2: Run failing build**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because graphics headers do not exist.
 
-- [ ] **Step 3: Implement minimal graphics core**
+- [x] **Step 3: Implement minimal graphics core**
 
 `RenderQueue` stores clear and filled-rectangle commands. `SoftwareSurface` owns a `std::vector<Color>`, supports `clear`, `fillRect`, `draw`, `pixelAt`, and clips writes to surface bounds.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -84,7 +84,7 @@ Commit: `feat: 添加软件渲染核心`
 - Create: `test/engine/UiNodeTests.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```cpp
 HARU_TEST(ui_node_emits_background_rects_with_child_offsets) {
@@ -102,17 +102,17 @@ HARU_TEST(ui_node_emits_background_rects_with_child_offsets) {
 }
 ```
 
-- [ ] **Step 2: Run failing build**
+- [x] **Step 2: Run failing build**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `UiNode.hpp` does not exist.
 
-- [ ] **Step 3: Implement minimal UI tree**
+- [x] **Step 3: Implement minimal UI tree**
 
 `UiNode` owns local bounds, background color, and children. `render` appends background rectangles to a `RenderQueue`, offsetting child bounds by parent origin.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -126,19 +126,19 @@ Commit: `feat: 添加项目专用ui树`
 - Modify: `src/app/main.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Compile Win32 presenter**
+- [x] **Step 1: Compile Win32 presenter**
 
 Add the presenter source on Windows and link `gdi32`.
 
-- [ ] **Step 2: Implement presentation path**
+- [x] **Step 2: Implement presentation path**
 
 `Win32SoftwarePresenter::present` takes a `Win32Window` and `SoftwareSurface`, prepares a top-down 32-bit DIB, and pushes pixels with `SetDIBitsToDevice`.
 
-- [ ] **Step 3: Draw a first scene**
+- [x] **Step 3: Draw a first scene**
 
 `main.cpp` creates a `SoftwareSurface`, clears it, renders a simple UI root panel plus accent rectangles, draws the command queue into the surface, and presents every frame.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `cmake --build build --config Debug`
 
