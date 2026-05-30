@@ -11,6 +11,11 @@ void UiNode::addChild(UiNode child) {
     children_.push_back(std::move(child));
 }
 
+void UiNode::setText(std::string text, graphics::Color color) {
+    text_ = std::move(text);
+    textColor_ = color;
+}
+
 void UiNode::render(graphics::RenderQueue& queue) const {
     renderAt(queue, {0, 0});
 }
@@ -29,6 +34,12 @@ void UiNode::renderAt(graphics::RenderQueue& queue, graphics::Point parentOrigin
                                       localBounds_.width,
                                       localBounds_.height};
     queue.fillRect(absoluteRect, background_);
+    if (text_ && !text_->empty()) {
+        queue.drawText({absoluteRect.x + 8, absoluteRect.y + 8,
+                        std::max(absoluteRect.width - 16, 0),
+                        std::max(absoluteRect.height - 16, 0)},
+                       *text_, textColor_);
+    }
 
     const graphics::Point childOrigin{absoluteRect.x, absoluteRect.y};
     for (const auto& child : children_) {

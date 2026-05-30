@@ -28,3 +28,17 @@ HARU_TEST(render_queue_clear_commands_removes_previous_commands) {
 
     HARU_EXPECT_TRUE(queue.commands().empty());
 }
+
+HARU_TEST(render_queue_records_text_commands) {
+    haru::engine::graphics::RenderQueue queue;
+    const haru::engine::graphics::Color textColor{240, 230, 220, 255};
+
+    queue.drawText({1, 2, 80, 20}, "秋起", textColor);
+
+    HARU_EXPECT_EQ(queue.commands().size(), static_cast<std::size_t>(1));
+    HARU_EXPECT_EQ(queue.commands()[0].kind, haru::engine::graphics::DrawCommandKind::Text);
+    HARU_EXPECT_EQ(queue.commands()[0].rect.x, 1);
+    HARU_EXPECT_EQ(queue.commands()[0].rect.y, 2);
+    HARU_EXPECT_EQ(queue.commands()[0].text, "秋起");
+    HARU_EXPECT_EQ(queue.commands()[0].color, textColor);
+}

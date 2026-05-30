@@ -14,6 +14,7 @@ add_library(harufushi_engine STATIC
     src/engine/resources/ProtectedResourceStore.cpp
     src/engine/resources/ResourceId.cpp
     src/engine/resources/ResourceManifest.cpp
+    src/engine/ui/Button.cpp
     src/engine/ui/UiNode.cpp
 )
 
@@ -65,6 +66,7 @@ add_executable(harufushi_tests
     test/Main.cpp
     test/support/TestHarness.cpp
     test/engine/ApplicationTests.cpp
+    test/engine/ButtonTests.cpp
     test/engine/FrameLoopTests.cpp
     test/engine/LocalizationTests.cpp
     test/engine/RenderQueueTests.cpp

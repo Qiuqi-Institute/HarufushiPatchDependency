@@ -4,6 +4,8 @@
 #include "engine/graphics/Geometry.hpp"
 #include "engine/graphics/RenderQueue.hpp"
 
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace haru::engine::ui {
@@ -13,6 +15,7 @@ public:
     UiNode(graphics::Rect localBounds, graphics::Color background);
 
     void addChild(UiNode child);
+    void setText(std::string text, graphics::Color color);
     void render(graphics::RenderQueue& queue) const;
 
     const graphics::Rect& localBounds() const;
@@ -23,6 +26,8 @@ private:
 
     graphics::Rect localBounds_;
     graphics::Color background_;
+    std::optional<std::string> text_;
+    graphics::Color textColor_{255, 255, 255, 255};
     std::vector<UiNode> children_;
 };
 

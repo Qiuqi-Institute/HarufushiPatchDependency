@@ -5,6 +5,14 @@
 
 namespace haru::engine::graphics {
 
+namespace {
+
+constexpr int placeholderGlyphWidth = 5;
+constexpr int placeholderGlyphHeight = 9;
+constexpr int placeholderGlyphGap = 2;
+
+} // namespace
+
 SoftwareSurface::SoftwareSurface(int width, int height)
     : width_(width), height_(height), pixels_(static_cast<std::size_t>(width * height)) {
     if (width <= 0 || height <= 0) {
@@ -50,6 +58,22 @@ void SoftwareSurface::draw(const RenderQueue& queue) {
         case DrawCommandKind::FillRect:
             fillRect(command.rect, command.color);
             break;
+        case DrawCommandKind::Text: {
+            int cursorX = command.rect.x;
+            for (const char character : command.text) {
+                if (character != ' ') {
+                    fillRect({cursorX, command.rect.y, placeholderGlyphWidth,
+                              std::min(placeholderGlyphHeight, command.rect.height)},
+                             command.color);
+                }
+
+                cursorX += placeholderGlyphWidth + placeholderGlyphGap;
+                if (cursorX >= command.rect.x + command.rect.width) {
+                    break;
+                }
+            }
+            break;
+        }
         }
     }
 }
