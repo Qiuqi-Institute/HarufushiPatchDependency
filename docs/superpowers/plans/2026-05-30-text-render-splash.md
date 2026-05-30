@@ -1,6 +1,6 @@
 # Text Render Splash Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Replace visible square placeholder text in the Win32 app with real UTF-8 text rendering and add an engine splash animation before the first UI screen.
 
@@ -29,21 +29,21 @@
 - Modify: `src/engine/platform/windows/Win32SoftwarePresenter.cpp`
 - Modify: `test/engine/SoftwareSurfaceTests.cpp`
 
-- [ ] **Step 1: Write failing test**
+- [x] **Step 1: Write failing test**
 
 Add a test asserting `surface.draw(queue, TextRasterization::Skip)` leaves text pixels as background while the existing default path still paints placeholders.
 
-- [ ] **Step 2: Run failing build**
+- [x] **Step 2: Run failing build**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `TextRasterization::Skip` and `draw(queue, mode)` do not exist.
 
-- [ ] **Step 3: Implement renderer behavior**
+- [x] **Step 3: Implement renderer behavior**
 
 Add `enum class TextRasterization { Placeholder, Skip };` and overload/default `SoftwareSurface::draw`. Update Win32 presenter with `present(window, surface, queue)` that presents pixels first and then draws text commands with `DrawTextW` using a CJK-capable UI font.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -57,21 +57,21 @@ Commit: `fix: 使用gdi绘制真实文本`
 - Create: `test/game/EngineSplashSceneTests.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Add tests asserting the splash scene starts active, becomes complete after the configured duration, and emits at least clear, logo block, and text commands while active.
 
-- [ ] **Step 2: Run failing build**
+- [x] **Step 2: Run failing build**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `EngineSplashScene` does not exist.
 
-- [ ] **Step 3: Implement state machine**
+- [x] **Step 3: Implement state machine**
 
 `EngineSplashScene` tracks elapsed seconds, exposes `active`, `complete`, `update`, and `render`. It emits a restrained splash composition: dark background, central frame mark, progress bar, and `Harufushi Frame` text.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -83,11 +83,11 @@ Commit: `feat: 添加引擎开屏动画`
 - Modify: `src/app/main.cpp`
 - Modify: `docs/superpowers/plans/2026-05-30-text-render-splash.md`
 
-- [ ] **Step 1: Integrate startup flow**
+- [x] **Step 1: Integrate startup flow**
 
 Create `EngineSplashScene` in `main.cpp`. While it is active, render only the splash; after completion, render the existing first-screen button UI. Draw the software surface with `TextRasterization::Skip`, then present with text overlay.
 
-- [ ] **Step 2: Verify and commit**
+- [x] **Step 2: Verify and commit**
 
 Run: `cmake --build build --config Debug`
 
