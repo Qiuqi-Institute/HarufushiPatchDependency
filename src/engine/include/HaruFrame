@@ -1,8 +1,11 @@
 #pragma once
 
 #ifndef HARU_FRAME_PUBLIC_INCLUDE
-#error "Include <HaruFrame> instead of HaruEngine."
+#define HARU_FRAME_PUBLIC_INCLUDE
+#define HARU_FRAME_PUBLIC_INCLUDE_OWNER
 #endif
+
+#include "../core/HaruFrame.hpp"
 
 #include "HaruApplication"
 #include "HaruButton"
@@ -17,3 +20,13 @@
 #include "HaruSoftwareSurface"
 #include "HaruUiNode"
 #include "HaruWindow"
+
+#ifdef _WIN32
+#include "HaruWin32SoftwarePresenter"
+#include "HaruWin32Window"
+#endif
+
+#ifdef HARU_FRAME_PUBLIC_INCLUDE_OWNER
+#undef HARU_FRAME_PUBLIC_INCLUDE_OWNER
+#undef HARU_FRAME_PUBLIC_INCLUDE
+#endif

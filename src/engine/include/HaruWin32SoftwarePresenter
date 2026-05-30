@@ -1,3 +1,7 @@
 #pragma once
 
+#ifndef HARU_FRAME_PUBLIC_INCLUDE
+#error "Include <HaruFrame> before using HaruWin32SoftwarePresenter."
+#endif
+
 #include "../platform/windows/Win32SoftwarePresenter.hpp"

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <HaruGeometry>
-#include <HaruRenderQueue>
+#include <HaruFrame>
 
 namespace haru::game::scenes {
 

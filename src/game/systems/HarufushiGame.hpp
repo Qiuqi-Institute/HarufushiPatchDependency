@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HaruApplication>
+#include <HaruFrame>
 
 #include <string>
 
