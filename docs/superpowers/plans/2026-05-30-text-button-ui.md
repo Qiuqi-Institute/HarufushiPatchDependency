@@ -1,6 +1,6 @@
 # Text Button UI Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Extend the current UI/rendering slice with text placeholder commands and a basic project-owned button control.
 
@@ -29,23 +29,23 @@
 - Modify: `test/engine/RenderQueueTests.cpp`
 - Modify: `test/engine/SoftwareSurfaceTests.cpp`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Add tests that call `queue.drawText({1, 2, 80, 20}, "秋起", color)` and assert the command kind, bounds, text, and color.
 
 Add a software surface test that draws a text command over a cleared background and asserts at least one pixel inside the text bounds changes while a pixel outside stays as background.
 
-- [ ] **Step 2: Run failing build**
+- [x] **Step 2: Run failing build**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `RenderQueue::drawText` and `DrawCommandKind::Text` do not exist.
 
-- [ ] **Step 3: Implement minimal text placeholder**
+- [x] **Step 3: Implement minimal text placeholder**
 
 Add `Text` to `DrawCommandKind`, add `std::string text` to `DrawCommand`, and implement `RenderQueue::drawText`. `SoftwareSurface::draw` handles text by painting fixed-size clipped blocks per non-space character.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -62,23 +62,23 @@ Commit: `feat: 添加文本占位绘制命令`
 - Create: `test/engine/ButtonTests.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Add a `UiNode` test asserting `setText("春伏", color)` emits a text command after the background command.
 
 Add a `Button` test asserting `Button({10, 20, 100, 32}, "写 Mod")` emits a background command and text command, and `contains({20, 30})` is true while `contains({1, 1})` is false.
 
-- [ ] **Step 2: Run failing build**
+- [x] **Step 2: Run failing build**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `UiNode::setText` and `Button.hpp` do not exist.
 
-- [ ] **Step 3: Implement controls**
+- [x] **Step 3: Implement controls**
 
 `UiNode` stores optional text and text color. `Button` stores bounds, label, style colors, exposes `contains`, and emits background plus padded text.
 
-- [ ] **Step 4: Verify and commit**
+- [x] **Step 4: Verify and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -89,11 +89,11 @@ Commit: `feat: 添加基础按钮控件`
 **Files:**
 - Modify: `src/app/main.cpp`
 
-- [ ] **Step 1: Use button control in app**
+- [x] **Step 1: Use button control in app**
 
 Replace hard-coded accent rectangles with button controls for `Study`, `Modding`, and `Harufushi`.
 
-- [ ] **Step 2: Verify and commit**
+- [x] **Step 2: Verify and commit**
 
 Run: `cmake --build build --config Debug`
 
