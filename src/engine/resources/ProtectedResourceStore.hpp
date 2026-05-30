@@ -5,6 +5,7 @@
 #include "engine/security/ContentCipher.hpp"
 
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -19,21 +20,17 @@ enum class ResourceReadError {
     CipherFailed,
 };
 
-class ResourceReadResult {
+class PresentedResourceView {
 public:
-    static ResourceReadResult success(std::vector<std::byte> bytes);
-    static ResourceReadResult failure(ResourceReadError error);
+    PresentedResourceView(const std::byte* data, std::size_t size);
 
-    bool ok() const;
-    const std::vector<std::byte>& bytes() const;
-    ResourceReadError error() const;
+    const std::byte* data() const;
+    std::size_t size() const;
+    bool empty() const;
 
 private:
-    ResourceReadResult(bool ok, std::vector<std::byte> bytes, ResourceReadError error);
-
-    bool ok_;
-    std::vector<std::byte> bytes_;
-    ResourceReadError error_;
+    const std::byte* data_;
+    std::size_t size_;
 };
 
 class ProtectedResourceStore {
@@ -42,9 +39,13 @@ public:
                            const security::ContentCipher* cipher);
 
     void putSealed(const ResourceId& id, std::vector<std::byte> sealedBytes);
-    ResourceReadResult read(const ResourceId& id) const;
+    ResourceReadError withPresentedResource(
+        const ResourceId& id,
+        const std::function<void(const PresentedResourceView&)>& present) const;
 
 private:
+    static void secureZero(std::vector<std::byte>& bytes);
+
     ResourceManifest manifest_;
     const security::ContentCipher* cipher_;
     std::unordered_map<std::string, std::vector<std::byte>> sealedPayloads_;

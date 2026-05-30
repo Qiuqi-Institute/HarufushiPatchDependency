@@ -69,13 +69,16 @@ HARU_TEST(protected_store_refuses_encrypted_resources_without_cipher) {
     ProtectedResourceStore store(manifest, nullptr);
     store.putSealed(id, bytes({0x99, 'b', 'o', 'o', 't'}));
 
-    const auto result = store.read(id);
+    bool callbackCalled = false;
+    const auto result = store.withPresentedResource(id, [&](const PresentedResourceView&) {
+        callbackCalled = true;
+    });
 
-    HARU_EXPECT_FALSE(result.ok());
-    HARU_EXPECT_EQ(result.error(), ResourceReadError::MissingCipher);
+    HARU_EXPECT_EQ(result, ResourceReadError::MissingCipher);
+    HARU_EXPECT_FALSE(callbackCalled);
 }
 
-HARU_TEST(protected_store_decrypts_encrypted_resources_through_cipher_interface) {
+HARU_TEST(protected_store_exposes_plaintext_only_inside_presentation_callback) {
     using namespace haru::engine::resources;
 
     ResourceManifest manifest(1);
@@ -86,9 +89,33 @@ HARU_TEST(protected_store_decrypts_encrypted_resources_through_cipher_interface)
     ProtectedResourceStore store(manifest, &cipher);
     store.putSealed(id, bytes({0x99, 'b', 'o', 'o', 't'}));
 
-    const auto result = store.read(id);
+    std::size_t visibleSize = 0;
+    char firstByte = '\0';
+    const auto result = store.withPresentedResource(id, [&](const PresentedResourceView& view) {
+        visibleSize = view.size();
+        firstByte = static_cast<char>(view.data()[0]);
+    });
 
-    HARU_EXPECT_TRUE(result.ok());
-    HARU_EXPECT_EQ(result.bytes().size(), static_cast<std::size_t>(4));
-    HARU_EXPECT_EQ(static_cast<char>(result.bytes()[0]), 'b');
+    HARU_EXPECT_EQ(result, ResourceReadError::None);
+    HARU_EXPECT_EQ(visibleSize, static_cast<std::size_t>(4));
+    HARU_EXPECT_EQ(firstByte, 'b');
+}
+
+HARU_TEST(protected_store_rejects_missing_payload_before_presentation_callback) {
+    using namespace haru::engine::resources;
+
+    ResourceManifest manifest(1);
+    const auto id = ResourceId::parse("text.boot").value();
+    manifest.add({id, ResourceKind::Data, "data/boot.bin", 4, true, ""});
+
+    PrefixCipher cipher;
+    ProtectedResourceStore store(manifest, &cipher);
+    bool callbackCalled = false;
+
+    const auto result = store.withPresentedResource(id, [&](const PresentedResourceView&) {
+        callbackCalled = true;
+    });
+
+    HARU_EXPECT_EQ(result, ResourceReadError::MissingPayload);
+    HARU_EXPECT_FALSE(callbackCalled);
 }
