@@ -22,6 +22,14 @@ target_include_directories(harufushi_engine
 target_compile_features(harufushi_engine PUBLIC cxx_std_17)
 harufushi_apply_common_options(harufushi_engine)
 
+if(WIN32)
+    target_sources(harufushi_engine
+        PRIVATE
+            src/engine/platform/windows/Win32Window.cpp
+    )
+    target_link_libraries(harufushi_engine PUBLIC user32)
+endif()
+
 add_library(harufushi_game STATIC
     src/game/systems/HarufushiGame.cpp
 )
