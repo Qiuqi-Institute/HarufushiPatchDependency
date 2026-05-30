@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <string>
 
 namespace haru::engine {
 
@@ -40,7 +41,6 @@ void HaruFrame::renderOpening(graphics::RenderQueue& queue, graphics::Size surfa
     const double beat = openingElapsedSeconds_ * 8.0;
     const int armSwing = static_cast<int>(std::round(std::sin(beat) * 10.0));
     const int legSwing = static_cast<int>(std::round(std::sin(beat + 1.2) * 8.0));
-    const int textBounce = static_cast<int>(std::round(std::abs(std::sin(beat + 0.4)) * 14.0));
     queue.clear(white);
 
     const int centerX = surfaceSize.width / 2;
@@ -80,9 +80,38 @@ void HaruFrame::renderOpening(graphics::RenderQueue& queue, graphics::Size surfa
     queue.fillRect({markX + 86 - legSwing, markY + markSize - 54, 12, 12}, splashTeal);
     queue.fillRect({markX + markSize - 98 + legSwing, markY + markSize - 54, 12, 12}, splashTeal);
 
-    queue.drawText({centerX - 260, centerY + 76 - textBounce, 520, 68},
-                   "Harufushi Frame",
-                   splashTeal);
+    const std::string title = "Harufushi Frame";
+    const int glyphWidth = 34;
+    const int spaceWidth = 18;
+    int titleWidth = 0;
+    for (const char letter : title) {
+        titleWidth += letter == ' ' ? spaceWidth : glyphWidth;
+    }
+
+    int letterX = centerX - (titleWidth / 2);
+    for (std::size_t index = 0; index < title.size(); ++index) {
+        const char letter = title[index];
+        const int advance = letter == ' ' ? spaceWidth : glyphWidth;
+        const double delaySeconds = static_cast<double>(index) * 0.055;
+        const double entrance =
+            std::clamp((openingElapsedSeconds_ - delaySeconds) / 0.24, 0.0, 1.0);
+
+        if (letter != ' ' && entrance > 0.0) {
+            const int dropOffset =
+                static_cast<int>(std::round((1.0 - entrance) * 34.0));
+            const int bounceOffset =
+                static_cast<int>(std::round(std::sin(entrance * 3.14159265358979323846) *
+                                            18.0));
+            const int idleBounce =
+                static_cast<int>(std::round(std::abs(std::sin(beat + (index * 0.55))) * 6.0));
+            queue.drawText({letterX, centerY + 76 + dropOffset - bounceOffset - idleBounce,
+                            glyphWidth, 68},
+                           std::string(1, letter),
+                           splashTeal);
+        }
+
+        letterX += advance;
+    }
 }
 
 } // namespace haru::engine

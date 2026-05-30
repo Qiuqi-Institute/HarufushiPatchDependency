@@ -3,6 +3,43 @@
 #include <HaruFrame>
 
 #include <cstddef>
+#include <string>
+
+namespace {
+
+std::size_t countTextCommands(const haru::engine::graphics::RenderQueue& queue) {
+    std::size_t count = 0;
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+std::size_t firstTextCommandIndex(const haru::engine::graphics::RenderQueue& queue) {
+    for (std::size_t index = 0; index < queue.commands().size(); ++index) {
+        if (queue.commands()[index].kind == haru::engine::graphics::DrawCommandKind::Text) {
+            return index;
+        }
+    }
+
+    return queue.commands().size();
+}
+
+bool hasTextCommand(const haru::engine::graphics::RenderQueue& queue, const std::string& text) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+            command.text == text) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+} // namespace
 
 HARU_TEST(haru_frame_renders_engine_opening_before_visual_content) {
     haru::engine::HaruFrame frame(1.0);
@@ -20,9 +57,7 @@ HARU_TEST(haru_frame_renders_engine_opening_before_visual_content) {
     HARU_EXPECT_EQ(queue.commands()[0].kind, haru::engine::graphics::DrawCommandKind::Clear);
     HARU_EXPECT_EQ(queue.commands()[0].color,
                    (haru::engine::graphics::Color{255, 255, 255, 255}));
-    HARU_EXPECT_EQ(queue.commands()[queue.commands().size() - 1].text, "Harufushi Frame");
-    HARU_EXPECT_EQ(queue.commands()[queue.commands().size() - 1].color,
-                   (haru::engine::graphics::Color{11, 119, 155, 255}));
+    HARU_EXPECT_TRUE(hasTextCommand(queue, "H"));
 }
 
 HARU_TEST(haru_frame_renders_visual_content_after_opening_completes) {
@@ -45,20 +80,25 @@ HARU_TEST(haru_frame_renders_visual_content_after_opening_completes) {
     HARU_EXPECT_EQ(queue.commands()[0].color, (haru::engine::graphics::Color{1, 2, 3, 255}));
 }
 
-HARU_TEST(haru_frame_animates_opening_text_bounce) {
+HARU_TEST(haru_frame_animates_opening_title_letters_with_staggered_bounce) {
     haru::engine::HaruFrame frame(2.0);
     haru::engine::graphics::RenderQueue firstFrame;
     haru::engine::graphics::RenderQueue secondFrame;
 
-    frame.render(firstFrame, {1280, 720}, 0.0, [](haru::engine::graphics::RenderQueue&) {});
-    frame.render(secondFrame, {1280, 720}, 0.25, [](haru::engine::graphics::RenderQueue&) {});
+    frame.render(firstFrame, {1280, 720}, 0.10, [](haru::engine::graphics::RenderQueue&) {});
+    frame.render(secondFrame, {1280, 720}, 0.35, [](haru::engine::graphics::RenderQueue&) {});
 
-    HARU_EXPECT_TRUE(firstFrame.commands().size() >= static_cast<std::size_t>(2));
-    HARU_EXPECT_EQ(firstFrame.commands().back().kind,
-                   haru::engine::graphics::DrawCommandKind::Text);
-    HARU_EXPECT_EQ(secondFrame.commands().back().kind,
-                   haru::engine::graphics::DrawCommandKind::Text);
-    HARU_EXPECT_TRUE(firstFrame.commands().back().rect.y != secondFrame.commands().back().rect.y);
+    const auto firstTextIndex = firstTextCommandIndex(firstFrame);
+    const auto secondTextIndex = firstTextCommandIndex(secondFrame);
+
+    HARU_EXPECT_TRUE(firstTextIndex < firstFrame.commands().size());
+    HARU_EXPECT_TRUE(secondTextIndex < secondFrame.commands().size());
+    HARU_EXPECT_TRUE(countTextCommands(firstFrame) < countTextCommands(secondFrame));
+    HARU_EXPECT_EQ(firstFrame.commands()[firstTextIndex].text, "H");
+    HARU_EXPECT_EQ(secondFrame.commands()[secondTextIndex].text, "H");
+    HARU_EXPECT_TRUE(firstFrame.commands()[firstTextIndex].rect.y !=
+                     secondFrame.commands()[secondTextIndex].rect.y);
+    HARU_EXPECT_TRUE(firstFrame.commands()[firstTextIndex].text.size() == 1U);
 }
 
 HARU_TEST(haru_frame_animates_opening_icon_limbs) {
@@ -69,16 +109,19 @@ HARU_TEST(haru_frame_animates_opening_icon_limbs) {
     frame.render(firstFrame, {1280, 720}, 0.0, [](haru::engine::graphics::RenderQueue&) {});
     frame.render(secondFrame, {1280, 720}, 0.25, [](haru::engine::graphics::RenderQueue&) {});
 
-    const auto firstLimbIndex = firstFrame.commands().size() - static_cast<std::size_t>(7);
-    const auto lastLimbIndex = firstFrame.commands().size() - static_cast<std::size_t>(2);
+    const auto firstTextIndex = firstTextCommandIndex(firstFrame);
+    const auto secondTextIndex = firstTextCommandIndex(secondFrame);
+    const auto firstLimbIndex = firstTextIndex - static_cast<std::size_t>(6);
+    const auto lastLimbIndex = firstTextIndex - static_cast<std::size_t>(1);
 
-    HARU_EXPECT_TRUE(firstFrame.commands().size() >= static_cast<std::size_t>(8));
+    HARU_EXPECT_TRUE(firstTextIndex >= static_cast<std::size_t>(6));
+    HARU_EXPECT_TRUE(secondTextIndex >= static_cast<std::size_t>(6));
     HARU_EXPECT_EQ(firstFrame.commands()[firstLimbIndex].kind,
                    haru::engine::graphics::DrawCommandKind::FillRect);
     HARU_EXPECT_EQ(firstFrame.commands()[lastLimbIndex].kind,
                    haru::engine::graphics::DrawCommandKind::FillRect);
     HARU_EXPECT_TRUE(firstFrame.commands()[firstLimbIndex].rect.y !=
-                     secondFrame.commands()[firstLimbIndex].rect.y);
+                     secondFrame.commands()[secondTextIndex - static_cast<std::size_t>(6)].rect.y);
     HARU_EXPECT_TRUE(firstFrame.commands()[lastLimbIndex].rect.x !=
-                     secondFrame.commands()[lastLimbIndex].rect.x);
+                     secondFrame.commands()[secondTextIndex - static_cast<std::size_t>(1)].rect.x);
 }

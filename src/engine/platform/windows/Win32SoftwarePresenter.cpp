@@ -49,8 +49,9 @@ COLORREF toColorRef(graphics::Color color) {
     return RGB(color.r, color.g, color.b);
 }
 
-HFONT createFontForText(const std::string& text) {
-    const bool splashTitle = text == "Harufushi Frame";
+HFONT createFontForText(const graphics::DrawCommand& command) {
+    const bool splashTitle = command.text.size() == 1U && command.rect.height >= 60 &&
+                             command.color == graphics::Color{11, 119, 155, 255};
     return CreateFontW(splashTitle ? -42 : -20,
                        0,
                        0,
@@ -75,7 +76,7 @@ void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource
             continue;
         }
 
-        HFONT font = createFontForText(command.text);
+        HFONT font = createFontForText(command);
         const HGDIOBJ previousFont =
             font != nullptr ? SelectObject(deviceContext, font) : nullptr;
 
