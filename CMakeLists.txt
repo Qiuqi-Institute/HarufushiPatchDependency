@@ -90,7 +90,6 @@ target_link_libraries(harufushi_engine_modules
 )
 
 add_library(harufushi_game STATIC
-    src/game/scenes/EngineSplashScene.cpp
     src/game/systems/HarufushiGame.cpp
 )
 
@@ -156,7 +155,6 @@ add_executable(harufushi_tests
     test/engine/SoftwareSurfaceTests.cpp
     test/engine/UiNodeTests.cpp
     test/engine/WindowConfigTests.cpp
-    test/game/EngineSplashSceneTests.cpp
 )
 
 target_include_directories(harufushi_tests
