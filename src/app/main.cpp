@@ -1,5 +1,6 @@
 #include <HaruFrame>
 
+#include "scenes/TitleScene.hpp"
 #include "systems/HarufushiGame.hpp"
 
 #include <cstring>
@@ -25,6 +26,7 @@ int main(int argc, char** argv) {
         haru::engine::platform::windows::Win32SoftwarePresenter presenter;
         haru::engine::graphics::SoftwareSurface surface(1280, 720);
         haru::engine::HaruFrame engineFrame(2.0);
+        haru::game::scenes::TitleScene titleScene;
         window.show();
 
         return app.run(game, [&](const haru::engine::core::FrameContext& frame) {
@@ -40,34 +42,8 @@ int main(int argc, char** argv) {
                                {surface.width(), surface.height()},
                                frame.deltaSeconds,
                                [&](haru::engine::graphics::RenderQueue& contentQueue) {
-                                   contentQueue.clear({18, 18, 22, 255});
-
-                                   haru::engine::ui::UiNode root({0, 0, 1280, 720},
-                                                                 {22, 22, 28, 255});
-                                   root.addChild({{40, 40, 1200, 112}, {54, 38, 62, 255}});
-                                   root.addChild({{40, 188, 360, 420}, {32, 42, 54, 255}});
-                                   root.addChild({{432, 188, 808, 420}, {42, 35, 48, 255}});
-                                   root.setText("Harufushi Patch Dependency",
-                                                {245, 235, 228, 255});
-                                   root.render(contentQueue);
-
-                                   const haru::engine::ui::ButtonStyle primaryButton{
-                                       {206, 86, 132, 255}, {255, 246, 240, 255}, 12};
-                                   const haru::engine::ui::ButtonStyle secondaryButton{
-                                       {74, 88, 112, 255}, {240, 236, 230, 255}, 12};
-                                   haru::engine::ui::Button studyButton({72, 232, 284, 48},
-                                                                        "Study",
-                                                                        secondaryButton);
-                                   haru::engine::ui::Button moddingButton({72, 296, 284, 48},
-                                                                          "Modding",
-                                                                          primaryButton);
-                                   haru::engine::ui::Button harufushiButton({72, 360, 284, 48},
-                                                                            "Harufushi",
-                                                                            secondaryButton);
-
-                                   studyButton.render(contentQueue);
-                                   moddingButton.render(contentQueue);
-                                   harufushiButton.render(contentQueue);
+                                   titleScene.render(contentQueue,
+                                                     {surface.width(), surface.height()});
                                });
 
             surface.draw(queue, haru::engine::graphics::TextRasterization::Skip);
