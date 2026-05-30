@@ -1,37 +1,6 @@
-# Harufushi Patch Dependency Project Guide
+# Harufushi Patch Dependency Agent Guide
 
-本仓库目标是从零制作一款围绕“秋起”和“春伏”的自研 C++ 日常互动游戏，并最终以可审核、可维护、可发布的形态登陆 Steam。
-
-## Game Name
-
-首选标题：
-
-- 中文名：`春伏补丁依存症`
-- 片假名名：`ハルフシ・パッチディペンデンシー`
-- 副标题：`秋起的妄想模组日常` / `アキオキのモッド・デイズ`
-
-命名理由：
-
-- `春伏`把角色放在第一信号位。
-- `补丁 / パッチ`直接对应 modder / coder 玩法。
-- `依存症 / ディペンデンシー`表达病态亲密、自我幻想和系统依赖感。
-- 副标题保留秋起视角，避免主标题只像角色名而不像游戏。
-
-备选标题：
-
-- `秋起补丁日志` / `アキオキ・パッチログ`
-- `春伏妄想编译中` / `ハルフシ・ファントムビルド`
-- `猫妹模组依存日常` / `ネコミミ・モッドディペンデンス`
-
-## Product Direction
-
-玩家扮演学生兼 modder/coder 的秋起，在现实学习、个人 mod 制作、直播/网络反馈、幻想兄妹关系和春伏的病态傲娇互动之间分配时间与精神资源。春伏既是“妹妹”，也是秋起同一人格的幻想化投影；系统设计要允许玩家在可爱日常、依赖关系和自我侵蚀之间感到拉扯。
-
-核心玩法必须服务三件事：
-
-- `日程与状态管理`：学习、写代码、做 mod、休息、陪春伏、处理网络反馈。
-- `互动叙事`：春伏的语气、亲密度、嫉妒、依赖、崩坏倾向随玩家行为变化。
-- `modding 生活模拟`：玩家在游戏内推进虚构 mod 项目，遇到 bug、需求、发布、评论、维护等事件。
+本文件只保存长期执行规范。完整计划书独立放在 `resources/data/plans/project-plan.md`，不要再把路线图、剧情企划、Steam 发布计划等长篇计划内容塞回 `AGENTS.md`。
 
 ## Technical Boundaries
 
@@ -40,26 +9,37 @@
 - C++ 是主实现语言；CMake 是构建入口。
 - 第一发布目标为 Windows 桌面版，架构保留平台适配层，后续再评估 Linux/macOS。
 - 可使用操作系统 API、C++ 标准库、CMake、官方 Steamworks SDK。
-- 第三方库必须先写入本文件的依赖决策记录，并说明为什么不能由项目自研或系统 API 替代。
+- 第三方库必须先写入 `resources/data/plans/project-plan.md` 的依赖决策记录，并说明为什么不能由项目自研或系统 API 替代。
 
-## Resource Protection Policy
+## Resource Protection Requirements
 
-资源保护从架构第一天开始存在，不能作为发售前补丁临时追加。
+资源保护是架构级硬要求，不允许作为发售前补丁临时追加。本项目目标不是“普通 Galgame 封包加密”，而是以超过常见商业 Galgame 引擎静态封包保护强度为设计目标：静态解包、整包批量解密、直接替换 manifest、拷贝裸素材、从缓存目录拿明文素材都应被架构阻断。
 
-原则：
+必须正视一个边界：客户端游戏只要要显示图像、播放音频或执行脚本，就一定会在某个极短时间窗口内把对应资源转成可用形态。因此规范不写“绝对无法提取”这种不诚实承诺；真正的目标是把明文窗口限制到当前正在展示或播放的资源、限制到最小内存区域、限制到最短生命周期，并在资源离开展示链路后立即销毁明文。
+
+强制要求：
 
 - 原始图像、音频、脚本、语言文件不得直接从 `resources` 裸拷到发售包。
 - 运行时资源读取必须经过 `engine::resources` 抽象，不允许业务代码直接打开散文件。
-- 资源包默认 fail-closed：缺 key、认证失败、版本不匹配、manifest 被改动时拒绝加载。
-- 密钥不能硬编码在资源文件中；本地开发 key 只允许放在被 git 忽略的开发配置中。
-- 需要承认客户端加密无法做到绝对不可提取；目标是提高盗用成本、防止普通解包、检测篡改，并为商业素材授权留下可审计链路。
+- 加密资源不能提供“读出完整明文字节数组并交给调用方长期持有”的通用 API。
+- 展示、播放、执行资源必须通过短生命周期 runtime lease / callback 完成：解密、解析、上传到渲染或音频后端、擦除 CPU 明文缓冲区，必须发生在同一个受控作用域内。
+- 同一时刻只允许解析当前场景实际需要展示、播放或执行的资源；禁止启动时整包解密、场景预热整包解密、后台批量导出明文缓存。
+- GPU 纹理、音频缓冲、脚本字节码等后端对象必须通过 opaque handle 暴露，不能暴露可逆向还原的源素材字节。
+- 资源包默认 fail-closed：缺 key、认证失败、版本不匹配、manifest 被改动、包索引异常、资源类型不匹配时拒绝加载。
+- manifest 本身也必须认证；正式包中 manifest 不允许作为可自由编辑的明文索引存在。
+- 每个资源或资源分片必须支持独立 nonce / key derivation / authentication tag；禁止全包共享固定密钥和固定 IV。
+- 密钥不能硬编码为单个可搜索字符串；开发 key 只允许放在被 git 忽略的本地配置中，正式 key 需要按构建渠道、包版本、资源分组派生。
+- 所有解密后的 CPU 明文缓冲区必须显式清零；敏感路径禁止写入普通日志、dump、异常消息和缓存文件。
+- 资源保护代码必须有测试覆盖：认证失败、缺 key、缺 cipher、manifest 篡改、资源 ID 越界、生命周期释放后不可访问。
 
-路线：
+设计方向：
 
-1. 第一阶段建立加密资源包接口、manifest、资源 ID、读取错误模型和测试。
-2. 第二阶段加入打包工具，把散资源编译为加密包。
-3. 第三阶段在 Windows 后端接入系统加密 API 或项目内审计过的 authenticated encryption 实现。
-4. 第四阶段加入资源签名、版本绑定、按构建渠道派生 key、异常遥测。
+- 使用 authenticated encryption，而不是单纯 XOR、压缩、混淆或只做文件名加密。
+- 资源按小块封装，运行时只解密当前展示链路所需分片。
+- 渲染路径优先采用“解密到临时缓冲区 -> 解码 -> 上传 GPU -> 清零临时缓冲区”的单向流程。
+- 音频路径优先采用流式小窗口解密，不把整首 BGM 或整段 voice 解成完整明文文件。
+- 脚本和语言资源进入解释器或字符串表后，源字节立即清零，业务层只持有解析后的最小结构。
+- 后续允许加入反调试、完整性校验、代码段签名、包指纹、异常遥测等防篡改措施，但这些措施不能替代 authenticated encryption 和 runtime lease。
 
 ## Top-Level Directory Standard
 
@@ -78,7 +58,7 @@
 - `CMakeLists.txt`
 - `.gitignore`
 
-### Resource Layout
+## Resource Layout
 
 - `resources/images/characters/`
 - `resources/images/backgrounds/`
@@ -98,7 +78,7 @@
 
 语言目录只是初始内容示例，不允许在代码里硬编码“只有三种语言”。语言必须通过 locale registry 或资源 manifest 发现。
 
-### Source Layout
+## Source Layout
 
 - `src/app/`：程序入口和启动编排。
 - `src/engine/core/`：生命周期、错误、日志、时间、基础类型。
@@ -115,86 +95,11 @@
 - `src/game/systems/`：日程、状态、存档、事件触发、mod 项目模拟。
 - `src/tools/packager/`：资源打包、manifest 生成、加密工具。
 
-### Test Layout
+## Test Layout
 
 - `test/engine/`：引擎模块测试。
 - `test/game/`：游戏逻辑测试。
 - `test/support/`：无第三方依赖的最小测试工具。
-
-## Implementation Roadmap
-
-### Milestone 0: Repository and Frame Baseline
-
-- 建立 Git、目录规范、CMake 工程、构建输出规则。
-- 建立最小测试框架。
-- 建立 `engine::core::Application` 生命周期。
-- 建立资源 ID、manifest 和加密资源接口。
-- 建立 locale registry，不硬编码语言数量。
-- 输出可运行的 console bootstrap，用于验证启动链路。
-
-完成提交：`feat: 建立自研frame骨架`
-
-### Milestone 1: Native Window and Loop
-
-- 用 Win32 建立窗口、消息泵、输入事件。
-- 统一 frame tick、固定/变长更新时间、退出流程。
-- 写窗口生命周期和输入映射测试。
-
-完成提交示例：`feat: 建立原生窗口循环`
-
-### Milestone 2: Render and UI Core
-
-- 建立渲染后端接口，先做 2D sprite、纯色矩形、文本占位。
-- 建立项目专用 UI 树、布局、按钮、文本框、tooltip、转场。
-- 不引入通用 UI 库。
-
-完成提交示例：`feat: 实现项目专用ui树`
-
-### Milestone 3: Encrypted Asset Pipeline
-
-- 实现 packager，把 `resources` 编译为加密包。
-- 加入 manifest 认证、包版本、资源类型、locale 资源索引。
-- 游戏运行时只读资源包，不读裸资源。
-
-完成提交示例：`feat: 实现加密资源包读取`
-
-### Milestone 4: Opening, Title, and Daily Loop Prototype
-
-- 实现开屏动画、标题界面、基础日程选择。
-- 建立秋起/春伏状态模型。
-- 做第一轮可玩的“写 mod / 学习 / 和春伏互动 / 休息”循环。
-
-完成提交示例：`feat: 游戏开屏动画`
-
-### Milestone 5: Modding Simulation and Narrative Branches
-
-- 加入虚构 mod 项目需求、bug、发布、评论、维护事件。
-- 春伏响应系统接入亲密度、嫉妒、依赖和崩坏倾向。
-- 加入多结局条件。
-
-完成提交示例：`feat: 加入mod维护事件系统`
-
-### Milestone 6: Save, Audio, Localization, Content Tools
-
-- 实现存档格式和迁移。
-- 加入音频后端、音量设置、BGM/SE/voice 通道。
-- 完成语言切换和文本导入流程。
-- 建立内容校验工具，防止剧情引用缺失资源。
-
-完成提交示例：`feat: 支持多语言字符串表`
-
-### Milestone 7: Steam Release Track
-
-- 接入 Steamworks SDK 和成就/云存档的适配层。
-- 准备商店页素材、胶囊图、截图、预告片、隐私与内容声明。
-- 提交 Valve 审核前，确保商店页功能描述和实际 build 一致。
-- Valve 官方文档显示 Steam Direct 每个 app 需 100 USD 或等值费用；商店页和产品 build 需要审核，通常为 3-5 个工作日，建议至少提前 7 个工作日提交。
-- 官方参考：
-  - https://partner.steamgames.com/doc/gettingstarted/appfee
-  - https://partner.steamgames.com/doc/store/releasing
-  - https://partner.steamgames.com/doc/store/review_process
-
-完成提交示例：`feat: 接入steam发布配置`
 
 ## Development Rules
 
@@ -222,9 +127,8 @@
 
 示例：
 
-- `docs: 制定游戏计划与目录规范`
+- `docs: 剥离项目计划书`
 - `feat: 建立自研frame骨架`
 - `feat: 游戏开屏动画`
 - `test: 覆盖资源manifest解析`
 - `fix: 修复语言资源缺失时崩溃`
-
