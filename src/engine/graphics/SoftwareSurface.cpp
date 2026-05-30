@@ -49,7 +49,7 @@ void SoftwareSurface::fillRect(Rect rect, Color color) {
     }
 }
 
-void SoftwareSurface::draw(const RenderQueue& queue) {
+void SoftwareSurface::draw(const RenderQueue& queue, TextRasterization textRasterization) {
     for (const auto& command : queue.commands()) {
         switch (command.kind) {
         case DrawCommandKind::Clear:
@@ -59,6 +59,10 @@ void SoftwareSurface::draw(const RenderQueue& queue) {
             fillRect(command.rect, command.color);
             break;
         case DrawCommandKind::Text: {
+            if (textRasterization == TextRasterization::Skip) {
+                break;
+            }
+
             int cursorX = command.rect.x;
             for (const char character : command.text) {
                 if (character != ' ') {

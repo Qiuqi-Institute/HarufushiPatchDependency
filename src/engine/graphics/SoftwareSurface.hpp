@@ -8,6 +8,11 @@
 
 namespace haru::engine::graphics {
 
+enum class TextRasterization {
+    Placeholder,
+    Skip,
+};
+
 class SoftwareSurface {
 public:
     SoftwareSurface(int width, int height);
@@ -17,7 +22,8 @@ public:
 
     void clear(Color color);
     void fillRect(Rect rect, Color color);
-    void draw(const RenderQueue& queue);
+    void draw(const RenderQueue& queue,
+              TextRasterization textRasterization = TextRasterization::Placeholder);
 
     Color pixelAt(int x, int y) const;
     const std::vector<Color>& pixels() const;
