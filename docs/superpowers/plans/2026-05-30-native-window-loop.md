@@ -1,6 +1,6 @@
 # Native Window Loop Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build the first native Windows window and deterministic frame-loop foundation for the custom C++ game frame.
 
@@ -28,7 +28,7 @@
 - Create: `test/engine/FrameLoopTests.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```cpp
 HARU_TEST(frame_loop_stops_when_runtime_requests_stop) {
@@ -49,13 +49,13 @@ HARU_TEST(frame_loop_stops_when_runtime_requests_stop) {
 }
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `FrameLoop.hpp` does not exist.
 
-- [ ] **Step 3: Implement minimal frame loop**
+- [x] **Step 3: Implement minimal frame loop**
 
 ```cpp
 enum class LoopDecision { Continue, Stop };
@@ -72,7 +72,7 @@ struct FrameLoopResult {
 
 `FrameLoop::run` increments frame index, invokes the callback, and exits when callback returns `Stop`.
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -85,7 +85,7 @@ Commit: `feat: 添加平台中立帧循环`
 - Create: `test/engine/WindowConfigTests.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```cpp
 HARU_TEST(window_config_rejects_empty_title_and_zero_size) {
@@ -98,17 +98,17 @@ HARU_TEST(window_config_rejects_empty_title_and_zero_size) {
 }
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `WindowConfig` does not exist.
 
-- [ ] **Step 3: Implement minimal abstraction**
+- [x] **Step 3: Implement minimal abstraction**
 
 `Window.hpp` defines `WindowConfig`, `WindowEvent`, `WindowEventKind`, and abstract `Window` with `show`, `pollEvents`, `requestClose`, `shouldClose`.
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -121,7 +121,7 @@ Commit: `feat: 定义窗口平台抽象`
 - Modify: `src/engine/core/Application.cpp`
 - Modify: `test/engine/ApplicationTests.cpp`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```cpp
 HARU_TEST(application_runs_until_frame_callback_stops) {
@@ -142,17 +142,17 @@ HARU_TEST(application_runs_until_frame_callback_stops) {
 }
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `cmake --build build --config Debug --target harufushi_tests`
 
 Expected: compile failure because `Application::run` does not accept a frame callback.
 
-- [ ] **Step 3: Implement minimal integration**
+- [x] **Step 3: Implement minimal integration**
 
 Application starts `GameRuntime`, then uses `FrameLoop` when a frame callback is provided. Existing `run(GameRuntime&)` remains as one-start bootstrap behavior for tests.
 
-- [ ] **Step 4: Run tests and commit**
+- [x] **Step 4: Run tests and commit**
 
 Run: `ctest --test-dir build -C Debug --output-on-failure`
 
@@ -166,19 +166,19 @@ Commit: `feat: 接入应用帧循环`
 - Modify: `src/app/main.cpp`
 - Modify: `CMakeLists.txt`
 
-- [ ] **Step 1: Add compile coverage**
+- [x] **Step 1: Add compile coverage**
 
 Update CMake so `Win32Window.cpp` compiles only on Windows and links `user32`.
 
-- [ ] **Step 2: Implement native backend**
+- [x] **Step 2: Implement native backend**
 
 `Win32Window` registers a private window class, creates a Unicode Win32 window, polls messages with `PeekMessageW`, maps close events to `WindowEventKind::CloseRequested`, and exposes `nativeHandle`.
 
-- [ ] **Step 3: Wire app startup**
+- [x] **Step 3: Wire app startup**
 
 `main.cpp` creates `Win32Window`, shows it, then runs frames until the window requests close. Non-Windows builds keep console bootstrap behavior.
 
-- [ ] **Step 4: Build, run, and commit**
+- [x] **Step 4: Build, run, and commit**
 
 Run: `cmake --build build --config Debug`
 
