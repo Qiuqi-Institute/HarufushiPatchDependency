@@ -1,6 +1,6 @@
 # Harufushi Patch Dependency Agent Guide
 
-本文件只保存长期执行规范。完整计划书独立放在 `resources/data/plans/project-plan.md`，不要再把路线图、剧情企划、Steam 发布计划等长篇计划内容塞回 `AGENTS.md`。
+本文件只保存长期执行规范。完整计划书独立放在 `docs/project-plan.md`，不要再把路线图、剧情企划、Steam 发布计划等长篇计划内容塞回 `AGENTS.md`。
 
 ## Technical Boundaries
 
@@ -9,7 +9,7 @@
 - C++ 是主实现语言；CMake 是构建入口。
 - 第一发布目标为 Windows 桌面版，架构保留平台适配层，后续再评估 Linux/macOS。
 - 可使用操作系统 API、C++ 标准库、CMake、官方 Steamworks SDK。
-- 第三方库必须先写入 `resources/data/plans/project-plan.md` 的依赖决策记录，并说明为什么不能由项目自研或系统 API 替代。
+- 第三方库必须先写入 `docs/project-plan.md` 的依赖决策记录，并说明为什么不能由项目自研或系统 API 替代。
 
 ## Resource Protection Requirements
 
@@ -45,6 +45,7 @@
 
 顶级目录固定为：
 
+- `docs/`：计划书、设计文档、技术决策和发布文档。
 - `resources/`：源资源与开发期数据，按类型和语言分类。
 - `src/`：C++ 源码，按引擎、平台、游戏内容、工具分区。
 - `cmake/`：CMake 模块、编译选项、平台检测。
@@ -56,6 +57,9 @@
 
 - `AGENTS.md`
 - `CMakeLists.txt`
+- `CONTRIBUTING.md`
+- `LICENSE`
+- `README.md`
 - `.gitignore`
 
 ## Resource Layout
@@ -71,7 +75,6 @@
 - `resources/audio/voice/`
 - `resources/data/scripts/`
 - `resources/data/schemas/`
-- `resources/data/plans/`
 - `resources/localization/en-US/`
 - `resources/localization/zh-CN/`
 - `resources/localization/ja-JP/`
