@@ -23,3 +23,16 @@ HARU_TEST(window_config_has_stable_default_game_size) {
     HARU_EXPECT_EQ(config.width, 1280);
     HARU_EXPECT_EQ(config.height, 720);
 }
+
+HARU_TEST(window_event_can_describe_mouse_button_release_position) {
+    using haru::engine::platform::MouseButton;
+    using haru::engine::platform::WindowEvent;
+    using haru::engine::platform::WindowEventKind;
+
+    const WindowEvent event{WindowEventKind::MouseButtonReleased, 42, 64, MouseButton::Left};
+
+    HARU_EXPECT_EQ(event.kind, WindowEventKind::MouseButtonReleased);
+    HARU_EXPECT_EQ(event.x, 42);
+    HARU_EXPECT_EQ(event.y, 64);
+    HARU_EXPECT_EQ(event.button, MouseButton::Left);
+}

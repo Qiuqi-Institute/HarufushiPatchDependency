@@ -1,11 +1,45 @@
 #include "TitleScene.hpp"
 
 #include <algorithm>
+#include <sstream>
 
 namespace haru::game::scenes {
 
+namespace {
+
+engine::ui::ButtonStyle primaryButtonStyle() {
+    return {{206, 86, 132, 255}, {255, 246, 240, 255}, 12};
+}
+
+engine::ui::ButtonStyle secondaryButtonStyle() {
+    return {{74, 88, 112, 255}, {240, 236, 230, 255}, 12};
+}
+
+engine::ui::Button studyButton() {
+    return {{72, 232, 284, 48}, "Study", secondaryButtonStyle()};
+}
+
+engine::ui::Button moddingButton() {
+    return {{72, 296, 284, 48}, "Modding", primaryButtonStyle()};
+}
+
+engine::ui::Button harufushiButton() {
+    return {{72, 360, 284, 48}, "Harufushi", secondaryButtonStyle()};
+}
+
+std::string statsLine(const systems::DailyStats& stats) {
+    std::ostringstream line;
+    line << "Day " << stats.day << "  Energy " << stats.energy << "  Study "
+         << stats.studyFocus << "  Mod " << stats.modProgress << "  Bond "
+         << stats.harufushiBond << "  Dependence " << stats.dependence;
+    return line.str();
+}
+
+} // namespace
+
 void TitleScene::render(engine::graphics::RenderQueue& queue,
-                        engine::graphics::Size surfaceSize) const {
+                        engine::graphics::Size surfaceSize,
+                        const systems::DailyStats& stats) const {
     queue.clear({18, 18, 22, 255});
 
     const int width = std::max(surfaceSize.width, 1);
@@ -22,19 +56,33 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
     root.setText("Harufushi Patch Dependency", {245, 235, 228, 255});
     root.render(queue);
 
-    const engine::ui::ButtonStyle primaryButton{{206, 86, 132, 255},
-                                                {255, 246, 240, 255},
-                                                12};
-    const engine::ui::ButtonStyle secondaryButton{{74, 88, 112, 255},
-                                                  {240, 236, 230, 255},
-                                                  12};
-    engine::ui::Button studyButton({72, 232, 284, 48}, "Study", secondaryButton);
-    engine::ui::Button moddingButton({72, 296, 284, 48}, "Modding", primaryButton);
-    engine::ui::Button harufushiButton({72, 360, 284, 48}, "Harufushi", secondaryButton);
+    studyButton().render(queue);
+    moddingButton().render(queue);
+    harufushiButton().render(queue);
 
-    studyButton.render(queue);
-    moddingButton.render(queue);
-    harufushiButton.render(queue);
+    queue.drawText({464, mainTop + 40, std::max(width - 528, 1), 32},
+                   statsLine(stats),
+                   {245, 235, 228, 255});
+}
+
+std::optional<systems::DailyAction> TitleScene::actionAt(
+    engine::graphics::Point point,
+    engine::graphics::Size surfaceSize) const {
+    if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
+        return std::nullopt;
+    }
+
+    if (studyButton().contains(point)) {
+        return systems::DailyAction::Study;
+    }
+    if (moddingButton().contains(point)) {
+        return systems::DailyAction::Modding;
+    }
+    if (harufushiButton().contains(point)) {
+        return systems::DailyAction::SpendTimeWithHarufushi;
+    }
+
+    return std::nullopt;
 }
 
 } // namespace haru::game::scenes

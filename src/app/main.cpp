@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
         haru::engine::graphics::SoftwareSurface surface(1280, 720);
         haru::engine::HaruFrame engineFrame(2.0);
         haru::game::scenes::TitleScene titleScene;
+        haru::game::systems::DailyLoopState dailyLoopState;
         window.show();
 
         return app.run(game, [&](const haru::engine::core::FrameContext& frame) {
@@ -34,6 +35,14 @@ int main(int argc, char** argv) {
             for (const auto& event : events) {
                 if (event.kind == haru::engine::platform::WindowEventKind::CloseRequested) {
                     window.requestClose();
+                } else if (event.kind ==
+                               haru::engine::platform::WindowEventKind::MouseButtonReleased &&
+                           event.button == haru::engine::platform::MouseButton::Left) {
+                    const auto action = titleScene.actionAt({event.x, event.y},
+                                                            {surface.width(), surface.height()});
+                    if (action.has_value()) {
+                        dailyLoopState.apply(*action);
+                    }
                 }
             }
 
@@ -43,7 +52,8 @@ int main(int argc, char** argv) {
                                frame.deltaSeconds,
                                [&](haru::engine::graphics::RenderQueue& contentQueue) {
                                    titleScene.render(contentQueue,
-                                                     {surface.width(), surface.height()});
+                                                     {surface.width(), surface.height()},
+                                                     dailyLoopState.stats());
                                });
 
             surface.draw(queue, haru::engine::graphics::TextRasterization::Skip);

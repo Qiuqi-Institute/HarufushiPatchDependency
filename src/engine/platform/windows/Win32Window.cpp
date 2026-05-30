@@ -1,5 +1,7 @@
 #include "engine/platform/windows/Win32Window.hpp"
 
+#include <windowsx.h>
+
 #include <stdexcept>
 #include <string>
 
@@ -94,7 +96,7 @@ std::vector<WindowEvent> Win32Window::pollEvents() {
 void Win32Window::requestClose() {
     if (!closeRequested_) {
         closeRequested_ = true;
-        pendingEvents_.push_back({WindowEventKind::CloseRequested, 0, 0});
+        pendingEvents_.push_back(WindowEvent::closeRequested());
     }
 }
 
@@ -163,10 +165,15 @@ LRESULT Win32Window::handleMessage(UINT message, WPARAM wordParam, LPARAM longPa
         EndPaint(handle_, &paint);
         return 0;
     }
+    case WM_LBUTTONUP:
+        pendingEvents_.push_back(WindowEvent::mouseButtonReleased(
+            static_cast<int>(GET_X_LPARAM(longParam)),
+            static_cast<int>(GET_Y_LPARAM(longParam)),
+            MouseButton::Left));
+        return 0;
     case WM_SIZE:
-        pendingEvents_.push_back({WindowEventKind::Resized,
-                                  static_cast<int>(LOWORD(longParam)),
-                                  static_cast<int>(HIWORD(longParam))});
+        pendingEvents_.push_back(WindowEvent::resized(static_cast<int>(LOWORD(longParam)),
+                                                      static_cast<int>(HIWORD(longParam))));
         return 0;
     default:
         return DefWindowProcW(handle_, message, wordParam, longParam);

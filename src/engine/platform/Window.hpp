@@ -18,12 +18,27 @@ struct WindowConfig {
 enum class WindowEventKind {
     CloseRequested,
     Resized,
+    MouseButtonReleased,
+};
+
+enum class MouseButton {
+    None,
+    Left,
+    Right,
+    Middle,
 };
 
 struct WindowEvent {
     WindowEventKind kind;
+    int x = 0;
+    int y = 0;
+    MouseButton button = MouseButton::None;
     int width = 0;
     int height = 0;
+
+    static WindowEvent closeRequested();
+    static WindowEvent resized(int width, int height);
+    static WindowEvent mouseButtonReleased(int x, int y, MouseButton button);
 };
 
 class Window {
