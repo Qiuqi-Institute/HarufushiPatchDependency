@@ -49,9 +49,13 @@ COLORREF toColorRef(graphics::Color color) {
     return RGB(color.r, color.g, color.b);
 }
 
+bool isSplashTitleLetter(const graphics::DrawCommand& command) {
+    return command.text.size() == 1U && command.rect.height >= 60 &&
+           command.color == graphics::Color{11, 119, 155, 255};
+}
+
 HFONT createFontForText(const graphics::DrawCommand& command) {
-    const bool splashTitle = command.text.size() == 1U && command.rect.height >= 60 &&
-                             command.color == graphics::Color{11, 119, 155, 255};
+    const bool splashTitle = isSplashTitleLetter(command);
     return CreateFontW(splashTitle ? -42 : -20,
                        0,
                        0,
@@ -86,11 +90,15 @@ void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource
                   command.rect.x + command.rect.width,
                   command.rect.y + command.rect.height};
         const std::wstring text = utf8ToWide(command.text);
+        const bool splashTitleLetter = isSplashTitleLetter(command);
+        const UINT format =
+            (splashTitleLetter ? (DT_LEFT | DT_NOCLIP) : (DT_CENTER | DT_END_ELLIPSIS)) |
+            DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX;
         DrawTextW(deviceContext,
                   text.c_str(),
                   static_cast<int>(text.size()),
                   &rect,
-                  DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
+                  format);
 
         if (previousFont != nullptr) {
             SelectObject(deviceContext, previousFont);

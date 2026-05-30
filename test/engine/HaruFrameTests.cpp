@@ -39,6 +39,19 @@ bool hasTextCommand(const haru::engine::graphics::RenderQueue& queue, const std:
     return false;
 }
 
+const haru::engine::graphics::DrawCommand* findTextCommand(
+    const haru::engine::graphics::RenderQueue& queue,
+    const std::string& text) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+            command.text == text) {
+            return &command;
+        }
+    }
+
+    return nullptr;
+}
+
 } // namespace
 
 HARU_TEST(haru_frame_renders_engine_opening_before_visual_content) {
@@ -124,4 +137,19 @@ HARU_TEST(haru_frame_animates_opening_icon_limbs) {
                      secondFrame.commands()[secondTextIndex - static_cast<std::size_t>(6)].rect.y);
     HARU_EXPECT_TRUE(firstFrame.commands()[lastLimbIndex].rect.x !=
                      secondFrame.commands()[secondTextIndex - static_cast<std::size_t>(1)].rect.x);
+}
+
+HARU_TEST(haru_frame_gives_wide_title_letters_enough_text_bounds) {
+    haru::engine::HaruFrame frame(2.0);
+    haru::engine::graphics::RenderQueue queue;
+
+    frame.render(queue, {1280, 720}, 1.0, [](haru::engine::graphics::RenderQueue&) {});
+
+    const auto* narrowLetter = findTextCommand(queue, "i");
+    const auto* wideLetter = findTextCommand(queue, "m");
+
+    HARU_EXPECT_TRUE(narrowLetter != nullptr);
+    HARU_EXPECT_TRUE(wideLetter != nullptr);
+    HARU_EXPECT_TRUE(wideLetter->rect.width >= 48);
+    HARU_EXPECT_TRUE(wideLetter->rect.width > narrowLetter->rect.width);
 }

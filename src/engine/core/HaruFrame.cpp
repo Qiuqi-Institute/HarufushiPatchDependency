@@ -6,6 +6,28 @@
 
 namespace haru::engine {
 
+namespace {
+
+int openingTitleLetterWidth(char letter) {
+    switch (letter) {
+    case 'i':
+    case 'l':
+    case 'I':
+        return 24;
+    case 'm':
+    case 'M':
+    case 'w':
+    case 'W':
+        return 52;
+    case ' ':
+        return 18;
+    default:
+        return 36;
+    }
+}
+
+} // namespace
+
 HaruFrame::HaruFrame(double openingSeconds)
     : openingSeconds_(openingSeconds > 0.0 ? openingSeconds : 0.01) {}
 
@@ -81,17 +103,20 @@ void HaruFrame::renderOpening(graphics::RenderQueue& queue, graphics::Size surfa
     queue.fillRect({markX + markSize - 98 + legSwing, markY + markSize - 54, 12, 12}, splashTeal);
 
     const std::string title = "Harufushi Frame";
-    const int glyphWidth = 34;
-    const int spaceWidth = 18;
+    const int letterGap = 4;
     int titleWidth = 0;
     for (const char letter : title) {
-        titleWidth += letter == ' ' ? spaceWidth : glyphWidth;
+        titleWidth += openingTitleLetterWidth(letter) + letterGap;
+    }
+    if (!title.empty()) {
+        titleWidth -= letterGap;
     }
 
     int letterX = centerX - (titleWidth / 2);
     for (std::size_t index = 0; index < title.size(); ++index) {
         const char letter = title[index];
-        const int advance = letter == ' ' ? spaceWidth : glyphWidth;
+        const int letterWidth = openingTitleLetterWidth(letter);
+        const int advance = letterWidth + letterGap;
         const double delaySeconds = static_cast<double>(index) * 0.055;
         const double entrance =
             std::clamp((openingElapsedSeconds_ - delaySeconds) / 0.24, 0.0, 1.0);
@@ -105,7 +130,7 @@ void HaruFrame::renderOpening(graphics::RenderQueue& queue, graphics::Size surfa
             const int idleBounce =
                 static_cast<int>(std::round(std::abs(std::sin(beat + (index * 0.55))) * 6.0));
             queue.drawText({letterX, centerY + 76 + dropOffset - bounceOffset - idleBounce,
-                            glyphWidth, 68},
+                            letterWidth, 68},
                            std::string(1, letter),
                            splashTeal);
         }
