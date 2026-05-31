@@ -1,5 +1,7 @@
 #include <HaruFrame>
 
+#include "scenes/HomeScene.hpp"
+#include "scenes/StudioSplashScene.hpp"
 #include "scenes/TitleScene.hpp"
 #include "systems/HarufushiGame.hpp"
 
@@ -8,6 +10,16 @@
 #include <exception>
 #include <iostream>
 #include <thread>
+
+namespace {
+
+enum class GameScreen {
+    StudioSplash,
+    Home,
+    DailyLoop,
+};
+
+} // namespace
 
 int main(int argc, char** argv) {
     haru::engine::core::Application app({"春伏补丁依存症", "0.0.1"});
@@ -26,7 +38,11 @@ int main(int argc, char** argv) {
         haru::engine::platform::windows::Win32SoftwarePresenter presenter;
         haru::engine::graphics::SoftwareSurface surface(1280, 720);
         haru::engine::HaruFrame engineFrame(2.0);
-        haru::game::scenes::TitleScene titleScene;
+        haru::game::scenes::StudioSplashScene studioSplashScene(2.0);
+        haru::game::scenes::HomeScene homeScene;
+        haru::game::scenes::TitleScene dailyScene;
+        haru::game::scenes::HomePanel homePanel = haru::game::scenes::HomePanel::Main;
+        GameScreen screen = GameScreen::StudioSplash;
         haru::game::systems::DailyLoopState dailyLoopState;
         window.show();
 
@@ -38,10 +54,30 @@ int main(int argc, char** argv) {
                 } else if (event.kind ==
                                haru::engine::platform::WindowEventKind::MouseButtonReleased &&
                            event.button == haru::engine::platform::MouseButton::Left) {
-                    const auto action = titleScene.actionAt({event.x, event.y},
-                                                            {surface.width(), surface.height()});
-                    if (action.has_value()) {
-                        dailyLoopState.apply(*action);
+                    if (screen == GameScreen::Home) {
+                        const auto action =
+                            homeScene.actionAt({event.x, event.y},
+                                               {surface.width(), surface.height()},
+                                               homePanel);
+                        if (action == haru::game::scenes::HomeAction::NewGame) {
+                            dailyLoopState = haru::game::systems::DailyLoopState{};
+                            screen = GameScreen::DailyLoop;
+                        } else if (action == haru::game::scenes::HomeAction::OpenSaves) {
+                            homePanel = haru::game::scenes::HomePanel::Saves;
+                        } else if (action == haru::game::scenes::HomeAction::OpenSettings) {
+                            homePanel = haru::game::scenes::HomePanel::Settings;
+                        } else if (action == haru::game::scenes::HomeAction::Back) {
+                            homePanel = haru::game::scenes::HomePanel::Main;
+                        } else if (action == haru::game::scenes::HomeAction::Quit) {
+                            window.requestClose();
+                        }
+                    } else if (screen == GameScreen::DailyLoop) {
+                        const auto action =
+                            dailyScene.actionAt({event.x, event.y},
+                                                {surface.width(), surface.height()});
+                        if (action.has_value()) {
+                            dailyLoopState.apply(*action);
+                        }
                     }
                 }
             }
@@ -51,9 +87,26 @@ int main(int argc, char** argv) {
                                {surface.width(), surface.height()},
                                frame.deltaSeconds,
                                [&](haru::engine::graphics::RenderQueue& contentQueue) {
-                                   titleScene.render(contentQueue,
-                                                     {surface.width(), surface.height()},
-                                                     dailyLoopState.stats());
+                                   if (screen == GameScreen::StudioSplash) {
+                                       studioSplashScene.update(frame.deltaSeconds);
+                                       if (studioSplashScene.active()) {
+                                           studioSplashScene.render(
+                                               contentQueue,
+                                               {surface.width(), surface.height()});
+                                           return;
+                                       }
+                                       screen = GameScreen::Home;
+                                   }
+
+                                   if (screen == GameScreen::Home) {
+                                       homeScene.render(contentQueue,
+                                                        {surface.width(), surface.height()},
+                                                        homePanel);
+                                   } else {
+                                       dailyScene.render(contentQueue,
+                                                         {surface.width(), surface.height()},
+                                                         dailyLoopState.stats());
+                                   }
                                });
 
             surface.draw(queue, haru::engine::graphics::TextRasterization::Skip);
