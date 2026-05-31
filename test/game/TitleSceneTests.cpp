@@ -1,5 +1,6 @@
 #include "support/TestHarness.hpp"
 
+#include "game/localization/GameText.hpp"
 #include "game/scenes/TitleScene.hpp"
 
 #include <optional>
@@ -17,6 +18,19 @@ bool hasText(const haru::engine::graphics::RenderQueue& queue, const std::string
     }
 
     return false;
+}
+
+const haru::engine::graphics::DrawCommand* findText(
+    const haru::engine::graphics::RenderQueue& queue,
+    const std::string& text) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+            command.text == text) {
+            return &command;
+        }
+    }
+
+    return nullptr;
 }
 
 std::string statsLine(const haru::game::systems::DailyStats& stats) {
@@ -41,6 +55,7 @@ HARU_TEST(title_scene_renders_title_and_daily_loop_actions) {
     HARU_EXPECT_TRUE(hasText(queue, "Study"));
     HARU_EXPECT_TRUE(hasText(queue, "Modding"));
     HARU_EXPECT_TRUE(hasText(queue, "Harufushi"));
+    HARU_EXPECT_TRUE(findText(queue, "Harufushi Patch Dependency")->rect.height <= 48);
 }
 
 HARU_TEST(title_scene_maps_button_points_to_daily_actions) {
@@ -73,4 +88,18 @@ HARU_TEST(title_scene_renders_daily_loop_stats_feedback) {
     titleScene.render(queue, {1280, 720}, state.stats());
 
     HARU_EXPECT_TRUE(hasText(queue, statsLine(state.stats())));
+}
+
+HARU_TEST(title_scene_uses_game_text_localization) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::TitleScene titleScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    titleScene.render(queue, {1280, 720});
+
+    HARU_EXPECT_TRUE(hasText(queue, "春伏补丁依存症"));
+    HARU_EXPECT_TRUE(hasText(queue, "学习"));
+    HARU_EXPECT_TRUE(hasText(queue, "写 Mod"));
+    HARU_EXPECT_TRUE(hasText(queue, "春伏"));
 }

@@ -17,6 +17,19 @@ bool hasText(const haru::engine::graphics::RenderQueue& queue, const std::string
     return false;
 }
 
+const haru::engine::graphics::DrawCommand* findText(
+    const haru::engine::graphics::RenderQueue& queue,
+    const std::string& text) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+            command.text == text) {
+            return &command;
+        }
+    }
+
+    return nullptr;
+}
+
 std::size_t countProjectionRects(const haru::engine::graphics::RenderQueue& queue) {
     std::size_t count = 0;
     for (const auto& command : queue.commands()) {
@@ -51,7 +64,11 @@ HARU_TEST(studio_splash_renders_qiuqi_institute_hologram_pig) {
 
     HARU_EXPECT_TRUE(queue.commands().size() >= static_cast<std::size_t>(24));
     HARU_EXPECT_EQ(queue.commands()[0].kind, haru::engine::graphics::DrawCommandKind::Clear);
+    HARU_EXPECT_EQ(queue.commands()[0].color,
+                   (haru::engine::graphics::Color{255, 255, 255, 255}));
     HARU_EXPECT_TRUE(hasText(queue, "Qiuqi Institute"));
-    HARU_EXPECT_TRUE(hasText(queue, "presents"));
+    HARU_EXPECT_FALSE(hasText(queue, "presents"));
+    HARU_EXPECT_TRUE(findText(queue, "Qiuqi Institute")->rect.height >= 56);
+    HARU_EXPECT_TRUE(findText(queue, "Qiuqi Institute")->rect.y <= 460);
     HARU_EXPECT_TRUE(countProjectionRects(queue) >= static_cast<std::size_t>(12));
 }

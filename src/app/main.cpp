@@ -1,5 +1,6 @@
 #include <HaruFrame>
 
+#include "localization/GameText.hpp"
 #include "scenes/HomeScene.hpp"
 #include "scenes/StudioSplashScene.hpp"
 #include "scenes/TitleScene.hpp"
@@ -39,11 +40,21 @@ int main(int argc, char** argv) {
         haru::engine::graphics::SoftwareSurface surface(1280, 720);
         haru::engine::HaruFrame engineFrame(2.0);
         haru::game::scenes::StudioSplashScene studioSplashScene(2.0);
-        haru::game::scenes::HomeScene homeScene;
-        haru::game::scenes::TitleScene dailyScene;
+        haru::game::localization::GameText gameText =
+            haru::game::localization::GameText::loadDefault("en-US");
+        haru::game::scenes::HomeScene homeScene(gameText);
+        haru::game::scenes::TitleScene dailyScene(gameText);
         haru::game::scenes::HomePanel homePanel = haru::game::scenes::HomePanel::Main;
         GameScreen screen = GameScreen::StudioSplash;
         haru::game::systems::DailyLoopState dailyLoopState;
+        const auto applyLocale = [&](const char* localeTag) {
+            if (!gameText.setLocale(localeTag)) {
+                return;
+            }
+
+            homeScene = haru::game::scenes::HomeScene(gameText);
+            dailyScene = haru::game::scenes::TitleScene(gameText);
+        };
         window.show();
 
         return app.run(game, [&](const haru::engine::core::FrameContext& frame) {
@@ -66,6 +77,15 @@ int main(int argc, char** argv) {
                             homePanel = haru::game::scenes::HomePanel::Saves;
                         } else if (action == haru::game::scenes::HomeAction::OpenSettings) {
                             homePanel = haru::game::scenes::HomePanel::Settings;
+                        } else if (action ==
+                                   haru::game::scenes::HomeAction::SetLocaleEnglish) {
+                            applyLocale("en-US");
+                        } else if (action == haru::game::scenes::HomeAction::
+                                                  SetLocaleSimplifiedChinese) {
+                            applyLocale("zh-CN");
+                        } else if (action ==
+                                   haru::game::scenes::HomeAction::SetLocaleJapanese) {
+                            applyLocale("ja-JP");
                         } else if (action == haru::game::scenes::HomeAction::Back) {
                             homePanel = haru::game::scenes::HomePanel::Main;
                         } else if (action == haru::game::scenes::HomeAction::Quit) {

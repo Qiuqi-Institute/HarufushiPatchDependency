@@ -1,0 +1,7 @@
+#pragma once
+
+#ifndef HARU_FRAME_PUBLIC_INCLUDE
+#error "Include <HaruFrame> before using HaruLanguageDocument."
+#endif
+
+#include "../localization/HaruLanguageDocument.hpp"

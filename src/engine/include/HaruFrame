@@ -12,6 +12,7 @@
 #include "HaruColor"
 #include "HaruFrameLoop"
 #include "HaruGeometry"
+#include "HaruLanguageDocument"
 #include "HaruLocaleRegistry"
 #include "HaruProtectedResourceStore"
 #include "HaruRenderQueue"

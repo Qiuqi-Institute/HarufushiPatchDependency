@@ -1,7 +1,7 @@
 #include "TitleScene.hpp"
 
 #include <algorithm>
-#include <sstream>
+#include <utility>
 
 namespace haru::game::scenes {
 
@@ -15,27 +15,23 @@ engine::ui::ButtonStyle secondaryButtonStyle() {
     return {{74, 88, 112, 255}, {240, 236, 230, 255}, 12};
 }
 
-engine::ui::Button studyButton() {
-    return {{72, 232, 284, 48}, "Study", secondaryButtonStyle()};
+engine::ui::Button studyButton(const localization::GameText& text) {
+    return {{72, 232, 284, 48}, text.get(localization::TextId::Study), secondaryButtonStyle()};
 }
 
-engine::ui::Button moddingButton() {
-    return {{72, 296, 284, 48}, "Modding", primaryButtonStyle()};
+engine::ui::Button moddingButton(const localization::GameText& text) {
+    return {{72, 296, 284, 48}, text.get(localization::TextId::Modding), primaryButtonStyle()};
 }
 
-engine::ui::Button harufushiButton() {
-    return {{72, 360, 284, 48}, "Harufushi", secondaryButtonStyle()};
-}
-
-std::string statsLine(const systems::DailyStats& stats) {
-    std::ostringstream line;
-    line << "Day " << stats.day << "  Energy " << stats.energy << "  Study "
-         << stats.studyFocus << "  Mod " << stats.modProgress << "  Bond "
-         << stats.harufushiBond << "  Dependence " << stats.dependence;
-    return line.str();
+engine::ui::Button harufushiButton(const localization::GameText& text) {
+    return {{72, 360, 284, 48},
+            text.get(localization::TextId::Harufushi),
+            secondaryButtonStyle()};
 }
 
 } // namespace
+
+TitleScene::TitleScene(localization::GameText text) : text_(std::move(text)) {}
 
 void TitleScene::render(engine::graphics::RenderQueue& queue,
                         engine::graphics::Size surfaceSize,
@@ -53,15 +49,18 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
     root.addChild({{margin, margin, contentWidth, 112}, {54, 38, 62, 255}});
     root.addChild({{margin, mainTop, 360, mainHeight}, {32, 42, 54, 255}});
     root.addChild({{432, mainTop, std::max(width - 472, 1), mainHeight}, {42, 35, 48, 255}});
-    root.setText("Harufushi Patch Dependency", {245, 235, 228, 255});
     root.render(queue);
 
-    studyButton().render(queue);
-    moddingButton().render(queue);
-    harufushiButton().render(queue);
+    queue.drawText({96, 108, 460, 34},
+                   text_.get(localization::TextId::GameTitle),
+                   {255, 246, 240, 255});
+
+    studyButton(text_).render(queue);
+    moddingButton(text_).render(queue);
+    harufushiButton(text_).render(queue);
 
     queue.drawText({464, mainTop + 40, std::max(width - 528, 1), 32},
-                   statsLine(stats),
+                   text_.formatDailyStats(stats),
                    {245, 235, 228, 255});
 }
 
@@ -72,13 +71,13 @@ std::optional<systems::DailyAction> TitleScene::actionAt(
         return std::nullopt;
     }
 
-    if (studyButton().contains(point)) {
+    if (studyButton(text_).contains(point)) {
         return systems::DailyAction::Study;
     }
-    if (moddingButton().contains(point)) {
+    if (moddingButton(text_).contains(point)) {
         return systems::DailyAction::Modding;
     }
-    if (harufushiButton().contains(point)) {
+    if (harufushiButton(text_).contains(point)) {
         return systems::DailyAction::SpendTimeWithHarufushi;
     }
 

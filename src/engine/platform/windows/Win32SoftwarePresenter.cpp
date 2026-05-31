@@ -56,11 +56,13 @@ bool isSplashTitleLetter(const graphics::DrawCommand& command) {
 
 HFONT createFontForText(const graphics::DrawCommand& command) {
     const bool splashTitle = isSplashTitleLetter(command);
-    return CreateFontW(splashTitle ? -42 : -20,
+    const bool displayText = !splashTitle && command.rect.height >= 56 &&
+                             command.rect.width <= 600;
+    return CreateFontW(displayText ? -54 : (splashTitle ? -42 : -20),
                        0,
                        0,
                        0,
-                       splashTitle ? FW_BOLD : FW_SEMIBOLD,
+                       (splashTitle || displayText) ? FW_BOLD : FW_SEMIBOLD,
                        FALSE,
                        FALSE,
                        FALSE,
@@ -69,7 +71,8 @@ HFONT createFontForText(const graphics::DrawCommand& command) {
                        CLIP_DEFAULT_PRECIS,
                        CLEARTYPE_QUALITY,
                        DEFAULT_PITCH | FF_DONTCARE,
-                       splashTitle ? L"Segoe Print" : L"Microsoft YaHei UI");
+                       displayText ? L"Bahnschrift" :
+                                     (splashTitle ? L"Segoe Print" : L"Microsoft YaHei UI"));
 }
 
 void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource) {

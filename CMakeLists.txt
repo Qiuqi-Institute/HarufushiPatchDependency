@@ -40,6 +40,7 @@ add_custom_command(TARGET harufushi_engine_core POST_BUILD
 )
 
 add_library(harufushi_engine_localization SHARED
+    src/engine/localization/HaruLanguageDocument.cpp
     src/engine/localization/LocaleRegistry.cpp
 )
 
@@ -90,6 +91,7 @@ target_link_libraries(harufushi_engine_modules
 )
 
 add_library(harufushi_game STATIC
+    src/game/localization/GameText.cpp
     src/game/scenes/HomeScene.cpp
     src/game/scenes/StudioSplashScene.cpp
     src/game/scenes/TitleScene.cpp
@@ -104,6 +106,7 @@ target_include_directories(harufushi_game
 
 target_link_libraries(harufushi_game PUBLIC harufushi_engine_modules)
 target_compile_features(harufushi_game PUBLIC cxx_std_17)
+target_compile_definitions(harufushi_game PUBLIC HARUFUSHI_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 harufushi_apply_common_options(harufushi_game)
 
 add_executable(harufushi_app
@@ -160,6 +163,7 @@ add_executable(harufushi_tests
     test/engine/UiNodeTests.cpp
     test/engine/WindowConfigTests.cpp
     test/game/DailyLoopStateTests.cpp
+    test/game/GameTextTests.cpp
     test/game/HomeSceneTests.cpp
     test/game/StudioSplashSceneTests.cpp
     test/game/TitleSceneTests.cpp

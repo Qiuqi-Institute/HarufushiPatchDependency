@@ -1,5 +1,6 @@
 #include "support/TestHarness.hpp"
 
+#include "game/localization/GameText.hpp"
 #include "game/scenes/HomeScene.hpp"
 
 #include <optional>
@@ -18,6 +19,19 @@ bool hasText(const haru::engine::graphics::RenderQueue& queue, const std::string
     return false;
 }
 
+std::size_t countText(const haru::engine::graphics::RenderQueue& queue,
+                      const std::string& text) {
+    std::size_t count = 0;
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+            command.text == text) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
 } // namespace
 
 HARU_TEST(home_scene_renders_main_menu_actions_after_splashes) {
@@ -33,6 +47,8 @@ HARU_TEST(home_scene_renders_main_menu_actions_after_splashes) {
     HARU_EXPECT_TRUE(hasText(queue, "Load"));
     HARU_EXPECT_TRUE(hasText(queue, "Settings"));
     HARU_EXPECT_TRUE(hasText(queue, "Quit"));
+    HARU_EXPECT_EQ(countText(queue, "Harufushi Patch Dependency"),
+                   static_cast<std::size_t>(1));
 }
 
 HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
@@ -60,6 +76,24 @@ HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
     HARU_EXPECT_EQ(*quit, haru::game::scenes::HomeAction::Quit);
 }
 
+HARU_TEST(home_scene_maps_settings_language_buttons_to_locale_actions) {
+    haru::game::scenes::HomeScene homeScene;
+
+    const std::optional<haru::game::scenes::HomeAction> english =
+        homeScene.actionAt({560, 360}, {1280, 720}, haru::game::scenes::HomePanel::Settings);
+    const std::optional<haru::game::scenes::HomeAction> chinese =
+        homeScene.actionAt({560, 420}, {1280, 720}, haru::game::scenes::HomePanel::Settings);
+    const std::optional<haru::game::scenes::HomeAction> japanese =
+        homeScene.actionAt({560, 480}, {1280, 720}, haru::game::scenes::HomePanel::Settings);
+
+    HARU_EXPECT_TRUE(english.has_value());
+    HARU_EXPECT_TRUE(chinese.has_value());
+    HARU_EXPECT_TRUE(japanese.has_value());
+    HARU_EXPECT_EQ(*english, haru::game::scenes::HomeAction::SetLocaleEnglish);
+    HARU_EXPECT_EQ(*chinese, haru::game::scenes::HomeAction::SetLocaleSimplifiedChinese);
+    HARU_EXPECT_EQ(*japanese, haru::game::scenes::HomeAction::SetLocaleJapanese);
+}
+
 HARU_TEST(home_scene_renders_saves_and_settings_panels) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue savesQueue;
@@ -74,4 +108,33 @@ HARU_TEST(home_scene_renders_saves_and_settings_panels) {
     HARU_EXPECT_TRUE(hasText(settingsQueue, "Settings"));
     HARU_EXPECT_TRUE(hasText(settingsQueue, "Audio 80"));
     HARU_EXPECT_TRUE(hasText(settingsQueue, "Back"));
+}
+
+HARU_TEST(home_scene_uses_game_text_localization) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::HomeScene homeScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
+
+    HARU_EXPECT_TRUE(hasText(queue, "春伏补丁依存症"));
+    HARU_EXPECT_TRUE(hasText(queue, "开始游戏"));
+    HARU_EXPECT_TRUE(hasText(queue, "读取存档"));
+    HARU_EXPECT_TRUE(hasText(queue, "设置"));
+    HARU_EXPECT_TRUE(hasText(queue, "退出"));
+}
+
+HARU_TEST(home_scene_renders_language_switcher_in_settings) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::HomeScene homeScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Settings);
+
+    HARU_EXPECT_TRUE(hasText(queue, "语言"));
+    HARU_EXPECT_TRUE(hasText(queue, "English"));
+    HARU_EXPECT_TRUE(hasText(queue, "简体中文"));
+    HARU_EXPECT_TRUE(hasText(queue, "日本語"));
 }
