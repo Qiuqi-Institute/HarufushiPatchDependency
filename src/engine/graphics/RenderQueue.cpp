@@ -12,6 +12,28 @@ void RenderQueue::fillRect(Rect rect, Color color) {
     commands_.push_back({DrawCommandKind::FillRect, rect, color, {}});
 }
 
+void RenderQueue::fillRoundedRect(Rect rect, Color color, int radius) {
+    DrawCommand command{DrawCommandKind::FillRoundedRect, rect, color, {}};
+    command.radius = radius;
+    commands_.push_back(command);
+}
+
+void RenderQueue::fillEllipse(Rect rect, Color color) {
+    commands_.push_back({DrawCommandKind::FillEllipse, rect, color, {}});
+}
+
+void RenderQueue::strokeRect(Rect rect, Color color, int thickness) {
+    DrawCommand command{DrawCommandKind::StrokeRect, rect, color, {}};
+    command.thickness = thickness;
+    commands_.push_back(command);
+}
+
+void RenderQueue::fillVerticalGradient(Rect rect, Color topColor, Color bottomColor) {
+    DrawCommand command{DrawCommandKind::FillVerticalGradient, rect, topColor, {}};
+    command.secondaryColor = bottomColor;
+    commands_.push_back(command);
+}
+
 void RenderQueue::drawText(Rect rect, std::string text, Color color) {
     commands_.push_back({DrawCommandKind::Text, rect, color, std::move(text)});
 }

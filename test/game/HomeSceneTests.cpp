@@ -19,6 +19,45 @@ bool hasText(const haru::engine::graphics::RenderQueue& queue, const std::string
     return false;
 }
 
+bool hasFillColor(const haru::engine::graphics::RenderQueue& queue,
+                  haru::engine::graphics::Color color) {
+    for (const auto& command : queue.commands()) {
+        if ((command.kind == haru::engine::graphics::DrawCommandKind::FillRect ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillEllipse ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillVerticalGradient) &&
+            command.color == color) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool hasCommandKind(const haru::engine::graphics::RenderQueue& queue,
+                    haru::engine::graphics::DrawCommandKind kind) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == kind) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::size_t countFillColor(const haru::engine::graphics::RenderQueue& queue,
+                           haru::engine::graphics::Color color) {
+    std::size_t count = 0;
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::FillRect &&
+            command.color == color) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
 std::size_t countText(const haru::engine::graphics::RenderQueue& queue,
                       const std::string& text) {
     std::size_t count = 0;
@@ -30,6 +69,19 @@ std::size_t countText(const haru::engine::graphics::RenderQueue& queue,
     }
 
     return count;
+}
+
+const haru::engine::graphics::DrawCommand* findText(
+    const haru::engine::graphics::RenderQueue& queue,
+    const std::string& text) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+            command.text == text) {
+            return &command;
+        }
+    }
+
+    return nullptr;
 }
 
 } // namespace
@@ -47,8 +99,34 @@ HARU_TEST(home_scene_renders_main_menu_actions_after_splashes) {
     HARU_EXPECT_TRUE(hasText(queue, "Load"));
     HARU_EXPECT_TRUE(hasText(queue, "Settings"));
     HARU_EXPECT_TRUE(hasText(queue, "Quit"));
+    HARU_EXPECT_TRUE(hasText(queue, "Patch Board"));
+    HARU_EXPECT_TRUE(hasText(queue, "Spring UI pass"));
+    HARU_EXPECT_TRUE(hasText(queue, "Harufushi is watching your commits"));
     HARU_EXPECT_EQ(countText(queue, "Harufushi Patch Dependency"),
                    static_cast<std::size_t>(1));
+}
+
+HARU_TEST(home_scene_uses_japanese_fresh_galgame_visual_style) {
+    haru::game::scenes::HomeScene homeScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
+
+    HARU_EXPECT_EQ(queue.commands()[0].color,
+                   (haru::engine::graphics::Color{251, 248, 241, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 210, 222, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {185, 226, 232, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 252, 248, 255}));
+    HARU_EXPECT_TRUE(hasCommandKind(queue,
+                                    haru::engine::graphics::DrawCommandKind::
+                                        FillRoundedRect));
+    HARU_EXPECT_TRUE(hasCommandKind(queue,
+                                    haru::engine::graphics::DrawCommandKind::
+                                        FillVerticalGradient));
+    HARU_EXPECT_TRUE(hasCommandKind(queue,
+                                    haru::engine::graphics::DrawCommandKind::
+                                        StrokeRect));
+    HARU_EXPECT_TRUE(findText(queue, "Harufushi Patch Dependency")->rect.width >= 560);
 }
 
 HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
@@ -123,6 +201,7 @@ HARU_TEST(home_scene_uses_game_text_localization) {
     HARU_EXPECT_TRUE(hasText(queue, "读取存档"));
     HARU_EXPECT_TRUE(hasText(queue, "设置"));
     HARU_EXPECT_TRUE(hasText(queue, "退出"));
+    HARU_EXPECT_TRUE(hasText(queue, "补丁看板"));
 }
 
 HARU_TEST(home_scene_renders_language_switcher_in_settings) {
@@ -137,4 +216,15 @@ HARU_TEST(home_scene_renders_language_switcher_in_settings) {
     HARU_EXPECT_TRUE(hasText(queue, "English"));
     HARU_EXPECT_TRUE(hasText(queue, "简体中文"));
     HARU_EXPECT_TRUE(hasText(queue, "日本語"));
+}
+
+HARU_TEST(home_scene_keeps_settings_text_inside_galgame_panel) {
+    haru::game::scenes::HomeScene homeScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Settings);
+
+    const auto* textSpeed = findText(queue, "Text Speed Normal");
+    HARU_EXPECT_TRUE(textSpeed != nullptr);
+    HARU_EXPECT_TRUE(textSpeed->rect.y + textSpeed->rect.height <= 580);
 }

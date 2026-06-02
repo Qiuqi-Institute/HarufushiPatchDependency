@@ -7,12 +7,26 @@ namespace haru::game::scenes {
 
 namespace {
 
+constexpr engine::graphics::Color bgCream{250, 248, 242, 255};
+constexpr engine::graphics::Color paper{255, 252, 248, 255};
+constexpr engine::graphics::Color paperBlue{239, 249, 250, 255};
+constexpr engine::graphics::Color ink{67, 76, 104, 255};
+constexpr engine::graphics::Color deepInk{86, 78, 122, 255};
+constexpr engine::graphics::Color sky{185, 226, 232, 255};
+constexpr engine::graphics::Color sakura{255, 210, 222, 255};
+constexpr engine::graphics::Color sakuraStrong{255, 183, 205, 255};
+constexpr engine::graphics::Color mint{202, 234, 219, 255};
+constexpr engine::graphics::Color gold{230, 198, 128, 255};
+constexpr engine::graphics::Color shadow{224, 216, 210, 255};
+constexpr engine::graphics::Color warmWhite{255, 250, 246, 255};
+constexpr engine::graphics::Color softLilac{226, 221, 249, 255};
+
 engine::ui::ButtonStyle primaryButtonStyle() {
-    return {{206, 86, 132, 255}, {255, 246, 240, 255}, 12};
+    return {sakuraStrong, deepInk, 12};
 }
 
 engine::ui::ButtonStyle secondaryButtonStyle() {
-    return {{74, 88, 112, 255}, {240, 236, 230, 255}, 12};
+    return {sky, deepInk, 12};
 }
 
 engine::ui::Button studyButton(const localization::GameText& text) {
@@ -29,6 +43,48 @@ engine::ui::Button harufushiButton(const localization::GameText& text) {
             secondaryButtonStyle()};
 }
 
+engine::ui::Button restButton(const localization::GameText& text) {
+    return {{72, 424, 284, 48}, text.get(localization::TextId::Rest), secondaryButtonStyle()};
+}
+
+void drawPaper(engine::graphics::RenderQueue& queue,
+               engine::graphics::Rect rect,
+               engine::graphics::Color fill,
+               engine::graphics::Color accent) {
+    queue.fillRoundedRect({rect.x + 12, rect.y + 14, rect.width, rect.height}, shadow, 28);
+    queue.fillRoundedRect(rect, fill, 28);
+    queue.strokeRect(rect, accent, 3);
+    queue.fillRoundedRect({rect.x + 22, rect.y + 18, rect.width - 44, 10}, mint, 5);
+    queue.fillRoundedRect({rect.x + 32, rect.y + rect.height - 30, rect.width - 64, 8},
+                          accent,
+                          4);
+}
+
+void renderButton(engine::graphics::RenderQueue& queue, const engine::ui::Button& button) {
+    const auto& bounds = button.bounds();
+    queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, bounds.width, bounds.height},
+                          shadow,
+                          18);
+    queue.fillRoundedRect(bounds, bounds.y == 296 ? sakuraStrong : sky, 18);
+    queue.strokeRect(bounds, warmWhite, 2);
+    queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8}, warmWhite, 4);
+    queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14}, warmWhite);
+    queue.drawText({bounds.x + 28, bounds.y + 11, bounds.width - 56, bounds.height - 18},
+                   button.label(),
+                   deepInk);
+}
+
+void drawProgressBar(engine::graphics::RenderQueue& queue,
+                     engine::graphics::Rect bounds,
+                     int value,
+                     engine::graphics::Color fill) {
+    queue.fillRoundedRect(bounds, {235, 230, 224, 255}, bounds.height / 2);
+    const int fillWidth = std::max((bounds.width * std::clamp(value, 0, 100)) / 100, 1);
+    queue.fillRoundedRect({bounds.x, bounds.y, fillWidth, bounds.height},
+                          fill,
+                          bounds.height / 2);
+}
+
 } // namespace
 
 TitleScene::TitleScene(localization::GameText text) : text_(std::move(text)) {}
@@ -36,32 +92,64 @@ TitleScene::TitleScene(localization::GameText text) : text_(std::move(text)) {}
 void TitleScene::render(engine::graphics::RenderQueue& queue,
                         engine::graphics::Size surfaceSize,
                         const systems::DailyStats& stats) const {
-    queue.clear({18, 18, 22, 255});
+    queue.clear(bgCream);
 
     const int width = std::max(surfaceSize.width, 1);
     const int height = std::max(surfaceSize.height, 1);
-    const int margin = 40;
-    const int contentWidth = std::max(width - (margin * 2), 1);
-    const int mainTop = 188;
-    const int mainHeight = std::max(height - mainTop - 112, 1);
+    const int stageWidth = std::max(width - 488, 1);
 
-    engine::ui::UiNode root({0, 0, width, height}, {22, 22, 28, 255});
-    root.addChild({{margin, margin, contentWidth, 112}, {54, 38, 62, 255}});
-    root.addChild({{margin, mainTop, 360, mainHeight}, {32, 42, 54, 255}});
-    root.addChild({{432, mainTop, std::max(width - 472, 1), mainHeight}, {42, 35, 48, 255}});
-    root.render(queue);
+    queue.fillVerticalGradient({0, 0, width, height}, {255, 247, 250, 255}, {232, 249, 250, 255});
+    queue.fillRoundedRect({-40, 28, width + 80, 96}, sky, 42);
 
-    queue.drawText({96, 108, 460, 34},
+    drawPaper(queue, {48, 170, 340, 306}, paperBlue, sakura);
+    drawPaper(queue, {424, 148, stageWidth, 350}, paper, sky);
+    drawPaper(queue, {64, std::max(height - 168, 1), std::max(width - 128, 1), 118},
+              paper,
+              sakura);
+
+    queue.fillRoundedRect({96, 72, 640, 82}, warmWhite, 26);
+    queue.strokeRect({96, 72, 640, 82}, sakuraStrong, 3);
+    queue.fillRoundedRect({118, 126, 122, 8}, gold, 4);
+    queue.fillRoundedRect({256, 126, 56, 8}, sakuraStrong, 4);
+    queue.drawText({116, 88, 600, 52},
                    text_.get(localization::TextId::GameTitle),
-                   {255, 246, 240, 255});
+                   ink);
 
-    studyButton(text_).render(queue);
-    moddingButton(text_).render(queue);
-    harufushiButton(text_).render(queue);
+    queue.fillRoundedRect({464, 194, std::max(stageWidth - 92, 1), 52},
+                          {231, 243, 250, 255},
+                          20);
+    queue.fillRoundedRect({width - 236, 184, 112, 126}, softLilac, 34);
+    queue.strokeRect({width - 236, 184, 112, 126}, sakura, 2);
+    queue.fillEllipse({width - 216, 206, 72, 72}, sakura);
+    queue.fillEllipse({width - 194, 230, 28, 28}, warmWhite);
+    queue.fillRoundedRect({width - 218, 284, 76, 10}, sky, 5);
 
-    queue.drawText({464, mainTop + 40, std::max(width - 528, 1), 32},
+    renderButton(queue, studyButton(text_));
+    renderButton(queue, moddingButton(text_));
+    renderButton(queue, harufushiButton(text_));
+    renderButton(queue, restButton(text_));
+
+    queue.drawText({492, 208, 360, 34},
+                   text_.get(localization::TextId::DailyBoardTitle),
+                   ink);
+    queue.drawText({492, 244, std::max(stageWidth - 200, 1), 30},
+                   text_.get(localization::TextId::DailyEventPreview),
+                   deepInk);
+    queue.drawText({520, 294, 130, 28}, text_.get(localization::TextId::Energy), ink);
+    drawProgressBar(queue, {650, 304, 360, 12}, stats.energy, sky);
+    queue.drawText({520, 334, 130, 28}, text_.get(localization::TextId::ModStat), ink);
+    drawProgressBar(queue, {650, 344, 360, 12}, stats.modProgress, sakuraStrong);
+    queue.drawText({520, 374, 130, 28}, text_.get(localization::TextId::Bond), ink);
+    drawProgressBar(queue, {650, 384, 360, 12}, stats.harufushiBond, mint);
+
+    queue.fillRoundedRect({92, std::max(height - 150, 1), 168, 38}, sakuraStrong, 18);
+    queue.strokeRect({92, std::max(height - 150, 1), 168, 38}, warmWhite, 2);
+    queue.drawText({108, std::max(height - 143, 1), 136, 24},
+                   text_.get(localization::TextId::Harufushi),
+                   deepInk);
+    queue.drawText({286, std::max(height - 126, 1), std::max(width - 372, 1), 32},
                    text_.formatDailyStats(stats),
-                   {245, 235, 228, 255});
+                   ink);
 }
 
 std::optional<systems::DailyAction> TitleScene::actionAt(
@@ -79,6 +167,9 @@ std::optional<systems::DailyAction> TitleScene::actionAt(
     }
     if (harufushiButton(text_).contains(point)) {
         return systems::DailyAction::SpendTimeWithHarufushi;
+    }
+    if (restButton(text_).contains(point)) {
+        return systems::DailyAction::Rest;
     }
 
     return std::nullopt;

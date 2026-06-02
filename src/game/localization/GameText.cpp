@@ -51,6 +51,20 @@ std::string textKey(TextId id) {
         return "daily.modding";
     case TextId::Harufushi:
         return "daily.harufushi";
+    case TextId::Rest:
+        return "daily.rest";
+    case TextId::HomeBoardTitle:
+        return "home.board_title";
+    case TextId::HomeBoardPatch:
+        return "home.board_patch";
+    case TextId::HomeBoardCompile:
+        return "home.board_compile";
+    case TextId::HomeHarufushiStatus:
+        return "home.harufushi_status";
+    case TextId::DailyBoardTitle:
+        return "daily.board_title";
+    case TextId::DailyEventPreview:
+        return "daily.event_preview";
     case TextId::Day:
         return "stat.day";
     case TextId::Energy:

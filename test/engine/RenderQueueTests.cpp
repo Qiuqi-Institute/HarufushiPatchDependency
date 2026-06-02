@@ -42,3 +42,28 @@ HARU_TEST(render_queue_records_text_commands) {
     HARU_EXPECT_EQ(queue.commands()[0].text, "秋起");
     HARU_EXPECT_EQ(queue.commands()[0].color, textColor);
 }
+
+HARU_TEST(render_queue_records_modern_shape_commands) {
+    haru::engine::graphics::RenderQueue queue;
+    const haru::engine::graphics::Color pink{255, 183, 205, 255};
+    const haru::engine::graphics::Color blue{185, 226, 232, 255};
+    const haru::engine::graphics::Color ink{67, 76, 104, 255};
+
+    queue.fillRoundedRect({10, 20, 120, 48}, pink, 18);
+    queue.fillEllipse({24, 32, 64, 40}, blue);
+    queue.strokeRect({6, 8, 144, 72}, ink, 3);
+    queue.fillVerticalGradient({0, 0, 80, 60}, blue, pink);
+
+    HARU_EXPECT_EQ(queue.commands().size(), static_cast<std::size_t>(4));
+    HARU_EXPECT_EQ(queue.commands()[0].kind,
+                   haru::engine::graphics::DrawCommandKind::FillRoundedRect);
+    HARU_EXPECT_EQ(queue.commands()[0].radius, 18);
+    HARU_EXPECT_EQ(queue.commands()[1].kind,
+                   haru::engine::graphics::DrawCommandKind::FillEllipse);
+    HARU_EXPECT_EQ(queue.commands()[2].kind,
+                   haru::engine::graphics::DrawCommandKind::StrokeRect);
+    HARU_EXPECT_EQ(queue.commands()[2].thickness, 3);
+    HARU_EXPECT_EQ(queue.commands()[3].kind,
+                   haru::engine::graphics::DrawCommandKind::FillVerticalGradient);
+    HARU_EXPECT_EQ(queue.commands()[3].secondaryColor, pink);
+}

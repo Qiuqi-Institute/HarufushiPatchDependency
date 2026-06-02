@@ -40,4 +40,7 @@ HARU_TEST(game_text_loads_from_harulang_resources_instead_of_cpp_tables) {
     HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::GameTitle),
                    "ハルフシ・パッチ・ディペンデンシー");
     HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageJapanese), "日本語");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Rest), "休む");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::DailyBoardTitle),
+                   "今日のMod計画");
 }

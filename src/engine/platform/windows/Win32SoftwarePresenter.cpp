@@ -58,11 +58,14 @@ HFONT createFontForText(const graphics::DrawCommand& command) {
     const bool splashTitle = isSplashTitleLetter(command);
     const bool displayText = !splashTitle && command.rect.height >= 56 &&
                              command.rect.width <= 600;
-    return CreateFontW(displayText ? -54 : (splashTitle ? -42 : -20),
+    const bool sceneTitle = !splashTitle && !displayText && command.rect.height >= 40 &&
+                            command.rect.width >= 520;
+    const int fontSize = displayText ? -54 : (splashTitle ? -42 : (sceneTitle ? -30 : -20));
+    return CreateFontW(fontSize,
                        0,
                        0,
                        0,
-                       (splashTitle || displayText) ? FW_BOLD : FW_SEMIBOLD,
+                       (splashTitle || displayText || sceneTitle) ? FW_BOLD : FW_SEMIBOLD,
                        FALSE,
                        FALSE,
                        FALSE,
@@ -72,7 +75,9 @@ HFONT createFontForText(const graphics::DrawCommand& command) {
                        CLEARTYPE_QUALITY,
                        DEFAULT_PITCH | FF_DONTCARE,
                        displayText ? L"Bahnschrift" :
-                                     (splashTitle ? L"Segoe Print" : L"Microsoft YaHei UI"));
+                                     (splashTitle ? L"Segoe Print" :
+                                                    (sceneTitle ? L"Yu Mincho" :
+                                                                  L"Yu Gothic UI")));
 }
 
 void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource) {
