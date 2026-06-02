@@ -46,17 +46,32 @@ bool hasCommandKind(const haru::engine::graphics::RenderQueue& queue,
     return false;
 }
 
-std::size_t countFillColor(const haru::engine::graphics::RenderQueue& queue,
-                           haru::engine::graphics::Color color) {
-    std::size_t count = 0;
+bool hasVerticalGradient(const haru::engine::graphics::RenderQueue& queue,
+                         haru::engine::graphics::Color topColor,
+                         haru::engine::graphics::Color bottomColor) {
     for (const auto& command : queue.commands()) {
-        if (command.kind == haru::engine::graphics::DrawCommandKind::FillRect &&
-            command.color == color) {
-            ++count;
+        if (command.kind == haru::engine::graphics::DrawCommandKind::FillVerticalGradient &&
+            command.color == topColor && command.secondaryColor == bottomColor) {
+            return true;
         }
     }
 
-    return count;
+    return false;
+}
+
+bool hasRoundedRectAt(const haru::engine::graphics::RenderQueue& queue,
+                      haru::engine::graphics::Rect rect,
+                      haru::engine::graphics::Color color) {
+    for (const auto& command : queue.commands()) {
+        if (command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect &&
+            command.rect.x == rect.x && command.rect.y == rect.y &&
+            command.rect.width == rect.width && command.rect.height == rect.height &&
+            command.color == color) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 std::size_t countText(const haru::engine::graphics::RenderQueue& queue,
@@ -107,17 +122,22 @@ HARU_TEST(home_scene_renders_main_menu_actions_after_splashes) {
                    static_cast<std::size_t>(1));
 }
 
-HARU_TEST(home_scene_uses_japanese_fresh_galgame_visual_style) {
+HARU_TEST(home_scene_uses_modern_full_bleed_title_screen_layout) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue queue;
 
     homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
 
     HARU_EXPECT_EQ(queue.commands()[0].color,
-                   (haru::engine::graphics::Color{251, 248, 241, 255}));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 210, 222, 255}));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {185, 226, 232, 255}));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 252, 248, 255}));
+                   (haru::engine::graphics::Color{18, 22, 32, 255}));
+    HARU_EXPECT_TRUE(hasVerticalGradient(queue,
+                                         {18, 22, 32, 255},
+                                         {226, 238, 232, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {236, 84, 104, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {56, 216, 196, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {39, 47, 68, 232}));
+    HARU_EXPECT_FALSE(hasFillColor(queue, {255, 210, 222, 255}));
+    HARU_EXPECT_FALSE(hasFillColor(queue, {185, 226, 232, 255}));
     HARU_EXPECT_TRUE(hasCommandKind(queue,
                                     haru::engine::graphics::DrawCommandKind::
                                         FillRoundedRect));
@@ -129,29 +149,60 @@ HARU_TEST(home_scene_uses_japanese_fresh_galgame_visual_style) {
                                         StrokeRect));
     const auto* title = findText(queue, "Harufushi Patch Dependency");
     HARU_EXPECT_TRUE(title != nullptr);
-    HARU_EXPECT_TRUE(title->rect.width < 560);
-    HARU_EXPECT_EQ(title->rect.x + (title->rect.width / 2), 416);
+    HARU_EXPECT_TRUE(title->rect.x <= 96);
+    HARU_EXPECT_TRUE(title->rect.y >= 500);
+    HARU_EXPECT_TRUE(title->rect.width >= 560);
+    HARU_EXPECT_TRUE(title->rect.height >= 48);
+
+    const auto* newGame = findText(queue, "New Game");
+    const auto* load = findText(queue, "Load");
+    const auto* settings = findText(queue, "Settings");
+    const auto* quit = findText(queue, "Quit");
+    HARU_EXPECT_TRUE(newGame != nullptr);
+    HARU_EXPECT_TRUE(load != nullptr);
+    HARU_EXPECT_TRUE(settings != nullptr);
+    HARU_EXPECT_TRUE(quit != nullptr);
+    HARU_EXPECT_TRUE(newGame->rect.y >= 632);
+    HARU_EXPECT_TRUE(load->rect.y >= 632);
+    HARU_EXPECT_TRUE(settings->rect.y >= 632);
+    HARU_EXPECT_TRUE(quit->rect.y >= 632);
+    HARU_EXPECT_TRUE(newGame->rect.x < load->rect.x);
+    HARU_EXPECT_TRUE(load->rect.x < settings->rect.x);
+    HARU_EXPECT_TRUE(settings->rect.x < quit->rect.x);
+    HARU_EXPECT_FALSE(hasRoundedRectAt(queue,
+                                       {72, 634, 236, 48},
+                                       {236, 84, 104, 255}));
+    HARU_EXPECT_FALSE(hasRoundedRectAt(queue,
+                                       {336, 634, 236, 48},
+                                       {39, 47, 68, 232}));
+
+    const auto* boardTitle = findText(queue, "Patch Board");
+    HARU_EXPECT_TRUE(boardTitle != nullptr);
+    HARU_EXPECT_TRUE(boardTitle->rect.y <= 180);
 }
 
 HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
     haru::game::scenes::HomeScene homeScene;
 
     const std::optional<haru::game::scenes::HomeAction> newGame =
-        homeScene.actionAt({140, 268}, {1280, 720}, haru::game::scenes::HomePanel::Main);
+        homeScene.actionAt({124, 660}, {1280, 720}, haru::game::scenes::HomePanel::Main);
     const std::optional<haru::game::scenes::HomeAction> load =
-        homeScene.actionAt({140, 332}, {1280, 720}, haru::game::scenes::HomePanel::Main);
+        homeScene.actionAt({384, 660}, {1280, 720}, haru::game::scenes::HomePanel::Main);
     const std::optional<haru::game::scenes::HomeAction> settings =
-        homeScene.actionAt({140, 396}, {1280, 720}, haru::game::scenes::HomePanel::Main);
+        homeScene.actionAt({704, 660}, {1280, 720}, haru::game::scenes::HomePanel::Main);
     const std::optional<haru::game::scenes::HomeAction> quit =
-        homeScene.actionAt({140, 460}, {1280, 720}, haru::game::scenes::HomePanel::Main);
+        homeScene.actionAt({1068, 660}, {1280, 720}, haru::game::scenes::HomePanel::Main);
     const std::optional<haru::game::scenes::HomeAction> blank =
         homeScene.actionAt({24, 24}, {1280, 720}, haru::game::scenes::HomePanel::Main);
+    const std::optional<haru::game::scenes::HomeAction> oldLeftRailPoint =
+        homeScene.actionAt({140, 268}, {1280, 720}, haru::game::scenes::HomePanel::Main);
 
     HARU_EXPECT_TRUE(newGame.has_value());
     HARU_EXPECT_TRUE(load.has_value());
     HARU_EXPECT_TRUE(settings.has_value());
     HARU_EXPECT_TRUE(quit.has_value());
     HARU_EXPECT_FALSE(blank.has_value());
+    HARU_EXPECT_FALSE(oldLeftRailPoint.has_value());
     HARU_EXPECT_EQ(*newGame, haru::game::scenes::HomeAction::NewGame);
     HARU_EXPECT_EQ(*load, haru::game::scenes::HomeAction::OpenSaves);
     HARU_EXPECT_EQ(*settings, haru::game::scenes::HomeAction::OpenSettings);
@@ -185,9 +236,9 @@ HARU_TEST(home_scene_renders_save_summaries_and_maps_slots) {
     HARU_EXPECT_FALSE(hasText(queue, "No save data yet"));
 
     const auto first =
-        homeScene.actionAt({548, 308}, {1280, 720}, haru::game::scenes::HomePanel::Saves, 2);
+        homeScene.actionAt({260, 282}, {1280, 720}, haru::game::scenes::HomePanel::Saves, 2);
     const auto second =
-        homeScene.actionAt({548, 364}, {1280, 720}, haru::game::scenes::HomePanel::Saves, 2);
+        homeScene.actionAt({260, 346}, {1280, 720}, haru::game::scenes::HomePanel::Saves, 2);
 
     HARU_EXPECT_TRUE(first.has_value());
     HARU_EXPECT_TRUE(second.has_value());

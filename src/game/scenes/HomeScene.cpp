@@ -8,50 +8,77 @@ namespace haru::game::scenes {
 
 namespace {
 
-constexpr engine::graphics::Color bgCream{251, 248, 241, 255};
-constexpr engine::graphics::Color paper{255, 252, 248, 255};
-constexpr engine::graphics::Color paperBlue{239, 249, 250, 255};
-constexpr engine::graphics::Color ink{67, 76, 104, 255};
-constexpr engine::graphics::Color deepInk{86, 78, 122, 255};
-constexpr engine::graphics::Color sky{185, 226, 232, 255};
-constexpr engine::graphics::Color sakura{255, 210, 222, 255};
-constexpr engine::graphics::Color sakuraStrong{255, 183, 205, 255};
-constexpr engine::graphics::Color mint{202, 234, 219, 255};
-constexpr engine::graphics::Color gold{230, 198, 128, 255};
-constexpr engine::graphics::Color shadow{224, 216, 210, 255};
-constexpr engine::graphics::Color softLilac{226, 221, 249, 255};
-constexpr engine::graphics::Color warmWhite{255, 250, 246, 255};
+constexpr engine::graphics::Color nightInk{18, 22, 32, 255};
+constexpr engine::graphics::Color stormInk{39, 47, 68, 232};
+constexpr engine::graphics::Color slate{63, 72, 96, 255};
+constexpr engine::graphics::Color mist{226, 238, 232, 255};
+constexpr engine::graphics::Color porcelain{246, 250, 246, 242};
+constexpr engine::graphics::Color porcelainSolid{246, 250, 246, 255};
+constexpr engine::graphics::Color pearl{255, 255, 251, 255};
+constexpr engine::graphics::Color coral{236, 84, 104, 255};
+constexpr engine::graphics::Color coralSoft{252, 172, 154, 230};
+constexpr engine::graphics::Color electricMint{56, 216, 196, 255};
+constexpr engine::graphics::Color iris{111, 91, 206, 238};
+constexpr engine::graphics::Color amber{245, 184, 76, 255};
+constexpr engine::graphics::Color glassLine{168, 204, 196, 255};
+constexpr engine::graphics::Color softShadow{13, 17, 26, 128};
 
-engine::ui::ButtonStyle primaryButtonStyle() {
-    return {sakuraStrong, deepInk, 12};
+engine::ui::ButtonStyle titleMenuStyle(engine::graphics::Color background) {
+    return {background, pearl, 10};
 }
 
-engine::ui::ButtonStyle secondaryButtonStyle() {
-    return {sky, deepInk, 12};
+engine::graphics::Rect newGameBounds() {
+    return {72, 634, 236, 48};
+}
+
+engine::graphics::Rect loadBounds() {
+    return {336, 634, 236, 48};
+}
+
+engine::graphics::Rect settingsBounds() {
+    return {652, 634, 248, 48};
+}
+
+engine::graphics::Rect quitBounds() {
+    return {984, 634, 206, 48};
+}
+
+engine::graphics::Rect backBounds() {
+    return {80, 634, 232, 48};
 }
 
 engine::ui::Button newGameButton(const localization::GameText& text) {
-    return {{96, 252, 292, 48}, text.get(localization::TextId::NewGame), primaryButtonStyle()};
+    return {newGameBounds(),
+            text.get(localization::TextId::NewGame),
+            titleMenuStyle(coral)};
 }
 
 engine::ui::Button loadButton(const localization::GameText& text) {
-    return {{96, 316, 292, 48}, text.get(localization::TextId::Load), secondaryButtonStyle()};
+    return {loadBounds(),
+            text.get(localization::TextId::Load),
+            titleMenuStyle(stormInk)};
 }
 
 engine::ui::Button settingsButton(const localization::GameText& text) {
-    return {{96, 380, 292, 48}, text.get(localization::TextId::Settings), secondaryButtonStyle()};
+    return {settingsBounds(),
+            text.get(localization::TextId::Settings),
+            titleMenuStyle(stormInk)};
 }
 
 engine::ui::Button quitButton(const localization::GameText& text) {
-    return {{96, 444, 292, 48}, text.get(localization::TextId::Quit), secondaryButtonStyle()};
+    return {quitBounds(),
+            text.get(localization::TextId::Quit),
+            titleMenuStyle(stormInk)};
 }
 
 engine::ui::Button backButton(const localization::GameText& text) {
-    return {{96, 508, 292, 44}, text.get(localization::TextId::Back), secondaryButtonStyle()};
+    return {backBounds(),
+            text.get(localization::TextId::Back),
+            titleMenuStyle(stormInk)};
 }
 
 engine::graphics::Rect saveSlotBounds(std::size_t index) {
-    return {520, 296 + (static_cast<int>(index) * 56), 520, 44};
+    return {224, 264 + (static_cast<int>(index) * 64), 640, 48};
 }
 
 std::optional<HomeAction> saveSlotAction(std::size_t index) {
@@ -65,105 +92,213 @@ std::optional<HomeAction> saveSlotAction(std::size_t index) {
     return actions[index];
 }
 
-void drawPaper(engine::graphics::RenderQueue& queue,
-               engine::graphics::Rect rect,
-               engine::graphics::Color fill,
-               engine::graphics::Color accent) {
-    queue.fillRoundedRect({rect.x + 12, rect.y + 14, rect.width, rect.height}, shadow, 28);
-    queue.fillRoundedRect(rect, fill, 28);
-    queue.strokeRect(rect, accent, 3);
-    queue.fillRoundedRect({rect.x + 22, rect.y + 18, rect.width - 44, 10}, mint, 5);
-    queue.fillRoundedRect({rect.x + 32, rect.y + rect.height - 30, rect.width - 64, 8},
-                          accent,
-                          4);
+bool contains(engine::graphics::Rect bounds, engine::graphics::Point point) {
+    return point.x >= bounds.x && point.y >= bounds.y &&
+           point.x < bounds.x + bounds.width && point.y < bounds.y + bounds.height;
 }
 
-void drawPetals(engine::graphics::RenderQueue& queue,
-                engine::graphics::Size surfaceSize) {
+void drawTextBox(engine::graphics::RenderQueue& queue,
+                 engine::graphics::Rect bounds,
+                 const std::string& value,
+                 engine::graphics::Color color,
+                 int minPadding = 16,
+                 int maxPadding = 56) {
+    engine::ui::TextBoxStyle style;
+    style.text = color;
+    style.minHorizontalPadding = minPadding;
+    style.maxHorizontalPadding = maxPadding;
+    engine::ui::TextBox(bounds, value, style).render(queue);
+}
+
+void drawHeroCharacter(engine::graphics::RenderQueue& queue) {
+    queue.fillRoundedRect({788, 86, 298, 492}, {244, 247, 244, 214}, 54);
+    queue.strokeRect({788, 86, 298, 492}, {255, 255, 251, 210}, 3);
+    queue.fillEllipse({852, 118, 170, 156}, {45, 52, 73, 245});
+    queue.fillEllipse({808, 174, 76, 132}, {45, 52, 73, 235});
+    queue.fillEllipse({968, 174, 92, 150}, {45, 52, 73, 235});
+    queue.fillEllipse({870, 156, 132, 132}, {255, 229, 220, 255});
+    queue.fillRoundedRect({880, 258, 112, 194}, {251, 252, 249, 255}, 28);
+    queue.fillRoundedRect({826, 300, 94, 188}, {236, 84, 104, 238}, 34);
+    queue.fillRoundedRect({962, 300, 94, 188}, {56, 216, 196, 238}, 34);
+    queue.fillRoundedRect({894, 290, 72, 38}, {111, 91, 206, 238}, 18);
+    queue.fillEllipse({910, 202, 18, 18}, stormInk);
+    queue.fillEllipse({970, 202, 18, 18}, stormInk);
+    queue.fillRoundedRect({918, 238, 56, 8}, coral, 4);
+    queue.fillRoundedRect({852, 452, 224, 46}, {31, 37, 54, 246}, 18);
+    queue.fillRoundedRect({876, 467, 134, 7}, electricMint, 4);
+    queue.fillRoundedRect({876, 484, 74, 7}, coralSoft, 4);
+}
+
+void drawCoderStage(engine::graphics::RenderQueue& queue) {
+    queue.fillRoundedRect({560, 108, 342, 296}, {28, 35, 51, 236}, 34);
+    queue.strokeRect({560, 108, 342, 296}, {86, 113, 130, 230}, 2);
+    queue.fillRoundedRect({592, 140, 278, 174}, {17, 23, 36, 255}, 22);
+    queue.fillRoundedRect({622, 170, 180, 8}, electricMint, 4);
+    queue.fillRoundedRect({622, 196, 112, 8}, coral, 4);
+    queue.fillRoundedRect({622, 222, 220, 8}, iris, 4);
+    queue.fillRoundedRect({622, 248, 148, 8}, amber, 4);
+    queue.fillRoundedRect({612, 340, 236, 28}, {246, 250, 246, 238}, 14);
+    queue.fillRoundedRect({666, 372, 94, 18}, {246, 250, 246, 214}, 9);
+    queue.fillRoundedRect({532, 452, 392, 44}, {29, 36, 52, 220}, 18);
+    queue.fillRoundedRect({560, 469, 190, 7}, electricMint, 4);
+    queue.fillRoundedRect({780, 469, 74, 7}, coral, 4);
+}
+
+void drawSceneBackground(engine::graphics::RenderQueue& queue,
+                         engine::graphics::Size surfaceSize) {
     const int width = std::max(surfaceSize.width, 1);
     const int height = std::max(surfaceSize.height, 1);
-    queue.fillRoundedRect({84, 116, 24, 10}, sakuraStrong, 5);
-    queue.fillRoundedRect({148, 86, 18, 8}, sakuraStrong, 4);
-    queue.fillRoundedRect({width - 186, 112, 26, 10}, sakuraStrong, 5);
-    queue.fillRoundedRect({width - 126, 84, 16, 8}, sakuraStrong, 4);
-    queue.fillRoundedRect({width - 248, height - 126, 24, 10}, sakuraStrong, 5);
-    queue.fillRoundedRect({118, height - 104, 16, 8}, sakuraStrong, 4);
+    queue.clear(nightInk);
+    queue.fillVerticalGradient({0, 0, width, height}, nightInk, mist);
+
+    queue.fillEllipse({-150, 78, 430, 430}, {56, 216, 196, 92});
+    queue.fillEllipse({980, -90, 410, 410}, {236, 84, 104, 96});
+    queue.fillEllipse({870, 420, 360, 260}, {245, 184, 76, 70});
+    queue.fillRoundedRect({-24, 604, width + 48, 116}, {13, 17, 26, 226}, 0);
+    queue.fillRoundedRect({0, 594, width, 2}, {255, 255, 251, 86}, 1);
+
+    queue.fillRoundedRect({52, 48, 356, 86}, {246, 250, 246, 44}, 28);
+    queue.fillRoundedRect({72, 78, 176, 8}, electricMint, 4);
+    queue.fillRoundedRect({72, 100, 104, 8}, coral, 4);
+    queue.fillRoundedRect({1068, 170, 172, 34}, {246, 250, 246, 60}, 17);
+    queue.fillRoundedRect({1100, 184, 92, 5}, electricMint, 3);
+
+    drawCoderStage(queue);
+    drawHeroCharacter(queue);
+
+    queue.fillRoundedRect({1022, 64, 218, 44}, {39, 47, 68, 210}, 18);
+    queue.strokeRect({1022, 64, 218, 44}, glassLine, 2);
+    drawTextBox(queue, {1034, 72, 194, 28}, "PATCH 0.0.1", pearl, 12, 24);
 }
 
-void renderButton(engine::graphics::RenderQueue& queue, const engine::ui::Button& button) {
+void renderTitleMark(engine::graphics::RenderQueue& queue,
+                     const localization::GameText& text) {
+    queue.fillRoundedRect({62, 512, 660, 8}, electricMint, 4);
+    queue.fillRoundedRect({62, 528, 390, 8}, coral, 4);
+    queue.drawText({54, 540, 600, 58}, text.get(localization::TextId::GameTitle), pearl);
+    queue.fillRoundedRect({70, 604, 146, 6}, amber, 3);
+    queue.fillRoundedRect({230, 604, 82, 6}, electricMint, 3);
+    queue.fillRoundedRect({326, 604, 114, 6}, coral, 3);
+}
+
+void renderTitleMenuButton(engine::graphics::RenderQueue& queue,
+                           const engine::ui::Button& button,
+                           bool primary) {
     const auto& bounds = button.bounds();
-    queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, bounds.width, bounds.height},
-                          shadow,
-                          18);
-    queue.fillRoundedRect(bounds, button.bounds().y == 252 ? sakuraStrong : sky, 18);
-    queue.strokeRect(bounds, warmWhite, 2);
-    queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8}, warmWhite, 4);
-    queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14}, warmWhite);
-    engine::ui::TextBoxStyle textStyle;
-    textStyle.text = deepInk;
-    textStyle.minHorizontalPadding = 18;
-    textStyle.maxHorizontalPadding = 42;
-    engine::ui::TextBox({bounds.x + 28,
-                         bounds.y + 11,
-                         bounds.width - 56,
-                         bounds.height - 18},
-                        button.label(),
-                        textStyle)
-        .render(queue);
+    queue.fillRoundedRect({bounds.x - 8, bounds.y + 42, bounds.width + 16, 3},
+                          primary ? coral : glassLine,
+                          2);
+    queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, 36, 6},
+                          primary ? coral : electricMint,
+                          3);
+    queue.fillEllipse({bounds.x + bounds.width - 32, bounds.y + 16, 14, 14},
+                      primary ? electricMint : coral);
+    if (primary) {
+        queue.fillRoundedRect({bounds.x - 2, bounds.y + 20, 22, 3}, pearl, 2);
+        queue.fillRoundedRect({bounds.x - 2, bounds.y + 28, 46, 3}, coralSoft, 2);
+    }
+    drawTextBox(queue,
+                {bounds.x + 24, bounds.y + 12, bounds.width - 48, 28},
+                button.label(),
+                pearl,
+                10,
+                32);
+}
+
+void renderBottomMenu(engine::graphics::RenderQueue& queue,
+                      const localization::GameText& text) {
+    queue.fillRoundedRect({58, 624, 1146, 1}, stormInk, 1);
+    renderTitleMenuButton(queue, newGameButton(text), true);
+    renderTitleMenuButton(queue, loadButton(text), false);
+    renderTitleMenuButton(queue, settingsButton(text), false);
+    renderTitleMenuButton(queue, quitButton(text), false);
+}
+
+void renderPatchBoard(engine::graphics::RenderQueue& queue,
+                      const localization::GameText& text) {
+    queue.fillRoundedRect({72, 146, 486, 112}, {246, 250, 246, 192}, 28);
+    queue.strokeRect({72, 146, 486, 112}, {255, 255, 251, 188}, 2);
+    queue.fillRoundedRect({96, 174, 132, 8}, coral, 4);
+    queue.fillRoundedRect({96, 196, 86, 8}, electricMint, 4);
+    queue.fillRoundedRect({366, 170, 156, 18}, stormInk, 9);
+    queue.fillRoundedRect({386, 177, 92, 4}, electricMint, 2);
+    drawTextBox(queue,
+                {206, 154, 176, 34},
+                text.get(localization::TextId::HomeBoardTitle),
+                nightInk,
+                12,
+                32);
+    drawTextBox(queue,
+                {206, 194, 164, 28},
+                text.get(localization::TextId::HomeBoardPatch),
+                slate,
+                12,
+                28);
+    drawTextBox(queue,
+                {370, 194, 160, 28},
+                text.get(localization::TextId::HomeBoardCompile),
+                slate,
+                12,
+                28);
+    drawTextBox(queue,
+                {96, 224, 420, 24},
+                text.get(localization::TextId::HomeHarufushiStatus),
+                slate,
+                10,
+                24);
 }
 
 void renderSaveSlot(engine::graphics::RenderQueue& queue,
                     engine::graphics::Rect bounds,
-                    const std::string& summary) {
-    queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, bounds.width, bounds.height},
-                          shadow,
-                          16);
-    queue.fillRoundedRect(bounds, warmWhite, 16);
-    queue.strokeRect(bounds, sky, 2);
-    queue.fillRoundedRect({bounds.x + 16, bounds.y + 12, 10, 20}, sakuraStrong, 5);
-    engine::ui::TextBoxStyle textStyle;
-    textStyle.text = deepInk;
-    textStyle.minHorizontalPadding = 18;
-    textStyle.maxHorizontalPadding = 40;
-    engine::ui::TextBox({bounds.x + 36, bounds.y + 8, bounds.width - 52, bounds.height - 16},
-                        summary,
-                        textStyle)
-        .render(queue);
+                    const std::string& summary,
+                    std::size_t index) {
+    const auto marker = index == 0 ? coral : electricMint;
+    queue.fillRoundedRect({bounds.x + 7, bounds.y + 7, bounds.width, bounds.height},
+                          softShadow,
+                          18);
+    queue.fillRoundedRect(bounds, porcelainSolid, 18);
+    queue.strokeRect(bounds, glassLine, 2);
+    queue.fillRoundedRect({bounds.x + 18, bounds.y + 14, 12, bounds.height - 28},
+                          marker,
+                          6);
+    drawTextBox(queue,
+                {bounds.x + 44, bounds.y + 10, bounds.width - 64, bounds.height - 20},
+                summary,
+                nightInk,
+                14,
+                32);
 }
 
-void renderTitle(engine::graphics::RenderQueue& queue,
-                 engine::graphics::Rect bounds,
-                 const std::string& value,
-                 engine::graphics::Color color) {
-    engine::ui::TextBoxStyle textStyle;
-    textStyle.text = color;
-    textStyle.minHorizontalPadding = 18;
-    textStyle.maxHorizontalPadding = 72;
-    engine::ui::TextBox(bounds, value, textStyle).render(queue);
-}
+void renderSavesPanel(engine::graphics::RenderQueue& queue,
+                      const localization::GameText& text,
+                      const std::vector<std::string>& saveSummaries) {
+    queue.fillRoundedRect({112, 128, 916, 468}, {18, 22, 32, 188}, 34);
+    queue.fillRoundedRect({146, 154, 842, 408}, porcelain, 30);
+    queue.strokeRect({146, 154, 842, 408}, {255, 255, 251, 210}, 2);
+    queue.fillRoundedRect({180, 198, 206, 8}, coral, 4);
+    queue.fillRoundedRect({180, 220, 132, 8}, electricMint, 4);
+    drawTextBox(queue,
+                {174, 164, 486, 42},
+                text.get(localization::TextId::SaveFiles),
+                nightInk,
+                12,
+                38);
 
-void renderShell(engine::graphics::RenderQueue& queue,
-                 engine::graphics::Size surfaceSize,
-                 const localization::GameText& text) {
-    const int width = std::max(surfaceSize.width, 1);
-    const int height = std::max(surfaceSize.height, 1);
-    queue.fillVerticalGradient({0, 0, width, height}, {255, 247, 250, 255}, {232, 249, 250, 255});
-    queue.fillRoundedRect({-40, 28, width + 80, 96}, sky, 42);
-    queue.fillRoundedRect({96, 72, 640, 82}, warmWhite, 26);
-    queue.strokeRect({96, 72, 640, 82}, sakuraStrong, 3);
-    queue.fillRoundedRect({118, 126, 122, 8}, gold, 4);
-    queue.fillRoundedRect({256, 126, 56, 8}, sakuraStrong, 4);
-    drawPetals(queue, surfaceSize);
+    if (saveSummaries.empty()) {
+        drawTextBox(queue,
+                    {224, 286, 520, 36},
+                    text.get(localization::TextId::NoSaveDataYet),
+                    slate,
+                    16,
+                    42);
+    } else {
+        const std::size_t visibleCount = std::min<std::size_t>(saveSummaries.size(), 4);
+        for (std::size_t index = 0; index < visibleCount; ++index) {
+            renderSaveSlot(queue, saveSlotBounds(index), saveSummaries[index], index);
+        }
+    }
 
-    drawPaper(queue, {56, 158, 384, 454}, paperBlue, sakura);
-    drawPaper(queue, {472, 158, std::max(width - 528, 1), 454}, paper, sky);
-    queue.fillRoundedRect({940, 206, 180, 180}, {245, 239, 255, 255}, 46);
-    queue.strokeRect({940, 206, 180, 180}, softLilac, 2);
-    queue.fillEllipse({988, 238, 84, 84}, sakura);
-    queue.fillEllipse({1012, 264, 38, 38}, warmWhite);
-    queue.fillRoundedRect({978, 338, 104, 14}, sky, 7);
-
-    renderTitle(queue, {116, 88, 600, 52}, text.get(localization::TextId::GameTitle), ink);
+    renderTitleMenuButton(queue, backButton(text), false);
 }
 
 } // namespace
@@ -174,60 +309,16 @@ void HomeScene::render(engine::graphics::RenderQueue& queue,
                        engine::graphics::Size surfaceSize,
                        HomePanel panel,
                        const std::vector<std::string>& saveSummaries) const {
-    queue.clear(bgCream);
-    renderShell(queue, surfaceSize, text_);
-
-    renderButton(queue, newGameButton(text_));
-    renderButton(queue, loadButton(text_));
-    renderButton(queue, settingsButton(text_));
-    renderButton(queue, quitButton(text_));
-
-    const int width = std::max(surfaceSize.width, 1);
-    const int panelWidth = std::max(width - 560, 1);
+    drawSceneBackground(queue, surfaceSize);
+    renderTitleMark(queue, text_);
 
     if (panel == HomePanel::Saves) {
-        queue.drawText({520, 250, panelWidth, 32},
-                       text_.get(localization::TextId::SaveFiles),
-                       ink);
-        if (saveSummaries.empty()) {
-            queue.drawText({520, 300, panelWidth, 28},
-                           text_.get(localization::TextId::NoSaveDataYet),
-                           deepInk);
-        } else {
-            const std::size_t visibleCount = std::min<std::size_t>(saveSummaries.size(), 4);
-            for (std::size_t index = 0; index < visibleCount; ++index) {
-                renderSaveSlot(queue, saveSlotBounds(index), saveSummaries[index]);
-            }
-        }
-        renderButton(queue, backButton(text_));
+        renderSavesPanel(queue, text_, saveSummaries);
         return;
     }
 
-    queue.fillRoundedRect({520, 340, std::max(panelWidth - 40, 1), 6}, sakuraStrong, 3);
-    queue.fillRoundedRect({520, 360, std::max(panelWidth - 112, 1), 6}, mint, 3);
-    queue.fillRoundedRect({520, 380, std::max(panelWidth - 196, 1), 6}, gold, 3);
-    queue.drawText({520, 250, panelWidth, 32},
-                   text_.get(localization::TextId::Home),
-                   ink);
-    queue.drawText({520, 300, panelWidth, 28},
-                   text_.get(localization::TextId::HomePrompt),
-                   deepInk);
-    queue.fillRoundedRect({520, 414, 560, 134}, {245, 239, 255, 255}, 24);
-    queue.strokeRect({520, 414, 560, 134}, softLilac, 2);
-    queue.fillRoundedRect({548, 452, 132, 10}, sakuraStrong, 5);
-    queue.fillRoundedRect({548, 486, 202, 10}, sky, 5);
-    queue.drawText({548, 424, 260, 30},
-                   text_.get(localization::TextId::HomeBoardTitle),
-                   ink);
-    queue.drawText({700, 444, 332, 28},
-                   text_.get(localization::TextId::HomeBoardPatch),
-                   deepInk);
-    queue.drawText({770, 478, 262, 28},
-                   text_.get(localization::TextId::HomeBoardCompile),
-                   deepInk);
-    queue.drawText({548, 514, 488, 28},
-                   text_.get(localization::TextId::HomeHarufushiStatus),
-                   deepInk);
+    renderPatchBoard(queue, text_);
+    renderBottomMenu(queue, text_);
 }
 
 std::optional<HomeAction> HomeScene::actionAt(engine::graphics::Point point,
@@ -245,28 +336,24 @@ std::optional<HomeAction> HomeScene::actionAt(engine::graphics::Point point,
     if (panel == HomePanel::Saves) {
         const std::size_t visibleCount = std::min<std::size_t>(saveCount, 4);
         for (std::size_t index = 0; index < visibleCount; ++index) {
-            const auto bounds = saveSlotBounds(index);
-            if (point.x >= bounds.x && point.y >= bounds.y &&
-                point.x < bounds.x + bounds.width &&
-                point.y < bounds.y + bounds.height) {
+            if (contains(saveSlotBounds(index), point)) {
                 return saveSlotAction(index);
             }
         }
+        return std::nullopt;
     }
 
-    if (panel == HomePanel::Main) {
-        if (newGameButton(text_).contains(point)) {
-            return HomeAction::NewGame;
-        }
-        if (loadButton(text_).contains(point)) {
-            return HomeAction::OpenSaves;
-        }
-        if (settingsButton(text_).contains(point)) {
-            return HomeAction::OpenSettings;
-        }
-        if (quitButton(text_).contains(point)) {
-            return HomeAction::Quit;
-        }
+    if (newGameButton(text_).contains(point)) {
+        return HomeAction::NewGame;
+    }
+    if (loadButton(text_).contains(point)) {
+        return HomeAction::OpenSaves;
+    }
+    if (settingsButton(text_).contains(point)) {
+        return HomeAction::OpenSettings;
+    }
+    if (quitButton(text_).contains(point)) {
+        return HomeAction::Quit;
     }
 
     return std::nullopt;
