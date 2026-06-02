@@ -1,10 +1,5 @@
 #pragma once
 
-#ifndef HARU_FRAME_PUBLIC_INCLUDE
-#define HARU_FRAME_PUBLIC_INCLUDE
-#define HARU_FRAME_PUBLIC_INCLUDE_OWNER
-#endif
-
 #include "../core/HaruFrame.hpp"
 
 #include "HaruApplication"
@@ -19,15 +14,13 @@
 #include "HaruResourceId"
 #include "HaruResourceManifest"
 #include "HaruSoftwareSurface"
+#include "HaruTextBox"
 #include "HaruUiNode"
+#include "HaruUserDataCipher"
+#include "HaruUserDirectories"
 #include "HaruWindow"
 
 #ifdef _WIN32
 #include "HaruWin32SoftwarePresenter"
 #include "HaruWin32Window"
-#endif
-
-#ifdef HARU_FRAME_PUBLIC_INCLUDE_OWNER
-#undef HARU_FRAME_PUBLIC_INCLUDE_OWNER
-#undef HARU_FRAME_PUBLIC_INCLUDE
 #endif

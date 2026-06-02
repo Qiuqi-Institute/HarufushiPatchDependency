@@ -3,6 +3,7 @@ set(required_binaries
     UI_BINARY
     PLATFORM_BINARY
     RESOURCES_BINARY
+    SECURITY_BINARY
     LOCALIZATION_BINARY
 )
 
@@ -19,6 +20,7 @@ get_filename_component(core_binary_name "${CORE_BINARY}" NAME)
 get_filename_component(ui_binary_name "${UI_BINARY}" NAME)
 get_filename_component(platform_binary_name "${PLATFORM_BINARY}" NAME)
 get_filename_component(resources_binary_name "${RESOURCES_BINARY}" NAME)
+get_filename_component(security_binary_name "${SECURITY_BINARY}" NAME)
 get_filename_component(localization_binary_name "${LOCALIZATION_BINARY}" NAME)
 
 if(CMAKE_HOST_WIN32)
@@ -33,6 +35,9 @@ if(CMAKE_HOST_WIN32)
     endif()
     if(NOT resources_binary_name STREQUAL "HarufushiEngine.Resources.dll")
         message(FATAL_ERROR "Resources engine DLL must be HarufushiEngine.Resources.dll, got ${resources_binary_name}")
+    endif()
+    if(NOT security_binary_name STREQUAL "HarufushiEngine.Security.dll")
+        message(FATAL_ERROR "Security engine DLL must be HarufushiEngine.Security.dll, got ${security_binary_name}")
     endif()
     if(NOT localization_binary_name STREQUAL "HarufushiEngine.Localization.dll")
         message(FATAL_ERROR "Localization engine DLL must be HarufushiEngine.Localization.dll, got ${localization_binary_name}")
@@ -49,6 +54,9 @@ else()
     endif()
     if(NOT resources_binary_name MATCHES "^libHarufushiEngine\\.Resources\\.(so|dylib)$")
         message(FATAL_ERROR "Resources engine shared library has unexpected name: ${resources_binary_name}")
+    endif()
+    if(NOT security_binary_name MATCHES "^libHarufushiEngine\\.Security\\.(so|dylib)$")
+        message(FATAL_ERROR "Security engine shared library has unexpected name: ${security_binary_name}")
     endif()
     if(NOT localization_binary_name MATCHES "^libHarufushiEngine\\.Localization\\.(so|dylib)$")
         message(FATAL_ERROR "Localization engine shared library has unexpected name: ${localization_binary_name}")

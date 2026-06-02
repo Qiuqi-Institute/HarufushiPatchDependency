@@ -1,6 +1,7 @@
 #include "HomeScene.hpp"
 
 #include <algorithm>
+#include <array>
 #include <utility>
 
 namespace haru::game::scenes {
@@ -49,22 +50,19 @@ engine::ui::Button backButton(const localization::GameText& text) {
     return {{96, 508, 292, 44}, text.get(localization::TextId::Back), secondaryButtonStyle()};
 }
 
-engine::ui::Button englishButton(const localization::GameText& text) {
-    return {{520, 344, 236, 44},
-            text.get(localization::TextId::LanguageEnglish),
-            secondaryButtonStyle()};
+engine::graphics::Rect saveSlotBounds(std::size_t index) {
+    return {520, 296 + (static_cast<int>(index) * 56), 520, 44};
 }
 
-engine::ui::Button chineseButton(const localization::GameText& text) {
-    return {{520, 404, 236, 44},
-            text.get(localization::TextId::LanguageSimplifiedChinese),
-            secondaryButtonStyle()};
-}
-
-engine::ui::Button japaneseButton(const localization::GameText& text) {
-    return {{520, 464, 236, 44},
-            text.get(localization::TextId::LanguageJapanese),
-            secondaryButtonStyle()};
+std::optional<HomeAction> saveSlotAction(std::size_t index) {
+    constexpr std::array<HomeAction, 4> actions{HomeAction::LoadSave0,
+                                                HomeAction::LoadSave1,
+                                                HomeAction::LoadSave2,
+                                                HomeAction::LoadSave3};
+    if (index >= actions.size()) {
+        return std::nullopt;
+    }
+    return actions[index];
 }
 
 void drawPaper(engine::graphics::RenderQueue& queue,
@@ -101,9 +99,47 @@ void renderButton(engine::graphics::RenderQueue& queue, const engine::ui::Button
     queue.strokeRect(bounds, warmWhite, 2);
     queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8}, warmWhite, 4);
     queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14}, warmWhite);
-    queue.drawText({bounds.x + 28, bounds.y + 11, bounds.width - 56, bounds.height - 18},
-                   button.label(),
-                   deepInk);
+    engine::ui::TextBoxStyle textStyle;
+    textStyle.text = deepInk;
+    textStyle.minHorizontalPadding = 18;
+    textStyle.maxHorizontalPadding = 42;
+    engine::ui::TextBox({bounds.x + 28,
+                         bounds.y + 11,
+                         bounds.width - 56,
+                         bounds.height - 18},
+                        button.label(),
+                        textStyle)
+        .render(queue);
+}
+
+void renderSaveSlot(engine::graphics::RenderQueue& queue,
+                    engine::graphics::Rect bounds,
+                    const std::string& summary) {
+    queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, bounds.width, bounds.height},
+                          shadow,
+                          16);
+    queue.fillRoundedRect(bounds, warmWhite, 16);
+    queue.strokeRect(bounds, sky, 2);
+    queue.fillRoundedRect({bounds.x + 16, bounds.y + 12, 10, 20}, sakuraStrong, 5);
+    engine::ui::TextBoxStyle textStyle;
+    textStyle.text = deepInk;
+    textStyle.minHorizontalPadding = 18;
+    textStyle.maxHorizontalPadding = 40;
+    engine::ui::TextBox({bounds.x + 36, bounds.y + 8, bounds.width - 52, bounds.height - 16},
+                        summary,
+                        textStyle)
+        .render(queue);
+}
+
+void renderTitle(engine::graphics::RenderQueue& queue,
+                 engine::graphics::Rect bounds,
+                 const std::string& value,
+                 engine::graphics::Color color) {
+    engine::ui::TextBoxStyle textStyle;
+    textStyle.text = color;
+    textStyle.minHorizontalPadding = 18;
+    textStyle.maxHorizontalPadding = 72;
+    engine::ui::TextBox(bounds, value, textStyle).render(queue);
 }
 
 void renderShell(engine::graphics::RenderQueue& queue,
@@ -127,9 +163,7 @@ void renderShell(engine::graphics::RenderQueue& queue,
     queue.fillEllipse({1012, 264, 38, 38}, warmWhite);
     queue.fillRoundedRect({978, 338, 104, 14}, sky, 7);
 
-    queue.drawText({116, 88, 600, 52},
-                   text.get(localization::TextId::GameTitle),
-                   ink);
+    renderTitle(queue, {116, 88, 600, 52}, text.get(localization::TextId::GameTitle), ink);
 }
 
 } // namespace
@@ -138,7 +172,8 @@ HomeScene::HomeScene(localization::GameText text) : text_(std::move(text)) {}
 
 void HomeScene::render(engine::graphics::RenderQueue& queue,
                        engine::graphics::Size surfaceSize,
-    HomePanel panel) const {
+                       HomePanel panel,
+                       const std::vector<std::string>& saveSummaries) const {
     queue.clear(bgCream);
     renderShell(queue, surfaceSize, text_);
 
@@ -154,32 +189,16 @@ void HomeScene::render(engine::graphics::RenderQueue& queue,
         queue.drawText({520, 250, panelWidth, 32},
                        text_.get(localization::TextId::SaveFiles),
                        ink);
-        queue.drawText({520, 300, panelWidth, 28},
-                       text_.get(localization::TextId::NoSaveDataYet),
-                       deepInk);
-        renderButton(queue, backButton(text_));
-        return;
-    }
-
-    if (panel == HomePanel::Settings) {
-        queue.drawText({520, 250, panelWidth, 32},
-                       text_.get(localization::TextId::Settings),
-                       ink);
-        queue.drawText({520, 300, panelWidth, 28},
-                       text_.get(localization::TextId::Language),
-                       deepInk);
-        renderButton(queue, englishButton(text_));
-        renderButton(queue, chineseButton(text_));
-        renderButton(queue, japaneseButton(text_));
-        queue.drawText({520, 456, panelWidth, 28},
-                       text_.get(localization::TextId::Audio80),
-                       deepInk);
-        queue.drawText({520, 494, panelWidth, 28},
-                       text_.get(localization::TextId::Visual100),
-                       deepInk);
-        queue.drawText({520, 532, panelWidth, 28},
-                       text_.get(localization::TextId::TextSpeedNormal),
-                       deepInk);
+        if (saveSummaries.empty()) {
+            queue.drawText({520, 300, panelWidth, 28},
+                           text_.get(localization::TextId::NoSaveDataYet),
+                           deepInk);
+        } else {
+            const std::size_t visibleCount = std::min<std::size_t>(saveSummaries.size(), 4);
+            for (std::size_t index = 0; index < visibleCount; ++index) {
+                renderSaveSlot(queue, saveSlotBounds(index), saveSummaries[index]);
+            }
+        }
         renderButton(queue, backButton(text_));
         return;
     }
@@ -213,7 +232,8 @@ void HomeScene::render(engine::graphics::RenderQueue& queue,
 
 std::optional<HomeAction> HomeScene::actionAt(engine::graphics::Point point,
                                               engine::graphics::Size surfaceSize,
-                                              HomePanel panel) const {
+                                              HomePanel panel,
+                                              std::size_t saveCount) const {
     if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
         return std::nullopt;
     }
@@ -222,15 +242,15 @@ std::optional<HomeAction> HomeScene::actionAt(engine::graphics::Point point,
         return HomeAction::Back;
     }
 
-    if (panel == HomePanel::Settings) {
-        if (englishButton(text_).contains(point)) {
-            return HomeAction::SetLocaleEnglish;
-        }
-        if (chineseButton(text_).contains(point)) {
-            return HomeAction::SetLocaleSimplifiedChinese;
-        }
-        if (japaneseButton(text_).contains(point)) {
-            return HomeAction::SetLocaleJapanese;
+    if (panel == HomePanel::Saves) {
+        const std::size_t visibleCount = std::min<std::size_t>(saveCount, 4);
+        for (std::size_t index = 0; index < visibleCount; ++index) {
+            const auto bounds = saveSlotBounds(index);
+            if (point.x >= bounds.x && point.y >= bounds.y &&
+                point.x < bounds.x + bounds.width &&
+                point.y < bounds.y + bounds.height) {
+                return saveSlotAction(index);
+            }
         }
     }
 

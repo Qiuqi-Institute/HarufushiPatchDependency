@@ -1,7 +1,3 @@
 #pragma once
 
-#ifndef HARU_FRAME_PUBLIC_INCLUDE
-#error "Include <HaruFrame> before using HaruResourceManifest."
-#endif
-
 #include "../resources/ResourceManifest.hpp"

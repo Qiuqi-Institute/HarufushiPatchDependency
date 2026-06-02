@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef HARU_FRAME_PUBLIC_INCLUDE
-#error "Include <HaruFrame> instead of HaruEngine."
-#endif
-
 #include "HaruApplication"
 #include "HaruButton"
 #include "HaruColor"
@@ -15,5 +11,8 @@
 #include "HaruResourceId"
 #include "HaruResourceManifest"
 #include "HaruSoftwareSurface"
+#include "HaruTextBox"
 #include "HaruUiNode"
+#include "HaruUserDataCipher"
+#include "HaruUserDirectories"
 #include "HaruWindow"

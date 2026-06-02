@@ -104,6 +104,15 @@ bool Win32Window::shouldClose() const {
     return closeRequested_;
 }
 
+void Win32Window::setTitle(std::string title) {
+    const std::wstring wideTitle = utf8ToWide(title);
+    if (SetWindowTextW(handle_, wideTitle.c_str()) == FALSE) {
+        throw std::runtime_error("failed to update native window title");
+    }
+
+    config_.title = std::move(title);
+}
+
 HWND Win32Window::nativeHandle() const {
     return handle_;
 }

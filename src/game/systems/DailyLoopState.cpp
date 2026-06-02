@@ -12,6 +12,8 @@ int clampStat(int value) {
 
 } // namespace
 
+DailyLoopState::DailyLoopState(DailyStats stats) : stats_(stats) {}
+
 void DailyLoopState::apply(DailyAction action) {
     switch (action) {
     case DailyAction::Study:

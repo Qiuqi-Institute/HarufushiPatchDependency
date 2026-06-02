@@ -20,6 +20,9 @@ struct DailyStats {
 
 class DailyLoopState {
 public:
+    DailyLoopState() = default;
+    explicit DailyLoopState(DailyStats stats);
+
     void apply(DailyAction action);
     const DailyStats& stats() const;
 

@@ -28,6 +28,7 @@ public:
     std::vector<WindowEvent> pollEvents() override;
     void requestClose() override;
     bool shouldClose() const override;
+    void setTitle(std::string title);
 
     HWND nativeHandle() const;
 

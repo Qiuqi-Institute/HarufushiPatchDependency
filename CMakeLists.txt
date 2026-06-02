@@ -56,8 +56,20 @@ add_library(harufushi_engine_resources SHARED
 harufushi_configure_engine_module(harufushi_engine_resources HarufushiEngine.Resources)
 target_link_libraries(harufushi_engine_resources PUBLIC harufushi_engine_core)
 
+add_library(harufushi_engine_security SHARED
+    src/engine/security/UserDataCipher.cpp
+)
+
+harufushi_configure_engine_module(harufushi_engine_security HarufushiEngine.Security)
+target_link_libraries(harufushi_engine_security PUBLIC harufushi_engine_core)
+
+if(WIN32)
+    target_link_libraries(harufushi_engine_security PUBLIC crypt32)
+endif()
+
 add_library(harufushi_engine_ui SHARED
     src/engine/ui/Button.cpp
+    src/engine/ui/TextBox.cpp
     src/engine/ui/UiNode.cpp
 )
 
@@ -65,6 +77,7 @@ harufushi_configure_engine_module(harufushi_engine_ui HarufushiEngine.UI)
 target_link_libraries(harufushi_engine_ui PUBLIC harufushi_engine_core)
 
 add_library(harufushi_engine_platform SHARED
+    src/engine/platform/UserDirectories.cpp
     src/engine/platform/Window.cpp
 )
 
@@ -77,7 +90,7 @@ if(WIN32)
             src/engine/platform/windows/Win32SoftwarePresenter.cpp
             src/engine/platform/windows/Win32Window.cpp
     )
-    target_link_libraries(harufushi_engine_platform PUBLIC gdi32 user32)
+    target_link_libraries(harufushi_engine_platform PUBLIC gdi32 user32 shell32 ole32)
 endif()
 
 add_library(harufushi_engine_modules INTERFACE)
@@ -86,6 +99,7 @@ target_link_libraries(harufushi_engine_modules
         harufushi_engine_core
         harufushi_engine_localization
         harufushi_engine_resources
+        harufushi_engine_security
         harufushi_engine_ui
         harufushi_engine_platform
 )
@@ -93,11 +107,13 @@ target_link_libraries(harufushi_engine_modules
 add_library(harufushi_game STATIC
     src/game/localization/GameText.cpp
     src/game/scenes/HomeScene.cpp
+    src/game/scenes/SettingsScene.cpp
     src/game/scenes/StudioSplashScene.cpp
     src/game/scenes/TitleScene.cpp
     src/game/systems/DailyLoopState.cpp
     src/game/systems/HarufushiGame.cpp
     src/game/systems/ModProjectState.cpp
+    src/game/systems/SaveManager.cpp
 )
 
 target_include_directories(harufushi_game
@@ -161,12 +177,16 @@ add_executable(harufushi_tests
     test/engine/RenderQueueTests.cpp
     test/engine/ResourceTests.cpp
     test/engine/SoftwareSurfaceTests.cpp
+    test/engine/TextBoxTests.cpp
     test/engine/UiNodeTests.cpp
+    test/engine/Win32WindowTests.cpp
     test/engine/WindowConfigTests.cpp
     test/game/DailyLoopStateTests.cpp
     test/game/GameTextTests.cpp
     test/game/HomeSceneTests.cpp
     test/game/ModProjectStateTests.cpp
+    test/game/SaveSystemTests.cpp
+    test/game/SettingsSceneTests.cpp
     test/game/StudioSplashSceneTests.cpp
     test/game/TitleSceneTests.cpp
 )
@@ -194,6 +214,7 @@ add_test(
         -DUI_BINARY=$<TARGET_FILE:harufushi_engine_ui>
         -DPLATFORM_BINARY=$<TARGET_FILE:harufushi_engine_platform>
         -DRESOURCES_BINARY=$<TARGET_FILE:harufushi_engine_resources>
+        -DSECURITY_BINARY=$<TARGET_FILE:harufushi_engine_security>
         -DLOCALIZATION_BINARY=$<TARGET_FILE:harufushi_engine_localization>
         -P ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertEngineDll.cmake
 )

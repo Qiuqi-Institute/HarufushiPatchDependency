@@ -44,3 +44,19 @@ HARU_TEST(game_text_loads_from_harulang_resources_instead_of_cpp_tables) {
     HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::DailyBoardTitle),
                    "今日のMod計画");
 }
+
+HARU_TEST(game_text_language_names_are_written_in_their_own_language) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("en-US");
+
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageEnglish), "English");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageSimplifiedChinese),
+                   "简体中文");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageJapanese), "日本語");
+
+    HARU_EXPECT_TRUE(text.setLocale("ja-JP"));
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageEnglish), "English");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageSimplifiedChinese),
+                   "简体中文");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageJapanese), "日本語");
+}

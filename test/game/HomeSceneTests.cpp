@@ -5,6 +5,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -126,7 +127,10 @@ HARU_TEST(home_scene_uses_japanese_fresh_galgame_visual_style) {
     HARU_EXPECT_TRUE(hasCommandKind(queue,
                                     haru::engine::graphics::DrawCommandKind::
                                         StrokeRect));
-    HARU_EXPECT_TRUE(findText(queue, "Harufushi Patch Dependency")->rect.width >= 560);
+    const auto* title = findText(queue, "Harufushi Patch Dependency");
+    HARU_EXPECT_TRUE(title != nullptr);
+    HARU_EXPECT_TRUE(title->rect.width < 560);
+    HARU_EXPECT_EQ(title->rect.x + (title->rect.width / 2), 416);
 }
 
 HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
@@ -154,38 +158,41 @@ HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
     HARU_EXPECT_EQ(*quit, haru::game::scenes::HomeAction::Quit);
 }
 
-HARU_TEST(home_scene_maps_settings_language_buttons_to_locale_actions) {
-    haru::game::scenes::HomeScene homeScene;
-
-    const std::optional<haru::game::scenes::HomeAction> english =
-        homeScene.actionAt({560, 360}, {1280, 720}, haru::game::scenes::HomePanel::Settings);
-    const std::optional<haru::game::scenes::HomeAction> chinese =
-        homeScene.actionAt({560, 420}, {1280, 720}, haru::game::scenes::HomePanel::Settings);
-    const std::optional<haru::game::scenes::HomeAction> japanese =
-        homeScene.actionAt({560, 480}, {1280, 720}, haru::game::scenes::HomePanel::Settings);
-
-    HARU_EXPECT_TRUE(english.has_value());
-    HARU_EXPECT_TRUE(chinese.has_value());
-    HARU_EXPECT_TRUE(japanese.has_value());
-    HARU_EXPECT_EQ(*english, haru::game::scenes::HomeAction::SetLocaleEnglish);
-    HARU_EXPECT_EQ(*chinese, haru::game::scenes::HomeAction::SetLocaleSimplifiedChinese);
-    HARU_EXPECT_EQ(*japanese, haru::game::scenes::HomeAction::SetLocaleJapanese);
-}
-
-HARU_TEST(home_scene_renders_saves_and_settings_panels) {
+HARU_TEST(home_scene_renders_saves_panel_without_settings_controls) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue savesQueue;
-    haru::engine::graphics::RenderQueue settingsQueue;
 
     homeScene.render(savesQueue, {1280, 720}, haru::game::scenes::HomePanel::Saves);
-    homeScene.render(settingsQueue, {1280, 720}, haru::game::scenes::HomePanel::Settings);
 
     HARU_EXPECT_TRUE(hasText(savesQueue, "Save Files"));
     HARU_EXPECT_TRUE(hasText(savesQueue, "No save data yet"));
     HARU_EXPECT_TRUE(hasText(savesQueue, "Back"));
-    HARU_EXPECT_TRUE(hasText(settingsQueue, "Settings"));
-    HARU_EXPECT_TRUE(hasText(settingsQueue, "Audio 80"));
-    HARU_EXPECT_TRUE(hasText(settingsQueue, "Back"));
+    HARU_EXPECT_FALSE(hasText(savesQueue, "Audio 80"));
+    HARU_EXPECT_FALSE(hasText(savesQueue, "English"));
+}
+
+HARU_TEST(home_scene_renders_save_summaries_and_maps_slots) {
+    haru::game::scenes::HomeScene homeScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue,
+                     {1280, 720},
+                     haru::game::scenes::HomePanel::Saves,
+                     {"Save 1  Day 3  Mod 20", "Save 2  Day 8  Mod 71"});
+
+    HARU_EXPECT_TRUE(hasText(queue, "Save 1  Day 3  Mod 20"));
+    HARU_EXPECT_TRUE(hasText(queue, "Save 2  Day 8  Mod 71"));
+    HARU_EXPECT_FALSE(hasText(queue, "No save data yet"));
+
+    const auto first =
+        homeScene.actionAt({548, 308}, {1280, 720}, haru::game::scenes::HomePanel::Saves, 2);
+    const auto second =
+        homeScene.actionAt({548, 364}, {1280, 720}, haru::game::scenes::HomePanel::Saves, 2);
+
+    HARU_EXPECT_TRUE(first.has_value());
+    HARU_EXPECT_TRUE(second.has_value());
+    HARU_EXPECT_EQ(*first, haru::game::scenes::HomeAction::LoadSave0);
+    HARU_EXPECT_EQ(*second, haru::game::scenes::HomeAction::LoadSave1);
 }
 
 HARU_TEST(home_scene_uses_game_text_localization) {
@@ -202,29 +209,4 @@ HARU_TEST(home_scene_uses_game_text_localization) {
     HARU_EXPECT_TRUE(hasText(queue, "设置"));
     HARU_EXPECT_TRUE(hasText(queue, "退出"));
     HARU_EXPECT_TRUE(hasText(queue, "补丁看板"));
-}
-
-HARU_TEST(home_scene_renders_language_switcher_in_settings) {
-    haru::game::localization::GameText text =
-        haru::game::localization::GameText::loadDefault("zh-CN");
-    haru::game::scenes::HomeScene homeScene(text);
-    haru::engine::graphics::RenderQueue queue;
-
-    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Settings);
-
-    HARU_EXPECT_TRUE(hasText(queue, "语言"));
-    HARU_EXPECT_TRUE(hasText(queue, "English"));
-    HARU_EXPECT_TRUE(hasText(queue, "简体中文"));
-    HARU_EXPECT_TRUE(hasText(queue, "日本語"));
-}
-
-HARU_TEST(home_scene_keeps_settings_text_inside_galgame_panel) {
-    haru::game::scenes::HomeScene homeScene;
-    haru::engine::graphics::RenderQueue queue;
-
-    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Settings);
-
-    const auto* textSpeed = findText(queue, "Text Speed Normal");
-    HARU_EXPECT_TRUE(textSpeed != nullptr);
-    HARU_EXPECT_TRUE(textSpeed->rect.y + textSpeed->rect.height <= 580);
 }

@@ -85,7 +85,7 @@
 
 - `src/app/`：程序入口和启动编排。
 - `src/engine/core/`：生命周期、错误、日志、时间、基础类型。
-- `src/engine/include/`：引擎公开框架入口，唯一入口是无扩展名 `#include <HaruFrame>`；其他 `Haru*` 头只允许由 `HaruFrame` 间接包含。
+- `src/engine/include/`：引擎公开头统一使用无扩展名 `Haru*` 头；可直接包含 `<HaruFrame>`，也可按需直接包含 `<HaruButton>`、`<HaruTextBox>` 等模块头。
 - `src/engine/platform/`：Windows、文件系统、窗口、线程、系统服务适配。
 - `src/engine/graphics/`：渲染抽象、纹理、字体、后端接口。
 - `src/engine/audio/`：音频抽象、混音、音量、后端接口。
@@ -114,8 +114,8 @@
 - 不把语言列表写死在 C++ 分支里。
 - 不让游戏逻辑直接依赖平台 API；平台差异在 `src/engine/platform/` 内结束。
 - 引擎按模块输出 DLL：`HarufushiEngine.dll` 是 core DLL，`HarufushiEngine.UI.dll`、`HarufushiEngine.Platform.dll`、`HarufushiEngine.Resources.dll`、`HarufushiEngine.Localization.dll` 等模块 DLL 只能建立在 core 之上。
-- 不让游戏逻辑直接包含 `src/engine/**` 内部路径；游戏层调用引擎必须通过 `#include <HaruFrame>`，不允许直接包含 `<HaruButton>` 等模块头。
-- `HaruFrame` 负责引擎级开屏展示；开屏未结束前，业务可视化内容不得覆盖或抢先渲染。
+- 不让游戏逻辑直接包含 `src/engine/**` 内部路径；游戏层调用引擎只能通过 `src/engine/include/` 下的无扩展名 `Haru*` 公开头，例如 `<HaruFrame>`、`<HaruButton>`、`<HaruTextBox>`。
+- 只要程序使用 Harufushi 引擎提供的服务，启动编排就必须实例化并走 `HaruFrame` 渲染链路；`HaruFrame` 负责引擎级开屏展示，开屏未结束前，业务可视化内容不得覆盖或抢先渲染。
 - 不让游戏逻辑直接依赖资源文件路径；业务层只使用资源 ID 或内容句柄。
 
 ## Commit Convention

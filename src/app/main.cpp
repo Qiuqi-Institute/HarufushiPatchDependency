@@ -2,23 +2,45 @@
 
 #include "localization/GameText.hpp"
 #include "scenes/HomeScene.hpp"
+#include "scenes/SettingsScene.hpp"
 #include "scenes/StudioSplashScene.hpp"
 #include "scenes/TitleScene.hpp"
 #include "systems/HarufushiGame.hpp"
+#include "systems/SaveManager.hpp"
 
-#include <cstring>
 #include <chrono>
+#include <cstring>
 #include <exception>
+#include <filesystem>
 #include <iostream>
+#include <optional>
+#include <sstream>
 #include <thread>
+#include <vector>
 
 namespace {
 
 enum class GameScreen {
     StudioSplash,
     Home,
+    Settings,
     DailyLoop,
 };
+
+std::optional<std::size_t> loadSaveIndex(haru::game::scenes::HomeAction action) {
+    switch (action) {
+    case haru::game::scenes::HomeAction::LoadSave0:
+        return 0;
+    case haru::game::scenes::HomeAction::LoadSave1:
+        return 1;
+    case haru::game::scenes::HomeAction::LoadSave2:
+        return 2;
+    case haru::game::scenes::HomeAction::LoadSave3:
+        return 3;
+    default:
+        return std::nullopt;
+    }
+}
 
 } // namespace
 
@@ -40,21 +62,53 @@ int main(int argc, char** argv) {
         haru::engine::graphics::SoftwareSurface surface(1280, 720);
         haru::engine::HaruFrame engineFrame(2.0);
         haru::game::scenes::StudioSplashScene studioSplashScene(2.0);
+        const std::filesystem::path saveRoot =
+            haru::engine::platform::UserDirectories::documentsDirectory() /
+            "Harufushi Patch Dependency" / "save data";
+        haru::game::systems::SaveManager saveManager(saveRoot);
+        saveManager.loadAll();
+        const std::string initialLocale =
+            saveManager.activeSave() != nullptr ? saveManager.activeSave()->localeTag : "en-US";
         haru::game::localization::GameText gameText =
-            haru::game::localization::GameText::loadDefault("en-US");
+            haru::game::localization::GameText::loadDefault(initialLocale);
         haru::game::scenes::HomeScene homeScene(gameText);
+        haru::game::scenes::SettingsScene settingsScene(gameText);
         haru::game::scenes::TitleScene dailyScene(gameText);
         haru::game::scenes::HomePanel homePanel = haru::game::scenes::HomePanel::Main;
         GameScreen screen = GameScreen::StudioSplash;
         haru::game::systems::DailyLoopState dailyLoopState;
-        const auto applyLocale = [&](const char* localeTag) {
+        if (saveManager.activeSave() != nullptr) {
+            dailyLoopState = haru::game::systems::DailyLoopState(saveManager.activeSave()->stats);
+        }
+        const auto applyLocale = [&](const char* localeTag, bool recordToSave = true) {
             if (!gameText.setLocale(localeTag)) {
                 return;
             }
 
             homeScene = haru::game::scenes::HomeScene(gameText);
+            settingsScene = haru::game::scenes::SettingsScene(gameText);
             dailyScene = haru::game::scenes::TitleScene(gameText);
+            window.setTitle(gameText.get(haru::game::localization::TextId::GameTitle));
+            if (recordToSave) {
+                saveManager.recordLocaleChange(gameText.activeLocale());
+            }
         };
+        const auto saveSummaries = [&]() {
+            std::vector<std::string> summaries;
+            int slot = 1;
+            for (const auto& save : saveManager.saves()) {
+                std::ostringstream summary;
+                summary << "Save " << slot << "  "
+                        << gameText.get(haru::game::localization::TextId::Day) << ' '
+                        << save.stats.day << "  "
+                        << gameText.get(haru::game::localization::TextId::ModStat) << ' '
+                        << save.stats.modProgress;
+                summaries.push_back(summary.str());
+                ++slot;
+            }
+            return summaries;
+        };
+        window.setTitle(gameText.get(haru::game::localization::TextId::GameTitle));
         window.show();
 
         return app.run(game, [&](const haru::engine::core::FrameContext& frame) {
@@ -69,27 +123,50 @@ int main(int argc, char** argv) {
                         const auto action =
                             homeScene.actionAt({event.x, event.y},
                                                {surface.width(), surface.height()},
-                                               homePanel);
+                                               homePanel,
+                                               saveManager.saves().size());
                         if (action == haru::game::scenes::HomeAction::NewGame) {
                             dailyLoopState = haru::game::systems::DailyLoopState{};
+                            saveManager.createNewGame(gameText.activeLocale());
                             screen = GameScreen::DailyLoop;
                         } else if (action == haru::game::scenes::HomeAction::OpenSaves) {
                             homePanel = haru::game::scenes::HomePanel::Saves;
                         } else if (action == haru::game::scenes::HomeAction::OpenSettings) {
-                            homePanel = haru::game::scenes::HomePanel::Settings;
-                        } else if (action ==
-                                   haru::game::scenes::HomeAction::SetLocaleEnglish) {
-                            applyLocale("en-US");
-                        } else if (action == haru::game::scenes::HomeAction::
-                                                  SetLocaleSimplifiedChinese) {
-                            applyLocale("zh-CN");
-                        } else if (action ==
-                                   haru::game::scenes::HomeAction::SetLocaleJapanese) {
-                            applyLocale("ja-JP");
+                            homePanel = haru::game::scenes::HomePanel::Main;
+                            screen = GameScreen::Settings;
                         } else if (action == haru::game::scenes::HomeAction::Back) {
                             homePanel = haru::game::scenes::HomePanel::Main;
                         } else if (action == haru::game::scenes::HomeAction::Quit) {
                             window.requestClose();
+                        } else if (action.has_value()) {
+                            const auto saveIndex = loadSaveIndex(*action);
+                            if (saveIndex.has_value() &&
+                                *saveIndex < saveManager.saves().size()) {
+                                const auto save = saveManager.saves()[*saveIndex];
+                                if (saveManager.activateSave(save.id)) {
+                                    dailyLoopState =
+                                        haru::game::systems::DailyLoopState(save.stats);
+                                    applyLocale(save.localeTag.c_str(), false);
+                                    homePanel = haru::game::scenes::HomePanel::Main;
+                                    screen = GameScreen::DailyLoop;
+                                }
+                            }
+                        }
+                    } else if (screen == GameScreen::Settings) {
+                        const auto action =
+                            settingsScene.actionAt({event.x, event.y},
+                                                   {surface.width(), surface.height()});
+                        if (action ==
+                            haru::game::scenes::SettingsAction::SetLocaleEnglish) {
+                            applyLocale("en-US");
+                        } else if (action == haru::game::scenes::SettingsAction::
+                                                 SetLocaleSimplifiedChinese) {
+                            applyLocale("zh-CN");
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::SetLocaleJapanese) {
+                            applyLocale("ja-JP");
+                        } else if (action == haru::game::scenes::SettingsAction::Back) {
+                            screen = GameScreen::Home;
                         }
                     } else if (screen == GameScreen::DailyLoop) {
                         const auto action =
@@ -97,6 +174,9 @@ int main(int argc, char** argv) {
                                                 {surface.width(), surface.height()});
                         if (action.has_value()) {
                             dailyLoopState.apply(*action);
+                            saveManager.recordDailyAction(*action,
+                                                          dailyLoopState.stats(),
+                                                          gameText.activeLocale());
                         }
                     }
                 }
@@ -121,7 +201,12 @@ int main(int argc, char** argv) {
                                    if (screen == GameScreen::Home) {
                                        homeScene.render(contentQueue,
                                                         {surface.width(), surface.height()},
-                                                        homePanel);
+                                                        homePanel,
+                                                        saveSummaries());
+                                   } else if (screen == GameScreen::Settings) {
+                                       settingsScene.render(contentQueue,
+                                                            {surface.width(),
+                                                             surface.height()});
                                    } else {
                                        dailyScene.render(contentQueue,
                                                          {surface.width(), surface.height()},

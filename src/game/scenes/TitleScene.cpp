@@ -69,9 +69,17 @@ void renderButton(engine::graphics::RenderQueue& queue, const engine::ui::Button
     queue.strokeRect(bounds, warmWhite, 2);
     queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8}, warmWhite, 4);
     queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14}, warmWhite);
-    queue.drawText({bounds.x + 28, bounds.y + 11, bounds.width - 56, bounds.height - 18},
-                   button.label(),
-                   deepInk);
+    engine::ui::TextBoxStyle textStyle;
+    textStyle.text = deepInk;
+    textStyle.minHorizontalPadding = 18;
+    textStyle.maxHorizontalPadding = 42;
+    engine::ui::TextBox({bounds.x + 28,
+                         bounds.y + 11,
+                         bounds.width - 56,
+                         bounds.height - 18},
+                        button.label(),
+                        textStyle)
+        .render(queue);
 }
 
 void drawProgressBar(engine::graphics::RenderQueue& queue,
@@ -111,9 +119,14 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
     queue.strokeRect({96, 72, 640, 82}, sakuraStrong, 3);
     queue.fillRoundedRect({118, 126, 122, 8}, gold, 4);
     queue.fillRoundedRect({256, 126, 56, 8}, sakuraStrong, 4);
-    queue.drawText({116, 88, 600, 52},
-                   text_.get(localization::TextId::GameTitle),
-                   ink);
+    engine::ui::TextBoxStyle titleTextStyle;
+    titleTextStyle.text = ink;
+    titleTextStyle.minHorizontalPadding = 18;
+    titleTextStyle.maxHorizontalPadding = 72;
+    engine::ui::TextBox({116, 88, 600, 52},
+                        text_.get(localization::TextId::GameTitle),
+                        titleTextStyle)
+        .render(queue);
 
     queue.fillRoundedRect({464, 194, std::max(stageWidth - 92, 1), 52},
                           {231, 243, 250, 255},
