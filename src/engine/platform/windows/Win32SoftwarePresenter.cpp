@@ -1,5 +1,8 @@
 #include "engine/platform/windows/Win32SoftwarePresenter.hpp"
+#include "engine/graphics/ViewportScaler.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -21,6 +24,14 @@ std::vector<std::uint32_t> toBgraPixels(const graphics::SoftwareSurface& surface
     }
 
     return pixels;
+}
+
+RECT clientRect(const Win32Window& window) {
+    RECT rect{};
+    if (GetClientRect(window.nativeHandle(), &rect) == FALSE) {
+        throw std::runtime_error("failed to query window client rect");
+    }
+    return rect;
 }
 
 std::wstring utf8ToWide(const std::string& text) {
@@ -54,13 +65,24 @@ bool isSplashTitleLetter(const graphics::DrawCommand& command) {
            command.color == graphics::Color{11, 119, 155, 255};
 }
 
-HFONT createFontForText(const graphics::DrawCommand& command) {
+graphics::Rect scaleRect(graphics::Rect rect,
+                         graphics::Rect presentationRect,
+                         const graphics::SoftwareSurface& surface) {
+    return {presentationRect.x + (rect.x * presentationRect.width) / surface.width(),
+            presentationRect.y + (rect.y * presentationRect.height) / surface.height(),
+            std::max(1, (rect.width * presentationRect.width) / surface.width()),
+            std::max(1, (rect.height * presentationRect.height) / surface.height())};
+}
+
+HFONT createFontForText(const graphics::DrawCommand& command, double scale) {
     const bool splashTitle = isSplashTitleLetter(command);
     const bool displayText = !splashTitle && command.rect.height >= 56 &&
                              command.rect.width <= 600;
     const bool sceneTitle = !splashTitle && !displayText && command.rect.height >= 40 &&
                             command.rect.width >= 520;
-    const int fontSize = displayText ? -54 : (splashTitle ? -42 : (sceneTitle ? -30 : -20));
+    const int baseFontSize = displayText ? 54 : (splashTitle ? 42 : (sceneTitle ? 30 : 20));
+    const int fontSize =
+        -std::max(1, static_cast<int>(std::round(static_cast<double>(baseFontSize) * scale)));
     return CreateFontW(fontSize,
                        0,
                        0,
@@ -80,23 +102,31 @@ HFONT createFontForText(const graphics::DrawCommand& command) {
                                                                   L"Yu Gothic UI")));
 }
 
-void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource) {
+void drawTextCommands(HDC deviceContext,
+                      const graphics::RenderQueue& textSource,
+                      graphics::Rect presentationRect,
+                      const graphics::SoftwareSurface& surface) {
     const int previousBkMode = SetBkMode(deviceContext, TRANSPARENT);
+    const double scale = static_cast<double>(presentationRect.height) /
+                         static_cast<double>(std::max(surface.height(), 1));
 
     for (const auto& command : textSource.commands()) {
         if (command.kind != graphics::DrawCommandKind::Text || command.text.empty()) {
             continue;
         }
 
-        HFONT font = createFontForText(command);
+        const graphics::Rect scaledRect = scaleRect(command.rect, presentationRect, surface);
+        graphics::DrawCommand scaledCommand = command;
+        scaledCommand.rect = scaledRect;
+        HFONT font = createFontForText(scaledCommand, scale);
         const HGDIOBJ previousFont =
             font != nullptr ? SelectObject(deviceContext, font) : nullptr;
 
         SetTextColor(deviceContext, toColorRef(command.color));
-        RECT rect{command.rect.x,
-                  command.rect.y,
-                  command.rect.x + command.rect.width,
-                  command.rect.y + command.rect.height};
+        RECT rect{scaledRect.x,
+                  scaledRect.y,
+                  scaledRect.x + scaledRect.width,
+                  scaledRect.y + scaledRect.height};
         const std::wstring text = utf8ToWide(command.text);
         const bool splashTitleLetter = isSplashTitleLetter(command);
         const UINT format =
@@ -121,7 +151,8 @@ void drawTextCommands(HDC deviceContext, const graphics::RenderQueue& textSource
 
 void presentComposited(const Win32Window& window,
                        const graphics::SoftwareSurface& surface,
-                       const graphics::RenderQueue* textSource) {
+                       const graphics::RenderQueue* textSource,
+                       int resolutionScalePercent) {
     HDC windowContext = GetDC(window.nativeHandle());
     if (windowContext == nullptr) {
         throw std::runtime_error("failed to acquire window device context");
@@ -132,6 +163,13 @@ void presentComposited(const Win32Window& window,
         ReleaseDC(window.nativeHandle(), windowContext);
         throw std::runtime_error("failed to create offscreen device context");
     }
+
+    const RECT targetClient = clientRect(window);
+    const int targetWidth = std::max(targetClient.right - targetClient.left, 1L);
+    const int targetHeight = std::max(targetClient.bottom - targetClient.top, 1L);
+    const graphics::ViewportScaler scaler({surface.width(), surface.height()});
+    const graphics::Rect presentation =
+        scaler.presentationRect({targetWidth, targetHeight}, resolutionScalePercent);
 
     BITMAPINFO bitmapInfo{};
     bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -158,26 +196,80 @@ void presentComposited(const Win32Window& window,
     const auto pixels = toBgraPixels(surface);
     std::memcpy(bitmapBits, pixels.data(), pixels.size() * sizeof(std::uint32_t));
 
+    HDC finalContext = CreateCompatibleDC(windowContext);
+    if (finalContext == nullptr) {
+        SelectObject(memoryContext, previousBitmap);
+        DeleteObject(bitmap);
+        DeleteDC(memoryContext);
+        ReleaseDC(window.nativeHandle(), windowContext);
+        throw std::runtime_error("failed to create final presentation device context");
+    }
+
+    BITMAPINFO finalBitmapInfo{};
+    finalBitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    finalBitmapInfo.bmiHeader.biWidth = targetWidth;
+    finalBitmapInfo.bmiHeader.biHeight = -targetHeight;
+    finalBitmapInfo.bmiHeader.biPlanes = 1;
+    finalBitmapInfo.bmiHeader.biBitCount = 32;
+    finalBitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+    void* finalBitmapBits = nullptr;
+    HBITMAP finalBitmap = CreateDIBSection(windowContext,
+                                           &finalBitmapInfo,
+                                           DIB_RGB_COLORS,
+                                           &finalBitmapBits,
+                                           nullptr,
+                                           0);
+    if (finalBitmap == nullptr || finalBitmapBits == nullptr) {
+        DeleteDC(finalContext);
+        SelectObject(memoryContext, previousBitmap);
+        DeleteObject(bitmap);
+        DeleteDC(memoryContext);
+        ReleaseDC(window.nativeHandle(), windowContext);
+        throw std::runtime_error("failed to create final presentation DIB section");
+    }
+
+    const HGDIOBJ previousFinalBitmap = SelectObject(finalContext, finalBitmap);
+    HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
+    RECT fillRect{0, 0, targetWidth, targetHeight};
+    FillRect(finalContext, &fillRect, blackBrush);
+    DeleteObject(blackBrush);
+
+    SetStretchBltMode(finalContext, HALFTONE);
+    const BOOL stretched = StretchBlt(finalContext,
+                                      presentation.x,
+                                      presentation.y,
+                                      presentation.width,
+                                      presentation.height,
+                                      memoryContext,
+                                      0,
+                                      0,
+                                      surface.width(),
+                                      surface.height(),
+                                      SRCCOPY);
     if (textSource != nullptr) {
-        drawTextCommands(memoryContext, *textSource);
+        drawTextCommands(finalContext, *textSource, presentation, surface);
     }
 
     const BOOL copied = BitBlt(windowContext,
                                0,
                                0,
-                               surface.width(),
-                               surface.height(),
-                               memoryContext,
+                               targetWidth,
+                               targetHeight,
+                               finalContext,
                                0,
                                0,
                                SRCCOPY);
 
+    SelectObject(finalContext, previousFinalBitmap);
+    DeleteObject(finalBitmap);
+    DeleteDC(finalContext);
     SelectObject(memoryContext, previousBitmap);
     DeleteObject(bitmap);
     DeleteDC(memoryContext);
     ReleaseDC(window.nativeHandle(), windowContext);
 
-    if (copied == FALSE) {
+    if (stretched == FALSE || copied == FALSE) {
         throw std::runtime_error("failed to present composited software surface");
     }
 }
@@ -202,6 +294,14 @@ bool Win32SoftwarePresenter::engineOpeningActive() const {
     return openingGate_.openingActive();
 }
 
+void Win32SoftwarePresenter::setResolutionScalePercent(int scalePercent) {
+    resolutionScalePercent_ = std::clamp(scalePercent, 50, 200);
+}
+
+int Win32SoftwarePresenter::resolutionScalePercent() const {
+    return resolutionScalePercent_;
+}
+
 void Win32SoftwarePresenter::presentWithEngineGate(const Win32Window& window,
                                                    const graphics::SoftwareSurface& surface,
                                                    const graphics::RenderQueue* textSource) const {
@@ -218,11 +318,11 @@ void Win32SoftwarePresenter::presentWithEngineGate(const Win32Window& window,
     if (opening) {
         graphics::SoftwareSurface openingSurface(surface.width(), surface.height());
         openingSurface.draw(presentedQueue, graphics::TextRasterization::Skip);
-        presentComposited(window, openingSurface, &presentedQueue);
+        presentComposited(window, openingSurface, &presentedQueue, resolutionScalePercent_);
         return;
     }
 
-    presentComposited(window, surface, textSource);
+    presentComposited(window, surface, textSource, resolutionScalePercent_);
 }
 
 } // namespace haru::engine::platform::windows

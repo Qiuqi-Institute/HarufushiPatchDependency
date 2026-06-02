@@ -21,6 +21,7 @@
 #include "HaruUiNode"
 #include "HaruUserDataCipher"
 #include "HaruUserDirectories"
+#include "HaruViewportScaler"
 #include "HaruWindow"
 
 #ifdef _WIN32

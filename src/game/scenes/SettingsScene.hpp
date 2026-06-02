@@ -17,6 +17,10 @@ enum class SettingsAction {
     SelectDisplayTab,
     IncreaseMasterVolume,
     DecreaseMasterVolume,
+    IncreaseBgmVolume,
+    DecreaseBgmVolume,
+    IncreaseSeVolume,
+    DecreaseSeVolume,
     IncreaseWindowScale,
     DecreaseWindowScale,
     IncreaseTextSpeed,
@@ -33,6 +37,8 @@ enum class SettingsTab {
 struct SettingsState {
     SettingsTab activeTab = SettingsTab::Game;
     int masterVolume = 80;
+    int bgmVolume = 70;
+    int seVolume = 80;
     int windowScale = 100;
     int textSpeed = 50;
 };

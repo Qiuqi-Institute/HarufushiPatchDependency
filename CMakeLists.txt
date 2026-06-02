@@ -31,6 +31,7 @@ add_library(harufushi_engine_core SHARED
     src/engine/foundation/HaruString.cpp
     src/engine/graphics/RenderQueue.cpp
     src/engine/graphics/SoftwareSurface.cpp
+    src/engine/graphics/ViewportScaler.cpp
 )
 
 harufushi_configure_engine_module(harufushi_engine_core HarufushiEngine)
@@ -192,6 +193,7 @@ add_executable(harufushi_tests
     test/engine/SoftwareSurfaceTests.cpp
     test/engine/TextBoxTests.cpp
     test/engine/UiNodeTests.cpp
+    test/engine/ViewportScalerTests.cpp
     test/engine/Win32WindowTests.cpp
     test/engine/WindowConfigTests.cpp
     test/game/DailyLoopStateTests.cpp

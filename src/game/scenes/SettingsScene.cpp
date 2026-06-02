@@ -98,13 +98,13 @@ void drawSettingRail(engine::graphics::RenderQueue& queue,
 engine::graphics::Rect tabRect(SettingsTab tab) {
     switch (tab) {
     case SettingsTab::Game:
-        return {72, 214, 224, 48};
+        return {430, 82, 132, 44};
     case SettingsTab::Audio:
-        return {72, 292, 224, 48};
+        return {586, 82, 132, 44};
     case SettingsTab::Display:
-        return {72, 370, 224, 48};
+        return {742, 82, 132, 44};
     }
-    return {72, 214, 224, 48};
+    return {430, 82, 132, 44};
 }
 
 engine::ui::Button tabButton(const localization::GameText& text, SettingsTab tab) {
@@ -138,6 +138,22 @@ engine::graphics::Rect speedDecreaseRect() {
 }
 
 engine::graphics::Rect speedIncreaseRect() {
+    return {1004, 330, 48, 40};
+}
+
+engine::graphics::Rect bgmDecreaseRect() {
+    return {472, 430, 48, 40};
+}
+
+engine::graphics::Rect bgmIncreaseRect() {
+    return {1004, 430, 48, 40};
+}
+
+engine::graphics::Rect seDecreaseRect() {
+    return {472, 530, 48, 40};
+}
+
+engine::graphics::Rect seIncreaseRect() {
     return {1004, 530, 48, 40};
 }
 
@@ -172,6 +188,13 @@ void renderValueRow(engine::graphics::RenderQueue& queue,
                        18);
 }
 
+void renderSettingPanel(engine::graphics::RenderQueue& queue,
+                        engine::graphics::Rect rect,
+                        engine::graphics::Color fill = {255, 252, 248, 255}) {
+    queue.fillRoundedRect(rect, fill, 18);
+    queue.strokeRect(rect, line, 1);
+}
+
 } // namespace
 
 SettingsScene::SettingsScene(localization::GameText text, SettingsState state)
@@ -184,23 +207,23 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
 
     queue.clear(bgCream);
     queue.fillVerticalGradient({0, 0, width, height}, {255, 250, 252, 255}, {236, 248, 250, 255});
-    queue.fillRoundedRect({48, 48, std::max(width - 96, 1), std::max(height - 96, 1)},
-                          warmWhite,
-                          24);
-    queue.strokeRect({48, 48, std::max(width - 96, 1), std::max(height - 96, 1)}, line, 2);
-    queue.fillRoundedRect({48, 48, 284, std::max(height - 96, 1)}, {244, 249, 250, 255}, 24);
-    queue.fillRect({320, 48, 2, std::max(height - 96, 1)}, line);
-    queue.fillRoundedRect({84, 84, 184, 8}, sakuraStrong, 4);
-    queue.fillRoundedRect({84, 102, 112, 8}, gold, 4);
+    queue.fillRoundedRect({0, 0, width, 146}, {250, 226, 68, 255}, 0);
+    queue.fillRoundedRect({0, std::max(height - 92, 1), width, 92}, {34, 83, 112, 255}, 0);
+    queue.fillRoundedRect({24, 24, 72, 72}, {21, 62, 91, 255}, 28);
+    queue.fillEllipse({44, 44, 32, 32}, gold);
+    queue.fillRoundedRect({48, 150, std::max(width - 96, 1), std::max(height - 242, 1)},
+                          {255, 255, 255, 232},
+                          18);
+    queue.strokeRect({48, 150, std::max(width - 96, 1), std::max(height - 242, 1)}, line, 2);
     renderAdaptiveText(queue,
-                       {356, 82, 520, 48},
+                       {98, 52, 300, 54},
+                       "System Setting",
+                       ink,
+                       54);
+    renderAdaptiveText(queue,
+                       {900, 82, 280, 38},
                        text_.get(localization::TextId::GameTitle),
                        ink);
-    renderAdaptiveText(queue,
-                       {84, 132, 206, 42},
-                       text_.get(localization::TextId::Settings),
-                       ink,
-                       48);
 
     renderButton(queue,
                  tabButton(text_, SettingsTab::Game),
@@ -215,51 +238,113 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
                  state_.activeTab == SettingsTab::Display ? sakura : panelBlue,
                  state_.activeTab == SettingsTab::Display);
 
-    queue.fillRoundedRect({356, 158, std::max(width - 428, 1), 126}, {246, 251, 252, 255}, 18);
-    queue.strokeRect({356, 158, std::max(width - 428, 1), 126}, line, 1);
-    queue.drawText({392, 180, 220, 30}, text_.get(localization::TextId::Language), deepInk);
+    if (state_.activeTab == SettingsTab::Game) {
+        renderSettingPanel(queue, {356, 158, std::max(width - 428, 1), 126}, {246, 251, 252, 255});
+        queue.drawText({392, 180, 220, 30}, text_.get(localization::TextId::Language), deepInk);
 
-    renderButton(queue, englishButton(text_), sky, text_.activeLocale() == "en-US");
-    renderButton(queue,
-                 chineseButton(text_),
-                 sky,
-                 text_.activeLocale() == "zh-CN");
-    renderButton(queue, japaneseButton(text_), sky, text_.activeLocale() == "ja-JP");
+        renderButton(queue, englishButton(text_), sky, text_.activeLocale() == "en-US");
+        renderButton(queue,
+                     chineseButton(text_),
+                     sky,
+                     text_.activeLocale() == "zh-CN");
+        renderButton(queue, japaneseButton(text_), sky, text_.activeLocale() == "ja-JP");
 
-    queue.fillRoundedRect({356, 308, std::max(width - 428, 1), 88}, {255, 252, 248, 255}, 18);
-    queue.strokeRect({356, 308, std::max(width - 428, 1), 88}, line, 1);
-    renderValueRow(queue,
-                   {392, 310, 220, 22},
-                   text_.get(localization::TextId::SettingsMasterVolume),
-                   state_.masterVolume,
-                   sakuraStrong,
-                   audioDecreaseRect(),
-                   audioIncreaseRect());
+        renderSettingPanel(queue, {356, 308, std::max(width - 428, 1), 88});
+        renderValueRow(queue,
+                       {392, 310, 220, 22},
+                       text_.get(localization::TextId::SettingsTextSpeed),
+                       state_.textSpeed,
+                       sky,
+                       audioDecreaseRect(),
+                       audioIncreaseRect());
 
-    queue.fillRoundedRect({356, 408, std::max(width - 428, 1), 88}, {255, 252, 248, 255}, 18);
-    queue.strokeRect({356, 408, std::max(width - 428, 1), 88}, line, 1);
-    renderValueRow(queue,
-                   {392, 410, 220, 22},
-                   text_.get(localization::TextId::SettingsWindowScale),
-                   state_.windowScale,
-                   mint,
-                   scaleDecreaseRect(),
-                   scaleIncreaseRect());
+        renderSettingPanel(queue, {356, 408, std::max(width - 428, 1), 88});
+        queue.drawText({392, 416, 220, 24}, text_.get(localization::TextId::SettingsSkipMode), ink);
+        renderButton(queue,
+                     {{536, 432, 180, 40}, text_.get(localization::TextId::SettingsReadOnly),
+                      tabButtonStyle()},
+                     sky,
+                     true);
+        renderButton(queue,
+                     {{744, 432, 180, 40}, text_.get(localization::TextId::SettingsAllText),
+                      tabButtonStyle()},
+                     panelBlue);
 
-    queue.fillRoundedRect({356, 508, std::max(width - 428, 1), 88}, {255, 252, 248, 255}, 18);
-    queue.strokeRect({356, 508, std::max(width - 428, 1), 88}, line, 1);
-    renderValueRow(queue,
-                   {392, 510, 220, 22},
-                   text_.get(localization::TextId::SettingsTextSpeed),
-                   state_.textSpeed,
-                   sky,
-                   speedDecreaseRect(),
-                   speedIncreaseRect());
+        renderSettingPanel(queue, {356, 508, std::max(width - 428, 1), 88});
+        queue.drawText({392, 516, 220, 24}, text_.get(localization::TextId::SettingsAutoMode), ink);
+        renderButton(queue,
+                     {{536, 532, 180, 40}, "Normal", tabButtonStyle()},
+                     sky,
+                     true);
+        renderButton(queue,
+                     {{744, 532, 180, 40}, "Fast", tabButtonStyle()},
+                     panelBlue);
+    } else if (state_.activeTab == SettingsTab::Audio) {
+        renderSettingPanel(queue, {356, 308, std::max(width - 428, 1), 88});
+        renderValueRow(queue,
+                       {392, 310, 220, 22},
+                       text_.get(localization::TextId::SettingsMasterVolume),
+                       state_.masterVolume,
+                       sakuraStrong,
+                       audioDecreaseRect(),
+                       audioIncreaseRect());
+
+        renderSettingPanel(queue, {356, 408, std::max(width - 428, 1), 88});
+        renderValueRow(queue,
+                       {392, 410, 220, 22},
+                       text_.get(localization::TextId::SettingsBgmVolume),
+                       state_.bgmVolume,
+                       mint,
+                       bgmDecreaseRect(),
+                       bgmIncreaseRect());
+
+        renderSettingPanel(queue, {356, 508, std::max(width - 428, 1), 88});
+        renderValueRow(queue,
+                       {392, 510, 220, 22},
+                       text_.get(localization::TextId::SettingsSeVolume),
+                       state_.seVolume,
+                       sky,
+                       seDecreaseRect(),
+                       seIncreaseRect());
+    } else if (state_.activeTab == SettingsTab::Display) {
+        renderSettingPanel(queue, {356, 158, std::max(width - 428, 1), 126}, {246, 251, 252, 255});
+        queue.drawText({392, 180, 220, 30},
+                       text_.get(localization::TextId::SettingsAspectRatio),
+                       deepInk);
+        renderButton(queue,
+                     {{468, 228, 132, 40}, "16:9", tabButtonStyle()},
+                     sky,
+                     true);
+        renderButton(queue,
+                     {{612, 228, 132, 40}, "4:3", tabButtonStyle()},
+                     panelBlue);
+
+        renderSettingPanel(queue, {356, 308, std::max(width - 428, 1), 88});
+        renderValueRow(queue,
+                       {392, 310, 220, 22},
+                       text_.get(localization::TextId::SettingsWindowScale),
+                       state_.windowScale,
+                       mint,
+                       audioDecreaseRect(),
+                       audioIncreaseRect());
+
+        renderSettingPanel(queue, {356, 408, std::max(width - 428, 1), 88});
+        queue.drawText({392, 416, 220, 24}, text_.get(localization::TextId::SettingsDisplayMode), ink);
+        renderButton(queue,
+                     {{536, 432, 180, 40}, text_.get(localization::TextId::SettingsWindowed),
+                      tabButtonStyle()},
+                     sky,
+                     true);
+        renderButton(queue,
+                     {{744, 432, 180, 40}, text_.get(localization::TextId::SettingsFullscreen),
+                      tabButtonStyle()},
+                     panelBlue);
+    }
 
     queue.fillEllipse({width - 220, 88, 92, 92}, softLilac);
     queue.fillEllipse({width - 196, 114, 42, 42}, sakura);
     queue.fillRoundedRect({width - 214, 188, 122, 10}, sky, 5);
-    renderButton(queue, backButton(text_), warmWhite);
+    renderButton(queue, backButton(text_), gold);
 }
 
 std::optional<SettingsAction> SettingsScene::actionAt(engine::graphics::Point point,
@@ -277,32 +362,48 @@ std::optional<SettingsAction> SettingsScene::actionAt(engine::graphics::Point po
     if (tabButton(text_, SettingsTab::Display).contains(point)) {
         return SettingsAction::SelectDisplayTab;
     }
-    if (englishButton(text_).contains(point)) {
-        return SettingsAction::SetLocaleEnglish;
-    }
-    if (chineseButton(text_).contains(point)) {
-        return SettingsAction::SetLocaleSimplifiedChinese;
-    }
-    if (japaneseButton(text_).contains(point)) {
-        return SettingsAction::SetLocaleJapanese;
-    }
-    if (contains(audioDecreaseRect(), point)) {
-        return SettingsAction::DecreaseMasterVolume;
-    }
-    if (contains(audioIncreaseRect(), point)) {
-        return SettingsAction::IncreaseMasterVolume;
-    }
-    if (contains(scaleDecreaseRect(), point)) {
-        return SettingsAction::DecreaseWindowScale;
-    }
-    if (contains(scaleIncreaseRect(), point)) {
-        return SettingsAction::IncreaseWindowScale;
-    }
-    if (contains(speedDecreaseRect(), point)) {
-        return SettingsAction::DecreaseTextSpeed;
-    }
-    if (contains(speedIncreaseRect(), point)) {
-        return SettingsAction::IncreaseTextSpeed;
+    if (state_.activeTab == SettingsTab::Game) {
+        if (englishButton(text_).contains(point)) {
+            return SettingsAction::SetLocaleEnglish;
+        }
+        if (chineseButton(text_).contains(point)) {
+            return SettingsAction::SetLocaleSimplifiedChinese;
+        }
+        if (japaneseButton(text_).contains(point)) {
+            return SettingsAction::SetLocaleJapanese;
+        }
+        if (contains(audioDecreaseRect(), point)) {
+            return SettingsAction::DecreaseTextSpeed;
+        }
+        if (contains(audioIncreaseRect(), point)) {
+            return SettingsAction::IncreaseTextSpeed;
+        }
+    } else if (state_.activeTab == SettingsTab::Audio) {
+        if (contains(audioDecreaseRect(), point)) {
+            return SettingsAction::DecreaseMasterVolume;
+        }
+        if (contains(audioIncreaseRect(), point)) {
+            return SettingsAction::IncreaseMasterVolume;
+        }
+        if (contains(bgmDecreaseRect(), point)) {
+            return SettingsAction::DecreaseBgmVolume;
+        }
+        if (contains(bgmIncreaseRect(), point)) {
+            return SettingsAction::IncreaseBgmVolume;
+        }
+        if (contains(seDecreaseRect(), point)) {
+            return SettingsAction::DecreaseSeVolume;
+        }
+        if (contains(seIncreaseRect(), point)) {
+            return SettingsAction::IncreaseSeVolume;
+        }
+    } else if (state_.activeTab == SettingsTab::Display) {
+        if (contains(audioDecreaseRect(), point)) {
+            return SettingsAction::DecreaseWindowScale;
+        }
+        if (contains(audioIncreaseRect(), point)) {
+            return SettingsAction::IncreaseWindowScale;
+        }
     }
     if (backButton(text_).contains(point)) {
         return SettingsAction::Back;

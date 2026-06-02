@@ -117,6 +117,22 @@ HWND Win32Window::nativeHandle() const {
     return handle_;
 }
 
+int Win32Window::clientWidth() const {
+    RECT rect{};
+    if (GetClientRect(handle_, &rect) == FALSE) {
+        return config_.width;
+    }
+    return static_cast<int>(rect.right - rect.left);
+}
+
+int Win32Window::clientHeight() const {
+    RECT rect{};
+    if (GetClientRect(handle_, &rect) == FALSE) {
+        return config_.height;
+    }
+    return static_cast<int>(rect.bottom - rect.top);
+}
+
 ATOM Win32Window::ensureWindowClass(HINSTANCE instance) {
     static ATOM registeredClass = 0;
     if (registeredClass != 0) {

@@ -53,8 +53,28 @@ std::string textKey(TextId id) {
         return "settings.tab.display";
     case TextId::SettingsMasterVolume:
         return "settings.master_volume";
+    case TextId::SettingsBgmVolume:
+        return "settings.bgm_volume";
+    case TextId::SettingsSeVolume:
+        return "settings.se_volume";
     case TextId::SettingsWindowScale:
         return "settings.window_scale";
+    case TextId::SettingsAspectRatio:
+        return "settings.aspect_ratio";
+    case TextId::SettingsWindowed:
+        return "settings.windowed";
+    case TextId::SettingsFullscreen:
+        return "settings.fullscreen";
+    case TextId::SettingsDisplayMode:
+        return "settings.display_mode";
+    case TextId::SettingsSkipMode:
+        return "settings.skip_mode";
+    case TextId::SettingsAutoMode:
+        return "settings.auto_mode";
+    case TextId::SettingsReadOnly:
+        return "settings.read_only";
+    case TextId::SettingsAllText:
+        return "settings.all_text";
     case TextId::SettingsTextSpeed:
         return "settings.text_speed_label";
     case TextId::ReturnHome:

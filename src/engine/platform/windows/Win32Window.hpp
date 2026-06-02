@@ -31,6 +31,8 @@ public:
     void setTitle(std::string title);
 
     HWND nativeHandle() const;
+    int clientWidth() const;
+    int clientHeight() const;
 
 private:
     static ATOM ensureWindowClass(HINSTANCE instance);

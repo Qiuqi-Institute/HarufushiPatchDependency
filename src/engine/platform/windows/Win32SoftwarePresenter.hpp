@@ -17,6 +17,8 @@ public:
                  const graphics::RenderQueue& textSource) const;
 
     bool engineOpeningActive() const;
+    void setResolutionScalePercent(int scalePercent);
+    int resolutionScalePercent() const;
 
 private:
     void presentWithEngineGate(const Win32Window& window,
@@ -24,6 +26,7 @@ private:
                                const graphics::RenderQueue* textSource) const;
 
     mutable core::EngineOpeningGate openingGate_;
+    int resolutionScalePercent_ = 100;
 };
 
 } // namespace haru::engine::platform::windows

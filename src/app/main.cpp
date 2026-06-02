@@ -74,8 +74,13 @@ int main(int argc, char** argv) {
         haru::game::scenes::SettingsState settingsState{
             haru::game::scenes::SettingsTab::Game,
             std::clamp(settingsStore.integer("master_volume", 80), 0, 100),
+            std::clamp(settingsStore.integer("bgm_volume", 70), 0, 100),
+            std::clamp(settingsStore.integer("se_volume", 80), 0, 100),
             std::clamp(settingsStore.integer("window_scale", 100), 50, 200),
             std::clamp(settingsStore.integer("text_speed", 50), 0, 100)};
+        presenter.setResolutionScalePercent(settingsState.windowScale);
+        const haru::engine::graphics::ViewportScaler viewportScaler({surface.width(),
+                                                                     surface.height()});
         haru::game::localization::GameText gameText =
             haru::game::localization::GameText::loadDefault(initialLocale);
         haru::game::scenes::HomeScene homeScene(gameText);
@@ -106,8 +111,11 @@ int main(int argc, char** argv) {
         };
         const auto persistSettings = [&]() {
             settingsStore.setInt("master_volume", settingsState.masterVolume);
+            settingsStore.setInt("bgm_volume", settingsState.bgmVolume);
+            settingsStore.setInt("se_volume", settingsState.seVolume);
             settingsStore.setInt("window_scale", settingsState.windowScale);
             settingsStore.setInt("text_speed", settingsState.textSpeed);
+            presenter.setResolutionScalePercent(settingsState.windowScale);
         };
         const auto saveSummaries = [&]() {
             std::vector<std::string> summaries;
@@ -135,9 +143,17 @@ int main(int argc, char** argv) {
                 } else if (event.kind ==
                                haru::engine::platform::WindowEventKind::MouseButtonReleased &&
                            event.button == haru::engine::platform::MouseButton::Left) {
+                    const auto designPoint =
+                        viewportScaler.mapPointToDesign({event.x, event.y},
+                                                        {window.clientWidth(),
+                                                         window.clientHeight()},
+                                                        presenter.resolutionScalePercent());
+                    if (!designPoint.has_value()) {
+                        continue;
+                    }
                     if (screen == GameScreen::Home) {
                         const auto action =
-                            homeScene.actionAt({event.x, event.y},
+                            homeScene.actionAt(*designPoint,
                                                {surface.width(), surface.height()},
                                                homePanel,
                                                saveManager.saves().size());
@@ -170,7 +186,7 @@ int main(int argc, char** argv) {
                         }
                     } else if (screen == GameScreen::Settings) {
                         const auto action =
-                            settingsScene.actionAt({event.x, event.y},
+                            settingsScene.actionAt(*designPoint,
                                                    {surface.width(), surface.height()});
                         if (action ==
                             haru::game::scenes::SettingsAction::SetLocaleEnglish) {
@@ -206,6 +222,30 @@ int main(int argc, char** argv) {
                             persistSettings();
                             refreshSettingsScene();
                         } else if (action ==
+                                   haru::game::scenes::SettingsAction::IncreaseBgmVolume) {
+                            settingsState.bgmVolume =
+                                std::clamp(settingsState.bgmVolume + 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::DecreaseBgmVolume) {
+                            settingsState.bgmVolume =
+                                std::clamp(settingsState.bgmVolume - 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::IncreaseSeVolume) {
+                            settingsState.seVolume =
+                                std::clamp(settingsState.seVolume + 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::DecreaseSeVolume) {
+                            settingsState.seVolume =
+                                std::clamp(settingsState.seVolume - 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
                                    haru::game::scenes::SettingsAction::IncreaseWindowScale) {
                             settingsState.windowScale =
                                 std::clamp(settingsState.windowScale + 10, 50, 200);
@@ -234,7 +274,7 @@ int main(int argc, char** argv) {
                         }
                     } else if (screen == GameScreen::DailyLoop) {
                         const auto navigation =
-                            dailyScene.navigationActionAt({event.x, event.y},
+                            dailyScene.navigationActionAt(*designPoint,
                                                           {surface.width(), surface.height()});
                         if (navigation == haru::game::scenes::TitleNavigationAction::ReturnHome) {
                             homePanel = haru::game::scenes::HomePanel::Main;
@@ -242,7 +282,7 @@ int main(int argc, char** argv) {
                             continue;
                         }
                         const auto action =
-                            dailyScene.actionAt({event.x, event.y},
+                            dailyScene.actionAt(*designPoint,
                                                 {surface.width(), surface.height()});
                         if (action.has_value()) {
                             dailyLoopState.apply(*action);
