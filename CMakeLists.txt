@@ -97,6 +97,7 @@ add_library(harufushi_game STATIC
     src/game/scenes/TitleScene.cpp
     src/game/systems/DailyLoopState.cpp
     src/game/systems/HarufushiGame.cpp
+    src/game/systems/ModProjectState.cpp
 )
 
 target_include_directories(harufushi_game
@@ -165,6 +166,7 @@ add_executable(harufushi_tests
     test/game/DailyLoopStateTests.cpp
     test/game/GameTextTests.cpp
     test/game/HomeSceneTests.cpp
+    test/game/ModProjectStateTests.cpp
     test/game/StudioSplashSceneTests.cpp
     test/game/TitleSceneTests.cpp
 )
