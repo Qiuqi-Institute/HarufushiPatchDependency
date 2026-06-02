@@ -12,12 +12,35 @@ enum class SettingsAction {
     SetLocaleEnglish,
     SetLocaleSimplifiedChinese,
     SetLocaleJapanese,
+    SelectGameTab,
+    SelectAudioTab,
+    SelectDisplayTab,
+    IncreaseMasterVolume,
+    DecreaseMasterVolume,
+    IncreaseWindowScale,
+    DecreaseWindowScale,
+    IncreaseTextSpeed,
+    DecreaseTextSpeed,
     Back,
+};
+
+enum class SettingsTab {
+    Game,
+    Audio,
+    Display,
+};
+
+struct SettingsState {
+    SettingsTab activeTab = SettingsTab::Game;
+    int masterVolume = 80;
+    int windowScale = 100;
+    int textSpeed = 50;
 };
 
 class SettingsScene {
 public:
-    explicit SettingsScene(localization::GameText text = localization::GameText::loadDefault());
+    explicit SettingsScene(localization::GameText text = localization::GameText::loadDefault(),
+                           SettingsState state = {});
 
     void render(engine::graphics::RenderQueue& queue,
                 engine::graphics::Size surfaceSize) const;
@@ -26,6 +49,7 @@ public:
 
 private:
     localization::GameText text_;
+    SettingsState state_;
 };
 
 } // namespace haru::game::scenes

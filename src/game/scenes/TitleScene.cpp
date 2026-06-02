@@ -47,6 +47,12 @@ engine::ui::Button restButton(const localization::GameText& text) {
     return {{72, 424, 284, 48}, text.get(localization::TextId::Rest), secondaryButtonStyle()};
 }
 
+engine::ui::Button homeButton(const localization::GameText& text, int width) {
+    return {{std::max(width - 224, 1), 72, 160, 48},
+            text.get(localization::TextId::ReturnHome),
+            secondaryButtonStyle()};
+}
+
 void drawPaper(engine::graphics::RenderQueue& queue,
                engine::graphics::Rect rect,
                engine::graphics::Color fill,
@@ -127,6 +133,7 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
                         text_.get(localization::TextId::GameTitle),
                         titleTextStyle)
         .render(queue);
+    renderButton(queue, homeButton(text_, width));
 
     queue.fillRoundedRect({464, 194, std::max(stageWidth - 92, 1), 52},
                           {231, 243, 250, 255},
@@ -183,6 +190,20 @@ std::optional<systems::DailyAction> TitleScene::actionAt(
     }
     if (restButton(text_).contains(point)) {
         return systems::DailyAction::Rest;
+    }
+
+    return std::nullopt;
+}
+
+std::optional<TitleNavigationAction> TitleScene::navigationActionAt(
+    engine::graphics::Point point,
+    engine::graphics::Size surfaceSize) const {
+    if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
+        return std::nullopt;
+    }
+
+    if (homeButton(text_, surfaceSize.width).contains(point)) {
+        return TitleNavigationAction::ReturnHome;
     }
 
     return std::nullopt;

@@ -60,3 +60,19 @@ HARU_TEST(game_text_language_names_are_written_in_their_own_language) {
                    "简体中文");
     HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::LanguageJapanese), "日本語");
 }
+
+HARU_TEST(game_text_loads_settings_and_navigation_labels) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("en-US");
+
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::SettingsTabGame), "Game");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::SettingsTabAudio), "Audio");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::SettingsTabDisplay), "Display");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::SettingsMasterVolume),
+                   "Master Volume");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::SettingsWindowScale),
+                   "Window Scale");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::SettingsTextSpeed),
+                   "Text Speed");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::ReturnHome), "Home");
+}

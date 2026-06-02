@@ -9,6 +9,10 @@
 
 namespace haru::game::scenes {
 
+enum class TitleNavigationAction {
+    ReturnHome,
+};
+
 class TitleScene {
 public:
     explicit TitleScene(localization::GameText text = localization::GameText::loadDefault());
@@ -18,6 +22,9 @@ public:
                 const systems::DailyStats& stats = systems::DailyStats{}) const;
     std::optional<systems::DailyAction> actionAt(engine::graphics::Point point,
                                                  engine::graphics::Size surfaceSize) const;
+    std::optional<TitleNavigationAction> navigationActionAt(
+        engine::graphics::Point point,
+        engine::graphics::Size surfaceSize) const;
 
 private:
     localization::GameText text_;

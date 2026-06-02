@@ -184,15 +184,45 @@ void presentComposited(const Win32Window& window,
 
 } // namespace
 
+Win32SoftwarePresenter::Win32SoftwarePresenter(double openingSeconds)
+    : openingGate_(openingSeconds) {}
+
 void Win32SoftwarePresenter::present(const Win32Window& window,
                                      const graphics::SoftwareSurface& surface) const {
-    presentComposited(window, surface, nullptr);
+    presentWithEngineGate(window, surface, nullptr);
 }
 
 void Win32SoftwarePresenter::present(const Win32Window& window,
                                      const graphics::SoftwareSurface& surface,
                                      const graphics::RenderQueue& textSource) const {
-    presentComposited(window, surface, &textSource);
+    presentWithEngineGate(window, surface, &textSource);
+}
+
+bool Win32SoftwarePresenter::engineOpeningActive() const {
+    return openingGate_.openingActive();
+}
+
+void Win32SoftwarePresenter::presentWithEngineGate(const Win32Window& window,
+                                                   const graphics::SoftwareSurface& surface,
+                                                   const graphics::RenderQueue* textSource) const {
+    graphics::RenderQueue callerQueue;
+    if (textSource != nullptr) {
+        callerQueue = *textSource;
+    }
+
+    graphics::RenderQueue presentedQueue;
+    const bool opening = openingGate_.compose(presentedQueue,
+                                              {surface.width(), surface.height()},
+                                              1.0 / 60.0,
+                                              callerQueue);
+    if (opening) {
+        graphics::SoftwareSurface openingSurface(surface.width(), surface.height());
+        openingSurface.draw(presentedQueue, graphics::TextRasterization::Skip);
+        presentComposited(window, openingSurface, &presentedQueue);
+        return;
+    }
+
+    presentComposited(window, surface, textSource);
 }
 
 } // namespace haru::engine::platform::windows

@@ -45,6 +45,20 @@ std::string textKey(TextId id) {
         return "language.zh_cn";
     case TextId::LanguageJapanese:
         return "language.ja_jp";
+    case TextId::SettingsTabGame:
+        return "settings.tab.game";
+    case TextId::SettingsTabAudio:
+        return "settings.tab.audio";
+    case TextId::SettingsTabDisplay:
+        return "settings.tab.display";
+    case TextId::SettingsMasterVolume:
+        return "settings.master_volume";
+    case TextId::SettingsWindowScale:
+        return "settings.window_scale";
+    case TextId::SettingsTextSpeed:
+        return "settings.text_speed_label";
+    case TextId::ReturnHome:
+        return "nav.home";
     case TextId::Study:
         return "daily.study";
     case TextId::Modding:

@@ -136,6 +136,18 @@ HARU_TEST(title_scene_maps_button_points_to_daily_actions) {
     HARU_EXPECT_EQ(*rest, haru::game::systems::DailyAction::Rest);
 }
 
+HARU_TEST(title_scene_renders_and_maps_return_home_action) {
+    haru::game::scenes::TitleScene titleScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    titleScene.render(queue, {1280, 720});
+
+    HARU_EXPECT_TRUE(hasText(queue, "Home"));
+    const auto action = titleScene.navigationActionAt({1112, 88}, {1280, 720});
+    HARU_EXPECT_TRUE(action.has_value());
+    HARU_EXPECT_EQ(*action, haru::game::scenes::TitleNavigationAction::ReturnHome);
+}
+
 HARU_TEST(title_scene_renders_daily_loop_stats_feedback) {
     haru::game::scenes::TitleScene titleScene;
     haru::game::systems::DailyLoopState state;

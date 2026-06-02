@@ -1,6 +1,7 @@
 #include "SettingsScene.hpp"
 
 #include <algorithm>
+#include <string>
 #include <utility>
 
 namespace haru::game::scenes {
@@ -19,35 +20,37 @@ constexpr engine::graphics::Color shadow{224, 216, 210, 255};
 constexpr engine::graphics::Color warmWhite{255, 250, 246, 255};
 constexpr engine::graphics::Color softLilac{226, 221, 249, 255};
 constexpr engine::graphics::Color panelBlue{239, 249, 250, 255};
+constexpr engine::graphics::Color slate{49, 59, 82, 255};
+constexpr engine::graphics::Color line{215, 224, 232, 255};
 
-engine::ui::ButtonStyle languageButtonStyle() {
-    return {sky, deepInk, 12};
+engine::ui::ButtonStyle tabButtonStyle() {
+    return {panelBlue, deepInk, 12};
 }
 
 engine::ui::ButtonStyle backButtonStyle() {
-    return {sakuraStrong, deepInk, 12};
+    return {warmWhite, deepInk, 12};
 }
 
 engine::ui::Button englishButton(const localization::GameText& text) {
-    return {{456, 288, 368, 48},
+    return {{468, 228, 132, 40},
             text.get(localization::TextId::LanguageEnglish),
-            languageButtonStyle()};
+            tabButtonStyle()};
 }
 
 engine::ui::Button chineseButton(const localization::GameText& text) {
-    return {{456, 352, 368, 48},
+    return {{612, 228, 132, 40},
             text.get(localization::TextId::LanguageSimplifiedChinese),
-            languageButtonStyle()};
+            tabButtonStyle()};
 }
 
 engine::ui::Button japaneseButton(const localization::GameText& text) {
-    return {{456, 416, 368, 48},
+    return {{756, 228, 132, 40},
             text.get(localization::TextId::LanguageJapanese),
-            languageButtonStyle()};
+            tabButtonStyle()};
 }
 
 engine::ui::Button backButton(const localization::GameText& text) {
-    return {{72, 596, 224, 44}, text.get(localization::TextId::Back), backButtonStyle()};
+    return {{72, 620, 224, 46}, text.get(localization::TextId::Back), backButtonStyle()};
 }
 
 void renderAdaptiveText(engine::graphics::RenderQueue& queue,
@@ -64,20 +67,19 @@ void renderAdaptiveText(engine::graphics::RenderQueue& queue,
 
 void renderButton(engine::graphics::RenderQueue& queue,
                   const engine::ui::Button& button,
-                  engine::graphics::Color fill) {
+                  engine::graphics::Color fill,
+                  bool selected = false) {
     const auto& bounds = button.bounds();
-    queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, bounds.width, bounds.height},
-                          shadow,
-                          18);
-    queue.fillRoundedRect(bounds, fill, 18);
-    queue.strokeRect(bounds, warmWhite, 2);
-    queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8}, warmWhite, 4);
-    queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14}, warmWhite);
+    queue.fillRoundedRect({bounds.x + 4, bounds.y + 5, bounds.width, bounds.height},
+                          {203, 210, 222, 150},
+                          12);
+    queue.fillRoundedRect(bounds, fill, 12);
+    queue.strokeRect(bounds, selected ? sakuraStrong : line, selected ? 3 : 1);
     renderAdaptiveText(queue,
-                       {bounds.x + 28, bounds.y + 11, bounds.width - 56, bounds.height - 18},
+                       {bounds.x + 14, bounds.y + 9, bounds.width - 28, bounds.height - 16},
                        button.label(),
-                       deepInk,
-                       42);
+                       selected ? slate : deepInk,
+                       28);
 }
 
 void drawSettingRail(engine::graphics::RenderQueue& queue,
@@ -93,9 +95,87 @@ void drawSettingRail(engine::graphics::RenderQueue& queue,
     queue.strokeRect({bounds.x + fillWidth - 10, bounds.y - 5, 22, 22}, fill, 2);
 }
 
+engine::graphics::Rect tabRect(SettingsTab tab) {
+    switch (tab) {
+    case SettingsTab::Game:
+        return {72, 214, 224, 48};
+    case SettingsTab::Audio:
+        return {72, 292, 224, 48};
+    case SettingsTab::Display:
+        return {72, 370, 224, 48};
+    }
+    return {72, 214, 224, 48};
+}
+
+engine::ui::Button tabButton(const localization::GameText& text, SettingsTab tab) {
+    localization::TextId textId = localization::TextId::SettingsTabGame;
+    if (tab == SettingsTab::Audio) {
+        textId = localization::TextId::SettingsTabAudio;
+    } else if (tab == SettingsTab::Display) {
+        textId = localization::TextId::SettingsTabDisplay;
+    }
+    return {tabRect(tab), text.get(textId), tabButtonStyle()};
+}
+
+engine::graphics::Rect audioDecreaseRect() {
+    return {472, 330, 48, 40};
+}
+
+engine::graphics::Rect audioIncreaseRect() {
+    return {1004, 330, 48, 40};
+}
+
+engine::graphics::Rect scaleDecreaseRect() {
+    return {472, 430, 48, 40};
+}
+
+engine::graphics::Rect scaleIncreaseRect() {
+    return {1004, 430, 48, 40};
+}
+
+engine::graphics::Rect speedDecreaseRect() {
+    return {472, 530, 48, 40};
+}
+
+engine::graphics::Rect speedIncreaseRect() {
+    return {1004, 530, 48, 40};
+}
+
+bool contains(engine::graphics::Rect rect, engine::graphics::Point point) {
+    return point.x >= rect.x && point.x < rect.x + rect.width && point.y >= rect.y &&
+           point.y < rect.y + rect.height;
+}
+
+void renderStepButton(engine::graphics::RenderQueue& queue,
+                      engine::graphics::Rect rect,
+                      const std::string& label) {
+    queue.fillRoundedRect(rect, warmWhite, 10);
+    queue.strokeRect(rect, line, 2);
+    queue.drawText({rect.x, rect.y + 7, rect.width, rect.height - 14}, label, slate);
+}
+
+void renderValueRow(engine::graphics::RenderQueue& queue,
+                    engine::graphics::Rect labelRect,
+                    const std::string& label,
+                    int value,
+                    engine::graphics::Color accent,
+                    engine::graphics::Rect downRect,
+                    engine::graphics::Rect upRect) {
+    queue.drawText(labelRect, label, ink);
+    renderStepButton(queue, downRect, "-");
+    drawSettingRail(queue, {548, downRect.y + 15, 420, 10}, accent, value);
+    renderStepButton(queue, upRect, "+");
+    renderAdaptiveText(queue,
+                       {912, downRect.y + 4, 72, 32},
+                       std::to_string(value),
+                       slate,
+                       18);
+}
+
 } // namespace
 
-SettingsScene::SettingsScene(localization::GameText text) : text_(std::move(text)) {}
+SettingsScene::SettingsScene(localization::GameText text, SettingsState state)
+    : text_(std::move(text)), state_(state) {}
 
 void SettingsScene::render(engine::graphics::RenderQueue& queue,
                            engine::graphics::Size surfaceSize) const {
@@ -103,60 +183,83 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
     const int height = std::max(surfaceSize.height, 1);
 
     queue.clear(bgCream);
-    queue.fillVerticalGradient({0, 0, width, height}, {255, 247, 250, 255}, {232, 249, 250, 255});
-    queue.fillRoundedRect({-40, 28, width + 80, 96}, sky, 42);
-    queue.fillRoundedRect({88, 72, 640, 82}, warmWhite, 26);
-    queue.strokeRect({88, 72, 640, 82}, sakuraStrong, 3);
-    queue.fillRoundedRect({110, 126, 122, 8}, gold, 4);
-    queue.fillRoundedRect({248, 126, 56, 8}, sakuraStrong, 4);
+    queue.fillVerticalGradient({0, 0, width, height}, {255, 250, 252, 255}, {236, 248, 250, 255});
+    queue.fillRoundedRect({48, 48, std::max(width - 96, 1), std::max(height - 96, 1)},
+                          warmWhite,
+                          24);
+    queue.strokeRect({48, 48, std::max(width - 96, 1), std::max(height - 96, 1)}, line, 2);
+    queue.fillRoundedRect({48, 48, 284, std::max(height - 96, 1)}, {244, 249, 250, 255}, 24);
+    queue.fillRect({320, 48, 2, std::max(height - 96, 1)}, line);
+    queue.fillRoundedRect({84, 84, 184, 8}, sakuraStrong, 4);
+    queue.fillRoundedRect({84, 102, 112, 8}, gold, 4);
     renderAdaptiveText(queue,
-                       {108, 88, 600, 52},
+                       {356, 82, 520, 48},
                        text_.get(localization::TextId::GameTitle),
                        ink);
-
-    queue.fillRoundedRect({136, 188, std::max(width - 272, 1), 376}, warmWhite, 34);
-    queue.fillRoundedRect({154, 206, std::max(width - 308, 1), 340}, panelBlue, 28);
-    queue.strokeRect({136, 188, std::max(width - 272, 1), 376}, sakura, 3);
-    queue.fillRoundedRect({178, 226, 186, 10}, sakuraStrong, 5);
-    queue.fillRoundedRect({178, 250, 128, 10}, mint, 5);
-    queue.fillEllipse({width - 290, 224, 104, 104}, softLilac);
-    queue.fillEllipse({width - 260, 250, 44, 44}, sakura);
-    queue.fillRoundedRect({width - 272, 346, 132, 12}, sky, 6);
-
     renderAdaptiveText(queue,
-                       {188, 258, 212, 36},
+                       {84, 132, 206, 42},
                        text_.get(localization::TextId::Settings),
                        ink,
                        48);
-    renderAdaptiveText(queue,
-                       {188, 318, 212, 30},
-                       text_.get(localization::TextId::Language),
-                       deepInk,
-                       36);
 
-    renderButton(queue, englishButton(text_), sky);
-    renderButton(queue, chineseButton(text_), sky);
-    renderButton(queue, japaneseButton(text_), sky);
+    renderButton(queue,
+                 tabButton(text_, SettingsTab::Game),
+                 state_.activeTab == SettingsTab::Game ? sakura : panelBlue,
+                 state_.activeTab == SettingsTab::Game);
+    renderButton(queue,
+                 tabButton(text_, SettingsTab::Audio),
+                 state_.activeTab == SettingsTab::Audio ? sakura : panelBlue,
+                 state_.activeTab == SettingsTab::Audio);
+    renderButton(queue,
+                 tabButton(text_, SettingsTab::Display),
+                 state_.activeTab == SettingsTab::Display ? sakura : panelBlue,
+                 state_.activeTab == SettingsTab::Display);
 
-    renderAdaptiveText(queue,
-                       {884, 292, 220, 28},
-                       text_.get(localization::TextId::Audio80),
-                       deepInk,
-                       32);
-    drawSettingRail(queue, {884, 330, 236, 12}, sakuraStrong, 80);
-    renderAdaptiveText(queue,
-                       {884, 372, 220, 28},
-                       text_.get(localization::TextId::Visual100),
-                       deepInk,
-                       32);
-    drawSettingRail(queue, {884, 410, 236, 12}, mint, 100);
-    renderAdaptiveText(queue,
-                       {884, 452, 248, 28},
-                       text_.get(localization::TextId::TextSpeedNormal),
-                       deepInk,
-                       32);
+    queue.fillRoundedRect({356, 158, std::max(width - 428, 1), 126}, {246, 251, 252, 255}, 18);
+    queue.strokeRect({356, 158, std::max(width - 428, 1), 126}, line, 1);
+    queue.drawText({392, 180, 220, 30}, text_.get(localization::TextId::Language), deepInk);
 
-    renderButton(queue, backButton(text_), sakuraStrong);
+    renderButton(queue, englishButton(text_), sky, text_.activeLocale() == "en-US");
+    renderButton(queue,
+                 chineseButton(text_),
+                 sky,
+                 text_.activeLocale() == "zh-CN");
+    renderButton(queue, japaneseButton(text_), sky, text_.activeLocale() == "ja-JP");
+
+    queue.fillRoundedRect({356, 308, std::max(width - 428, 1), 88}, {255, 252, 248, 255}, 18);
+    queue.strokeRect({356, 308, std::max(width - 428, 1), 88}, line, 1);
+    renderValueRow(queue,
+                   {392, 310, 220, 22},
+                   text_.get(localization::TextId::SettingsMasterVolume),
+                   state_.masterVolume,
+                   sakuraStrong,
+                   audioDecreaseRect(),
+                   audioIncreaseRect());
+
+    queue.fillRoundedRect({356, 408, std::max(width - 428, 1), 88}, {255, 252, 248, 255}, 18);
+    queue.strokeRect({356, 408, std::max(width - 428, 1), 88}, line, 1);
+    renderValueRow(queue,
+                   {392, 410, 220, 22},
+                   text_.get(localization::TextId::SettingsWindowScale),
+                   state_.windowScale,
+                   mint,
+                   scaleDecreaseRect(),
+                   scaleIncreaseRect());
+
+    queue.fillRoundedRect({356, 508, std::max(width - 428, 1), 88}, {255, 252, 248, 255}, 18);
+    queue.strokeRect({356, 508, std::max(width - 428, 1), 88}, line, 1);
+    renderValueRow(queue,
+                   {392, 510, 220, 22},
+                   text_.get(localization::TextId::SettingsTextSpeed),
+                   state_.textSpeed,
+                   sky,
+                   speedDecreaseRect(),
+                   speedIncreaseRect());
+
+    queue.fillEllipse({width - 220, 88, 92, 92}, softLilac);
+    queue.fillEllipse({width - 196, 114, 42, 42}, sakura);
+    queue.fillRoundedRect({width - 214, 188, 122, 10}, sky, 5);
+    renderButton(queue, backButton(text_), warmWhite);
 }
 
 std::optional<SettingsAction> SettingsScene::actionAt(engine::graphics::Point point,
@@ -165,6 +268,15 @@ std::optional<SettingsAction> SettingsScene::actionAt(engine::graphics::Point po
         return std::nullopt;
     }
 
+    if (tabButton(text_, SettingsTab::Game).contains(point)) {
+        return SettingsAction::SelectGameTab;
+    }
+    if (tabButton(text_, SettingsTab::Audio).contains(point)) {
+        return SettingsAction::SelectAudioTab;
+    }
+    if (tabButton(text_, SettingsTab::Display).contains(point)) {
+        return SettingsAction::SelectDisplayTab;
+    }
     if (englishButton(text_).contains(point)) {
         return SettingsAction::SetLocaleEnglish;
     }
@@ -173,6 +285,24 @@ std::optional<SettingsAction> SettingsScene::actionAt(engine::graphics::Point po
     }
     if (japaneseButton(text_).contains(point)) {
         return SettingsAction::SetLocaleJapanese;
+    }
+    if (contains(audioDecreaseRect(), point)) {
+        return SettingsAction::DecreaseMasterVolume;
+    }
+    if (contains(audioIncreaseRect(), point)) {
+        return SettingsAction::IncreaseMasterVolume;
+    }
+    if (contains(scaleDecreaseRect(), point)) {
+        return SettingsAction::DecreaseWindowScale;
+    }
+    if (contains(scaleIncreaseRect(), point)) {
+        return SettingsAction::IncreaseWindowScale;
+    }
+    if (contains(speedDecreaseRect(), point)) {
+        return SettingsAction::DecreaseTextSpeed;
+    }
+    if (contains(speedIncreaseRect(), point)) {
+        return SettingsAction::IncreaseTextSpeed;
     }
     if (backButton(text_).contains(point)) {
         return SettingsAction::Back;

@@ -25,8 +25,10 @@ endfunction()
 
 add_library(harufushi_engine_core SHARED
     src/engine/core/Application.cpp
+    src/engine/core/EngineOpeningGate.cpp
     src/engine/core/FrameLoop.cpp
     src/engine/core/HaruFrame.cpp
+    src/engine/foundation/HaruString.cpp
     src/engine/graphics/RenderQueue.cpp
     src/engine/graphics/SoftwareSurface.cpp
 )
@@ -89,8 +91,16 @@ if(WIN32)
         PRIVATE
             src/engine/platform/windows/Win32SoftwarePresenter.cpp
             src/engine/platform/windows/Win32Window.cpp
+            src/engine/platform/windows/Win32EncryptedRegistrySettings.cpp
     )
-    target_link_libraries(harufushi_engine_platform PUBLIC gdi32 user32 shell32 ole32)
+    target_link_libraries(harufushi_engine_platform
+        PUBLIC
+            harufushi_engine_security
+            advapi32
+            gdi32
+            user32
+            shell32
+            ole32)
 endif()
 
 add_library(harufushi_engine_modules INTERFACE)
@@ -171,9 +181,12 @@ add_executable(harufushi_tests
     test/support/TestHarness.cpp
     test/engine/ApplicationTests.cpp
     test/engine/ButtonTests.cpp
+    test/engine/EngineOpeningGateTests.cpp
     test/engine/FrameLoopTests.cpp
+    test/engine/HaruFoundationTests.cpp
     test/engine/HaruFrameTests.cpp
     test/engine/LocalizationTests.cpp
+    test/engine/RegistrySettingsTests.cpp
     test/engine/RenderQueueTests.cpp
     test/engine/ResourceTests.cpp
     test/engine/SoftwareSurfaceTests.cpp

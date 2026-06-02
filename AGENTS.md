@@ -84,7 +84,8 @@
 ## Source Layout
 
 - `src/app/`：程序入口和启动编排。
-- `src/engine/core/`：生命周期、错误、日志、时间、基础类型。
+- `src/engine/core/`：生命周期、错误、日志、时间、核心门控和基础运行时。
+- `src/engine/foundation/`：Haru 基础值类型和通用能力，如 `HaruString`、`HaruResult`，用于避免业务层重复堆局部工具。
 - `src/engine/include/`：引擎公开头统一使用无扩展名 `Haru*` 头；可直接包含 `<HaruFrame>`，也可按需直接包含 `<HaruButton>`、`<HaruTextBox>` 等模块头。
 - `src/engine/platform/`：Windows、文件系统、窗口、线程、系统服务适配。
 - `src/engine/graphics/`：渲染抽象、纹理、字体、后端接口。
@@ -115,8 +116,9 @@
 - 不让游戏逻辑直接依赖平台 API；平台差异在 `src/engine/platform/` 内结束。
 - 引擎按模块输出 DLL：`HarufushiEngine.dll` 是 core DLL，`HarufushiEngine.UI.dll`、`HarufushiEngine.Platform.dll`、`HarufushiEngine.Resources.dll`、`HarufushiEngine.Localization.dll` 等模块 DLL 只能建立在 core 之上。
 - 不让游戏逻辑直接包含 `src/engine/**` 内部路径；游戏层调用引擎只能通过 `src/engine/include/` 下的无扩展名 `Haru*` 公开头，例如 `<HaruFrame>`、`<HaruButton>`、`<HaruTextBox>`。
-- 只要程序使用 Harufushi 引擎提供的服务，启动编排就必须实例化并走 `HaruFrame` 渲染链路；`HaruFrame` 负责引擎级开屏展示，开屏未结束前，业务可视化内容不得覆盖或抢先渲染。
+- 只要程序使用 Harufushi 引擎提供的可视化服务，启动输出必须经过引擎级开屏门控。门控必须在 `HaruFrame`、平台 presenter 或同等级引擎层强制执行，不能依赖游戏代码“主动播放开屏”这种君子协议；开屏未结束前，业务可视化内容不得覆盖或抢先渲染。
 - 不让游戏逻辑直接依赖资源文件路径；业务层只使用资源 ID 或内容句柄。
+- 游戏设置持久化必须通过引擎安全设置抽象写入用户配置位置；Windows 目标使用 HKCU 下的非明文二进制注册表值，禁止把 locale、音量、画面等设置以可读字符串或普通 DWORD 明文保存。
 
 ## Commit Convention
 

@@ -9,6 +9,7 @@
 #include "systems/SaveManager.hpp"
 
 #include <chrono>
+#include <algorithm>
 #include <cstring>
 #include <exception>
 #include <filesystem>
@@ -59,20 +60,26 @@ int main(int argc, char** argv) {
         haru::engine::platform::windows::Win32Window window(
             haru::engine::platform::WindowConfig::defaultGameWindow());
         haru::engine::platform::windows::Win32SoftwarePresenter presenter;
+        haru::engine::platform::windows::Win32EncryptedRegistrySettings settingsStore;
         haru::engine::graphics::SoftwareSurface surface(1280, 720);
-        haru::engine::HaruFrame engineFrame(2.0);
         haru::game::scenes::StudioSplashScene studioSplashScene(2.0);
         const std::filesystem::path saveRoot =
             haru::engine::platform::UserDirectories::documentsDirectory() /
             "Harufushi Patch Dependency" / "save data";
         haru::game::systems::SaveManager saveManager(saveRoot);
         saveManager.loadAll();
-        const std::string initialLocale =
+        const std::string fallbackLocale =
             saveManager.activeSave() != nullptr ? saveManager.activeSave()->localeTag : "en-US";
+        const std::string initialLocale = settingsStore.string("locale", fallbackLocale);
+        haru::game::scenes::SettingsState settingsState{
+            haru::game::scenes::SettingsTab::Game,
+            std::clamp(settingsStore.integer("master_volume", 80), 0, 100),
+            std::clamp(settingsStore.integer("window_scale", 100), 50, 200),
+            std::clamp(settingsStore.integer("text_speed", 50), 0, 100)};
         haru::game::localization::GameText gameText =
             haru::game::localization::GameText::loadDefault(initialLocale);
         haru::game::scenes::HomeScene homeScene(gameText);
-        haru::game::scenes::SettingsScene settingsScene(gameText);
+        haru::game::scenes::SettingsScene settingsScene(gameText, settingsState);
         haru::game::scenes::TitleScene dailyScene(gameText);
         haru::game::scenes::HomePanel homePanel = haru::game::scenes::HomePanel::Main;
         GameScreen screen = GameScreen::StudioSplash;
@@ -86,12 +93,21 @@ int main(int argc, char** argv) {
             }
 
             homeScene = haru::game::scenes::HomeScene(gameText);
-            settingsScene = haru::game::scenes::SettingsScene(gameText);
+            settingsScene = haru::game::scenes::SettingsScene(gameText, settingsState);
             dailyScene = haru::game::scenes::TitleScene(gameText);
             window.setTitle(gameText.get(haru::game::localization::TextId::GameTitle));
+            settingsStore.setString("locale", gameText.activeLocale());
             if (recordToSave) {
                 saveManager.recordLocaleChange(gameText.activeLocale());
             }
+        };
+        const auto refreshSettingsScene = [&]() {
+            settingsScene = haru::game::scenes::SettingsScene(gameText, settingsState);
+        };
+        const auto persistSettings = [&]() {
+            settingsStore.setInt("master_volume", settingsState.masterVolume);
+            settingsStore.setInt("window_scale", settingsState.windowScale);
+            settingsStore.setInt("text_speed", settingsState.textSpeed);
         };
         const auto saveSummaries = [&]() {
             std::vector<std::string> summaries;
@@ -165,10 +181,66 @@ int main(int argc, char** argv) {
                         } else if (action ==
                                    haru::game::scenes::SettingsAction::SetLocaleJapanese) {
                             applyLocale("ja-JP");
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::SelectGameTab) {
+                            settingsState.activeTab = haru::game::scenes::SettingsTab::Game;
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::SelectAudioTab) {
+                            settingsState.activeTab = haru::game::scenes::SettingsTab::Audio;
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::SelectDisplayTab) {
+                            settingsState.activeTab = haru::game::scenes::SettingsTab::Display;
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::IncreaseMasterVolume) {
+                            settingsState.masterVolume =
+                                std::clamp(settingsState.masterVolume + 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::DecreaseMasterVolume) {
+                            settingsState.masterVolume =
+                                std::clamp(settingsState.masterVolume - 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::IncreaseWindowScale) {
+                            settingsState.windowScale =
+                                std::clamp(settingsState.windowScale + 10, 50, 200);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::DecreaseWindowScale) {
+                            settingsState.windowScale =
+                                std::clamp(settingsState.windowScale - 10, 50, 200);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::IncreaseTextSpeed) {
+                            settingsState.textSpeed =
+                                std::clamp(settingsState.textSpeed + 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
+                        } else if (action ==
+                                   haru::game::scenes::SettingsAction::DecreaseTextSpeed) {
+                            settingsState.textSpeed =
+                                std::clamp(settingsState.textSpeed - 5, 0, 100);
+                            persistSettings();
+                            refreshSettingsScene();
                         } else if (action == haru::game::scenes::SettingsAction::Back) {
                             screen = GameScreen::Home;
                         }
                     } else if (screen == GameScreen::DailyLoop) {
+                        const auto navigation =
+                            dailyScene.navigationActionAt({event.x, event.y},
+                                                          {surface.width(), surface.height()});
+                        if (navigation == haru::game::scenes::TitleNavigationAction::ReturnHome) {
+                            homePanel = haru::game::scenes::HomePanel::Main;
+                            screen = GameScreen::Home;
+                            continue;
+                        }
                         const auto action =
                             dailyScene.actionAt({event.x, event.y},
                                                 {surface.width(), surface.height()});
@@ -183,36 +255,31 @@ int main(int argc, char** argv) {
             }
 
             haru::engine::graphics::RenderQueue queue;
-            engineFrame.render(queue,
-                               {surface.width(), surface.height()},
-                               frame.deltaSeconds,
-                               [&](haru::engine::graphics::RenderQueue& contentQueue) {
-                                   if (screen == GameScreen::StudioSplash) {
-                                       studioSplashScene.update(frame.deltaSeconds);
-                                       if (studioSplashScene.active()) {
-                                           studioSplashScene.render(
-                                               contentQueue,
-                                               {surface.width(), surface.height()});
-                                           return;
-                                       }
-                                       screen = GameScreen::Home;
-                                   }
+            if (screen == GameScreen::StudioSplash) {
+                if (presenter.engineOpeningActive()) {
+                    queue.clear({255, 255, 255, 255});
+                } else {
+                    studioSplashScene.update(frame.deltaSeconds);
+                    if (studioSplashScene.active()) {
+                        studioSplashScene.render(queue, {surface.width(), surface.height()});
+                    } else {
+                        screen = GameScreen::Home;
+                    }
+                }
+            }
 
-                                   if (screen == GameScreen::Home) {
-                                       homeScene.render(contentQueue,
-                                                        {surface.width(), surface.height()},
-                                                        homePanel,
-                                                        saveSummaries());
-                                   } else if (screen == GameScreen::Settings) {
-                                       settingsScene.render(contentQueue,
-                                                            {surface.width(),
-                                                             surface.height()});
-                                   } else {
-                                       dailyScene.render(contentQueue,
-                                                         {surface.width(), surface.height()},
-                                                         dailyLoopState.stats());
-                                   }
-                               });
+            if (screen == GameScreen::Home) {
+                homeScene.render(queue,
+                                 {surface.width(), surface.height()},
+                                 homePanel,
+                                 saveSummaries());
+            } else if (screen == GameScreen::Settings) {
+                settingsScene.render(queue, {surface.width(), surface.height()});
+            } else if (screen == GameScreen::DailyLoop) {
+                dailyScene.render(queue,
+                                  {surface.width(), surface.height()},
+                                  dailyLoopState.stats());
+            }
 
             surface.draw(queue, haru::engine::graphics::TextRasterization::Skip);
             presenter.present(window, surface, queue);

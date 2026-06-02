@@ -5,6 +5,7 @@
 #include "HaruApplication"
 #include "HaruButton"
 #include "HaruColor"
+#include "HaruEngineOpeningGate"
 #include "HaruFrameLoop"
 #include "HaruGeometry"
 #include "HaruLanguageDocument"
@@ -13,7 +14,9 @@
 #include "HaruRenderQueue"
 #include "HaruResourceId"
 #include "HaruResourceManifest"
+#include "HaruResult"
 #include "HaruSoftwareSurface"
+#include "HaruString"
 #include "HaruTextBox"
 #include "HaruUiNode"
 #include "HaruUserDataCipher"
@@ -21,6 +24,7 @@
 #include "HaruWindow"
 
 #ifdef _WIN32
+#include "HaruWin32EncryptedRegistrySettings"
 #include "HaruWin32SoftwarePresenter"
 #include "HaruWin32Window"
 #endif
