@@ -15,6 +15,8 @@ enum class DrawCommandKind {
     FillEllipse,
     StrokeRect,
     FillVerticalGradient,
+    FillPolygon,
+    Image,
     Text,
 };
 
@@ -26,6 +28,7 @@ struct DrawCommand {
     Color secondaryColor{0, 0, 0, 0};
     int radius = 0;
     int thickness = 0;
+    std::vector<Point> points;
 };
 
 class RenderQueue {
@@ -36,6 +39,8 @@ public:
     void fillEllipse(Rect rect, Color color);
     void strokeRect(Rect rect, Color color, int thickness);
     void fillVerticalGradient(Rect rect, Color topColor, Color bottomColor);
+    void fillPolygon(std::vector<Point> points, Color color);
+    void drawImage(Rect rect, std::string imagePath);
     void drawText(Rect rect, std::string text, Color color);
     void reset();
 

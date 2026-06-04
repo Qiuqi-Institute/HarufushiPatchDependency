@@ -99,9 +99,11 @@ if(WIN32)
             harufushi_engine_security
             advapi32
             gdi32
+            msimg32
             user32
             shell32
-            ole32)
+            ole32
+            windowscodecs)
 endif()
 
 add_library(harufushi_engine_modules INTERFACE)

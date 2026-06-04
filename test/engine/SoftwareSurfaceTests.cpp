@@ -75,3 +75,17 @@ HARU_TEST(software_surface_draws_rounded_shapes_and_gradients) {
     HARU_EXPECT_EQ(surface.pixelAt(1, 1), ink);
     HARU_EXPECT_EQ(surface.pixelAt(10, 19), pink);
 }
+
+HARU_TEST(software_surface_draws_filled_polygons) {
+    haru::engine::graphics::RenderQueue queue;
+    const haru::engine::graphics::Color background{0, 0, 0, 255};
+    const haru::engine::graphics::Color blue{11, 119, 155, 230};
+    queue.clear(background);
+    queue.fillPolygon({{2, 2}, {14, 2}, {10, 14}, {2, 14}}, blue);
+
+    haru::engine::graphics::SoftwareSurface surface(18, 18);
+    surface.draw(queue);
+
+    HARU_EXPECT_EQ(surface.pixelAt(6, 6), blue);
+    HARU_EXPECT_EQ(surface.pixelAt(16, 16), background);
+}

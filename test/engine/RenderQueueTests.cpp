@@ -3,6 +3,7 @@
 #include "engine/graphics/RenderQueue.hpp"
 
 #include <cstddef>
+#include <vector>
 
 HARU_TEST(render_queue_records_clear_and_rect_commands_in_order) {
     haru::engine::graphics::RenderQueue queue;
@@ -43,6 +44,18 @@ HARU_TEST(render_queue_records_text_commands) {
     HARU_EXPECT_EQ(queue.commands()[0].color, textColor);
 }
 
+HARU_TEST(render_queue_records_image_commands) {
+    haru::engine::graphics::RenderQueue queue;
+
+    queue.drawImage({0, 0, 1280, 720}, "resources/images/backgrounds/home_chunfu.png");
+
+    HARU_EXPECT_EQ(queue.commands().size(), static_cast<std::size_t>(1));
+    HARU_EXPECT_EQ(queue.commands()[0].kind, haru::engine::graphics::DrawCommandKind::Image);
+    HARU_EXPECT_EQ(queue.commands()[0].rect.x, 0);
+    HARU_EXPECT_EQ(queue.commands()[0].rect.width, 1280);
+    HARU_EXPECT_EQ(queue.commands()[0].text, "resources/images/backgrounds/home_chunfu.png");
+}
+
 HARU_TEST(render_queue_records_modern_shape_commands) {
     haru::engine::graphics::RenderQueue queue;
     const haru::engine::graphics::Color pink{255, 183, 205, 255};
@@ -66,4 +79,19 @@ HARU_TEST(render_queue_records_modern_shape_commands) {
     HARU_EXPECT_EQ(queue.commands()[3].kind,
                    haru::engine::graphics::DrawCommandKind::FillVerticalGradient);
     HARU_EXPECT_EQ(queue.commands()[3].secondaryColor, pink);
+}
+
+HARU_TEST(render_queue_records_filled_polygon_commands) {
+    haru::engine::graphics::RenderQueue queue;
+    const haru::engine::graphics::Color blue{11, 119, 155, 230};
+
+    queue.fillPolygon({{10, 12}, {30, 16}, {24, 46}, {4, 42}}, blue);
+
+    HARU_EXPECT_EQ(queue.commands().size(), static_cast<std::size_t>(1));
+    HARU_EXPECT_EQ(queue.commands()[0].kind,
+                   haru::engine::graphics::DrawCommandKind::FillPolygon);
+    HARU_EXPECT_EQ(queue.commands()[0].color, blue);
+    HARU_EXPECT_EQ(queue.commands()[0].points.size(), static_cast<std::size_t>(4));
+    HARU_EXPECT_EQ(queue.commands()[0].points[1].x, 30);
+    HARU_EXPECT_EQ(queue.commands()[0].points[3].y, 42);
 }

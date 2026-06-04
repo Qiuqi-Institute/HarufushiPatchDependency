@@ -187,6 +187,66 @@ void fillVerticalGradientPixels(std::vector<Color>& pixels,
     }
 }
 
+bool pointInsidePolygon(const std::vector<Point>& points, double x, double y) {
+    bool inside = false;
+    std::size_t previous = points.size() - 1U;
+
+    for (std::size_t current = 0; current < points.size(); ++current) {
+        const Point a = points[current];
+        const Point b = points[previous];
+        const bool crosses = (static_cast<double>(a.y) > y) !=
+                             (static_cast<double>(b.y) > y);
+        if (crosses) {
+            const double intersectX =
+                static_cast<double>(b.x - a.x) * (y - static_cast<double>(a.y)) /
+                    static_cast<double>(b.y - a.y) +
+                static_cast<double>(a.x);
+            if (x < intersectX) {
+                inside = !inside;
+            }
+        }
+        previous = current;
+    }
+
+    return inside;
+}
+
+void fillPolygonPixels(std::vector<Color>& pixels,
+                       int surfaceWidth,
+                       int surfaceHeight,
+                       const std::vector<Point>& points,
+                       Color color) {
+    if (points.size() < 3U) {
+        return;
+    }
+
+    int minX = points.front().x;
+    int maxX = points.front().x;
+    int minY = points.front().y;
+    int maxY = points.front().y;
+    for (const Point point : points) {
+        minX = std::min(minX, point.x);
+        maxX = std::max(maxX, point.x);
+        minY = std::min(minY, point.y);
+        maxY = std::max(maxY, point.y);
+    }
+
+    const int left = std::max(minX, 0);
+    const int top = std::max(minY, 0);
+    const int right = std::min(maxX + 1, surfaceWidth);
+    const int bottom = std::min(maxY + 1, surfaceHeight);
+
+    for (int y = top; y < bottom; ++y) {
+        for (int x = left; x < right; ++x) {
+            if (pointInsidePolygon(points,
+                                   static_cast<double>(x) + 0.5,
+                                   static_cast<double>(y) + 0.5)) {
+                pixels[static_cast<std::size_t>(y * surfaceWidth + x)] = color;
+            }
+        }
+    }
+}
+
 } // namespace
 
 void SoftwareSurface::draw(const RenderQueue& queue, TextRasterization textRasterization) {
@@ -250,6 +310,11 @@ void SoftwareSurface::draw(const RenderQueue& queue, TextRasterization textRaste
                                        command.rect,
                                        command.color,
                                        command.secondaryColor);
+            break;
+        case DrawCommandKind::FillPolygon:
+            fillPolygonPixels(pixels_, width_, height_, command.points, command.color);
+            break;
+        case DrawCommandKind::Image:
             break;
         case DrawCommandKind::Text: {
             if (textRasterization == TextRasterization::Skip) {

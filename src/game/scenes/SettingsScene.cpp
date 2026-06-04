@@ -206,11 +206,11 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
     const int height = std::max(surfaceSize.height, 1);
 
     queue.clear(bgCream);
-    queue.fillVerticalGradient({0, 0, width, height}, {255, 250, 252, 255}, {236, 248, 250, 255});
-    queue.fillRoundedRect({0, 0, width, 146}, {250, 226, 68, 255}, 0);
-    queue.fillRoundedRect({0, std::max(height - 92, 1), width, 92}, {34, 83, 112, 255}, 0);
-    queue.fillRoundedRect({24, 24, 72, 72}, {21, 62, 91, 255}, 28);
-    queue.fillEllipse({44, 44, 32, 32}, gold);
+    queue.fillVerticalGradient({0, 0, width, height}, {255, 247, 250, 255}, {232, 249, 250, 255});
+    queue.fillRoundedRect({0, 0, width, 146}, {255, 210, 222, 255}, 0);
+    queue.fillRoundedRect({0, std::max(height - 92, 1), width, 92}, {232, 249, 250, 255}, 0);
+    queue.fillRoundedRect({24, 24, 72, 72}, {185, 226, 232, 255}, 28);
+    queue.fillEllipse({44, 44, 32, 32}, sakuraStrong);
     queue.fillRoundedRect({48, 150, std::max(width - 96, 1), std::max(height - 242, 1)},
                           {255, 255, 255, 232},
                           18);
@@ -344,7 +344,7 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
     queue.fillEllipse({width - 220, 88, 92, 92}, softLilac);
     queue.fillEllipse({width - 196, 114, 42, 42}, sakura);
     queue.fillRoundedRect({width - 214, 188, 122, 10}, sky, 5);
-    renderButton(queue, backButton(text_), gold);
+    renderButton(queue, backButton(text_), sakura);
 }
 
 std::optional<SettingsAction> SettingsScene::actionAt(engine::graphics::Point point,

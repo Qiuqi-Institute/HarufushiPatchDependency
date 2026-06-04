@@ -34,6 +34,17 @@ void RenderQueue::fillVerticalGradient(Rect rect, Color topColor, Color bottomCo
     commands_.push_back(command);
 }
 
+void RenderQueue::fillPolygon(std::vector<Point> points, Color color) {
+    DrawCommand command{DrawCommandKind::FillPolygon, {0, 0, 0, 0}, color, {}};
+    command.points = std::move(points);
+    commands_.push_back(std::move(command));
+}
+
+void RenderQueue::drawImage(Rect rect, std::string imagePath) {
+    commands_.push_back({DrawCommandKind::Image, rect, {255, 255, 255, 255},
+                         std::move(imagePath)});
+}
+
 void RenderQueue::drawText(Rect rect, std::string text, Color color) {
     commands_.push_back({DrawCommandKind::Text, rect, color, std::move(text)});
 }

@@ -32,6 +32,21 @@ const haru::engine::graphics::DrawCommand* findText(
     return nullptr;
 }
 
+bool hasFillColor(const haru::engine::graphics::RenderQueue& queue,
+                  haru::engine::graphics::Color color) {
+    for (const auto& command : queue.commands()) {
+        if ((command.kind == haru::engine::graphics::DrawCommandKind::FillRect ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillEllipse ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillVerticalGradient) &&
+            command.color == color) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 } // namespace
 
 HARU_TEST(settings_scene_game_page_renders_only_game_settings) {
@@ -188,4 +203,18 @@ HARU_TEST(settings_scene_uses_commercial_settings_layout_grid) {
     HARU_EXPECT_TRUE(gameTab->rect.y < language->rect.y);
     HARU_EXPECT_TRUE(textSpeed->rect.x >= language->rect.x);
     HARU_EXPECT_TRUE(back->rect.y >= 620);
+}
+
+HARU_TEST(settings_scene_uses_blue_pink_white_palette_without_yellow_header) {
+    haru::game::scenes::SettingsScene settingsScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    settingsScene.render(queue, {1280, 720});
+
+    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 247, 250, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {232, 249, 250, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 210, 222, 255}));
+    HARU_EXPECT_TRUE(hasFillColor(queue, {185, 226, 232, 255}));
+    HARU_EXPECT_FALSE(hasFillColor(queue, {250, 226, 68, 255}));
+    HARU_EXPECT_FALSE(hasFillColor(queue, {34, 83, 112, 255}));
 }

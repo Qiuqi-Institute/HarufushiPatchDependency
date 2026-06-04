@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <wincodec.h>
+
 namespace haru::engine::platform::windows {
 
 namespace {
@@ -25,6 +27,71 @@ std::vector<std::uint32_t> toBgraPixels(const graphics::SoftwareSurface& surface
 
     return pixels;
 }
+
+bool hasImageCommands(const graphics::RenderQueue* queue) {
+    if (queue == nullptr) {
+        return false;
+    }
+
+    for (const auto& command : queue->commands()) {
+        if (command.kind == graphics::DrawCommandKind::Image && !command.text.empty()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::vector<std::uint32_t> toPremultipliedBgraPixels(
+    const graphics::SoftwareSurface& surface) {
+    std::vector<std::uint32_t> pixels;
+    pixels.reserve(surface.pixels().size());
+
+    for (const auto& color : surface.pixels()) {
+        const std::uint32_t alpha = color.a;
+        const std::uint32_t blue = (static_cast<std::uint32_t>(color.b) * alpha) / 255U;
+        const std::uint32_t green = (static_cast<std::uint32_t>(color.g) * alpha) / 255U;
+        const std::uint32_t red = (static_cast<std::uint32_t>(color.r) * alpha) / 255U;
+        pixels.push_back(blue | (green << 8U) | (red << 16U) | (alpha << 24U));
+    }
+
+    return pixels;
+}
+
+template <typename T>
+void releaseCom(T*& pointer) {
+    if (pointer != nullptr) {
+        pointer->Release();
+        pointer = nullptr;
+    }
+}
+
+class WicFactory {
+public:
+    WicFactory() {
+        HRESULT result = CoCreateInstance(CLSID_WICImagingFactory,
+                                          nullptr,
+                                          CLSCTX_INPROC_SERVER,
+                                          IID_PPV_ARGS(&factory_));
+        if (FAILED(result)) {
+            throw std::runtime_error("failed to create WIC imaging factory");
+        }
+    }
+
+    WicFactory(const WicFactory&) = delete;
+    WicFactory& operator=(const WicFactory&) = delete;
+
+    ~WicFactory() {
+        releaseCom(factory_);
+    }
+
+    IWICImagingFactory* get() const {
+        return factory_;
+    }
+
+private:
+    IWICImagingFactory* factory_ = nullptr;
+};
 
 RECT clientRect(const Win32Window& window) {
     RECT rect{};
@@ -54,6 +121,40 @@ std::wstring utf8ToWide(const std::string& text) {
     }
 
     return result;
+}
+
+std::wstring resolveImagePath(const std::string& imagePath) {
+    const std::wstring widePath = utf8ToWide(imagePath);
+    if (GetFileAttributesW(widePath.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        return widePath;
+    }
+
+    wchar_t modulePath[MAX_PATH]{};
+    const DWORD length = GetModuleFileNameW(nullptr, modulePath, MAX_PATH);
+    if (length == 0 || length >= MAX_PATH) {
+        return widePath;
+    }
+
+    std::wstring directory(modulePath, modulePath + length);
+    const std::size_t slash = directory.find_last_of(L"\\/");
+    if (slash != std::wstring::npos) {
+        directory.resize(slash);
+    }
+
+    for (int depth = 0; depth < 4; ++depth) {
+        const std::wstring candidate = directory + L"\\" + widePath;
+        if (GetFileAttributesW(candidate.c_str()) != INVALID_FILE_ATTRIBUTES) {
+            return candidate;
+        }
+
+        const std::size_t parentSlash = directory.find_last_of(L"\\/");
+        if (parentSlash == std::wstring::npos) {
+            break;
+        }
+        directory.resize(parentSlash);
+    }
+
+    return widePath;
 }
 
 COLORREF toColorRef(graphics::Color color) {
@@ -149,6 +250,108 @@ void drawTextCommands(HDC deviceContext,
     SetBkMode(deviceContext, previousBkMode);
 }
 
+void drawImageCommands(HDC deviceContext,
+                       const graphics::RenderQueue& imageSource,
+                       graphics::Rect presentationRect,
+                       const graphics::SoftwareSurface& surface,
+                       WicFactory& wicFactory) {
+    for (const auto& command : imageSource.commands()) {
+        if (command.kind != graphics::DrawCommandKind::Image || command.text.empty()) {
+            continue;
+        }
+
+        IWICBitmapDecoder* decoder = nullptr;
+        IWICBitmapFrameDecode* frame = nullptr;
+        IWICFormatConverter* converter = nullptr;
+        const std::wstring path = resolveImagePath(command.text);
+        HRESULT result = wicFactory.get()->CreateDecoderFromFilename(path.c_str(),
+                                                                      nullptr,
+                                                                      GENERIC_READ,
+                                                                      WICDecodeMetadataCacheOnLoad,
+                                                                      &decoder);
+        if (FAILED(result)) {
+            releaseCom(converter);
+            releaseCom(frame);
+            releaseCom(decoder);
+            continue;
+        }
+
+        result = decoder->GetFrame(0, &frame);
+        if (FAILED(result)) {
+            releaseCom(converter);
+            releaseCom(frame);
+            releaseCom(decoder);
+            continue;
+        }
+
+        result = wicFactory.get()->CreateFormatConverter(&converter);
+        if (FAILED(result)) {
+            releaseCom(converter);
+            releaseCom(frame);
+            releaseCom(decoder);
+            continue;
+        }
+
+        result = converter->Initialize(frame,
+                                       GUID_WICPixelFormat32bppBGRA,
+                                       WICBitmapDitherTypeNone,
+                                       nullptr,
+                                       0.0,
+                                       WICBitmapPaletteTypeCustom);
+        if (FAILED(result)) {
+            releaseCom(converter);
+            releaseCom(frame);
+            releaseCom(decoder);
+            continue;
+        }
+
+        UINT imageWidth = 0;
+        UINT imageHeight = 0;
+        result = converter->GetSize(&imageWidth, &imageHeight);
+        if (FAILED(result) || imageWidth == 0 || imageHeight == 0) {
+            releaseCom(converter);
+            releaseCom(frame);
+            releaseCom(decoder);
+            continue;
+        }
+
+        std::vector<std::uint32_t> pixels(static_cast<std::size_t>(imageWidth) * imageHeight);
+        result = converter->CopyPixels(nullptr,
+                                       imageWidth * sizeof(std::uint32_t),
+                                       static_cast<UINT>(pixels.size() *
+                                                         sizeof(std::uint32_t)),
+                                       reinterpret_cast<BYTE*>(pixels.data()));
+        if (SUCCEEDED(result)) {
+            BITMAPINFO imageInfo{};
+            imageInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+            imageInfo.bmiHeader.biWidth = static_cast<LONG>(imageWidth);
+            imageInfo.bmiHeader.biHeight = -static_cast<LONG>(imageHeight);
+            imageInfo.bmiHeader.biPlanes = 1;
+            imageInfo.bmiHeader.biBitCount = 32;
+            imageInfo.bmiHeader.biCompression = BI_RGB;
+            const graphics::Rect targetRect =
+                scaleRect(command.rect, presentationRect, surface);
+            StretchDIBits(deviceContext,
+                          targetRect.x,
+                          targetRect.y,
+                          targetRect.width,
+                          targetRect.height,
+                          0,
+                          0,
+                          static_cast<int>(imageWidth),
+                          static_cast<int>(imageHeight),
+                          pixels.data(),
+                          &imageInfo,
+                          DIB_RGB_COLORS,
+                          SRCCOPY);
+        }
+
+        releaseCom(converter);
+        releaseCom(frame);
+        releaseCom(decoder);
+    }
+}
+
 void presentComposited(const Win32Window& window,
                        const graphics::SoftwareSurface& surface,
                        const graphics::RenderQueue* textSource,
@@ -193,7 +396,9 @@ void presentComposited(const Win32Window& window,
     }
 
     const HGDIOBJ previousBitmap = SelectObject(memoryContext, bitmap);
-    const auto pixels = toBgraPixels(surface);
+    const bool imageBackedFrame = hasImageCommands(textSource);
+    const auto pixels = imageBackedFrame ? toPremultipliedBgraPixels(surface)
+                                         : toBgraPixels(surface);
     std::memcpy(bitmapBits, pixels.data(), pixels.size() * sizeof(std::uint32_t));
 
     HDC finalContext = CreateCompatibleDC(windowContext);
@@ -236,17 +441,41 @@ void presentComposited(const Win32Window& window,
     DeleteObject(blackBrush);
 
     SetStretchBltMode(finalContext, HALFTONE);
-    const BOOL stretched = StretchBlt(finalContext,
-                                      presentation.x,
-                                      presentation.y,
-                                      presentation.width,
-                                      presentation.height,
-                                      memoryContext,
-                                      0,
-                                      0,
-                                      surface.width(),
-                                      surface.height(),
-                                      SRCCOPY);
+    WicFactory wicFactory;
+    if (textSource != nullptr) {
+        drawImageCommands(finalContext, *textSource, presentation, surface, wicFactory);
+    }
+
+    BOOL stretched = FALSE;
+    if (imageBackedFrame) {
+        BLENDFUNCTION blend{};
+        blend.BlendOp = AC_SRC_OVER;
+        blend.SourceConstantAlpha = 255;
+        blend.AlphaFormat = AC_SRC_ALPHA;
+        stretched = AlphaBlend(finalContext,
+                               presentation.x,
+                               presentation.y,
+                               presentation.width,
+                               presentation.height,
+                               memoryContext,
+                               0,
+                               0,
+                               surface.width(),
+                               surface.height(),
+                               blend);
+    } else {
+        stretched = StretchBlt(finalContext,
+                               presentation.x,
+                               presentation.y,
+                               presentation.width,
+                               presentation.height,
+                               memoryContext,
+                               0,
+                               0,
+                               surface.width(),
+                               surface.height(),
+                               SRCCOPY);
+    }
     if (textSource != nullptr) {
         drawTextCommands(finalContext, *textSource, presentation, surface);
     }
