@@ -25,6 +25,7 @@ endfunction()
 
 add_library(harufushi_engine_core SHARED
     src/engine/core/Application.cpp
+    src/engine/core/AsyncStartupTask.cpp
     src/engine/core/EngineOpeningGate.cpp
     src/engine/core/FrameLoop.cpp
     src/engine/core/HaruFrame.cpp
@@ -52,6 +53,7 @@ target_link_libraries(harufushi_engine_localization PUBLIC harufushi_engine_core
 
 add_library(harufushi_engine_resources SHARED
     src/engine/resources/ProtectedResourceStore.cpp
+    src/engine/resources/ResourcePackage.cpp
     src/engine/resources/ResourceId.cpp
     src/engine/resources/ResourceManifest.cpp
 )
@@ -96,6 +98,7 @@ if(WIN32)
     )
     target_link_libraries(harufushi_engine_platform
         PUBLIC
+            harufushi_engine_resources
             harufushi_engine_security
             advapi32
             gdi32
@@ -123,8 +126,10 @@ add_library(harufushi_game STATIC
     src/game/scenes/SettingsScene.cpp
     src/game/scenes/StudioSplashScene.cpp
     src/game/scenes/TitleScene.cpp
+    src/game/systems/DailyDialogueScript.cpp
     src/game/systems/DailyLoopState.cpp
     src/game/systems/HarufushiGame.cpp
+    src/game/systems/HomeStartupPreparation.cpp
     src/game/systems/ModProjectState.cpp
     src/game/systems/SaveManager.cpp
 )
@@ -153,6 +158,7 @@ set_target_properties(harufushi_app PROPERTIES
 )
 
 if(WIN32)
+    target_sources(harufushi_app PRIVATE src/app/HarufushiPatchDependency.rc)
     set_target_properties(harufushi_app PROPERTIES WIN32_EXECUTABLE TRUE)
     if(MSVC)
         target_link_options(harufushi_app PRIVATE /ENTRY:mainCRTStartup)
@@ -163,6 +169,24 @@ add_custom_command(TARGET harufushi_app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E rm -f
         ${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIG>/harufushi_app.exe
         ${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIG>/harufushi_app.pdb
+)
+
+add_executable(harufushi_packager
+    src/tools/packager/main.cpp
+)
+
+target_link_libraries(harufushi_packager PRIVATE harufushi_engine_resources)
+target_compile_features(harufushi_packager PRIVATE cxx_std_17)
+harufushi_apply_common_options(harufushi_packager)
+set_target_properties(harufushi_packager PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${HARUFUSHI_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+add_custom_command(TARGET harufushi_app POST_BUILD
+    COMMAND $<TARGET_FILE:harufushi_packager>
+        --source ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        --output ${CMAKE_CURRENT_SOURCE_DIR}/bin/$<CONFIG>/resources
+        --env ${CMAKE_CURRENT_SOURCE_DIR}/.env
 )
 
 enable_testing()
@@ -183,6 +207,7 @@ add_executable(harufushi_tests
     test/Main.cpp
     test/support/TestHarness.cpp
     test/engine/ApplicationTests.cpp
+    test/engine/AsyncStartupTaskTests.cpp
     test/engine/ButtonTests.cpp
     test/engine/EngineOpeningGateTests.cpp
     test/engine/FrameLoopTests.cpp
@@ -198,8 +223,10 @@ add_executable(harufushi_tests
     test/engine/ViewportScalerTests.cpp
     test/engine/Win32WindowTests.cpp
     test/engine/WindowConfigTests.cpp
+    test/game/DailyDialogueScriptTests.cpp
     test/game/DailyLoopStateTests.cpp
     test/game/GameTextTests.cpp
+    test/game/HomeStartupPreparationTests.cpp
     test/game/HomeSceneTests.cpp
     test/game/ModProjectStateTests.cpp
     test/game/SaveSystemTests.cpp
@@ -221,6 +248,10 @@ harufushi_apply_common_options(harufushi_tests)
 set_target_properties(harufushi_tests PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${HARUFUSHI_RUNTIME_OUTPUT_DIRECTORY}
 )
+
+if(WIN32)
+    target_sources(harufushi_tests PRIVATE src/app/HarufushiPatchDependency.rc)
+endif()
 
 add_test(NAME harufushi_tests COMMAND harufushi_tests)
 add_test(NAME harufushi_public_api_smoke COMMAND harufushi_public_api_smoke)
@@ -255,6 +286,14 @@ if(WIN32)
             -NoProfile
             -ExecutionPolicy Bypass
             -File ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertWindowsGuiSubsystem.ps1
+            -AppBinary $<TARGET_FILE:harufushi_app>
+    )
+    add_test(
+        NAME harufushi_app_windows_version_info
+        COMMAND powershell
+            -NoProfile
+            -ExecutionPolicy Bypass
+            -File ${CMAKE_CURRENT_SOURCE_DIR}/test/cmake/AssertWindowsVersionInfo.ps1
             -AppBinary $<TARGET_FILE:harufushi_app>
     )
 endif()

@@ -13,6 +13,26 @@ const wchar_t* windowClassName() {
     return L"HarufushiPatchDependencyWindow";
 }
 
+constexpr int appIconResourceId = 101;
+
+HICON loadIconResource(HINSTANCE instance, int width, int height) {
+    return static_cast<HICON>(LoadImageW(instance,
+                                         MAKEINTRESOURCEW(appIconResourceId),
+                                         IMAGE_ICON,
+                                         width,
+                                         height,
+                                         LR_DEFAULTCOLOR | LR_SHARED));
+}
+
+HICON loadDefaultIcon(int width, int height) {
+    return static_cast<HICON>(LoadImageW(nullptr,
+                                         MAKEINTRESOURCEW(32512),
+                                         IMAGE_ICON,
+                                         width,
+                                         height,
+                                         LR_SHARED));
+}
+
 std::wstring utf8ToWide(const std::string& text) {
     if (text.empty()) {
         return {};
@@ -33,6 +53,28 @@ std::wstring utf8ToWide(const std::string& text) {
     }
 
     return result;
+}
+
+ResizeEdge resizeEdgeFromNative(WPARAM edge) {
+    switch (edge) {
+    case WMSZ_LEFT:
+        return ResizeEdge::Left;
+    case WMSZ_RIGHT:
+        return ResizeEdge::Right;
+    case WMSZ_TOP:
+        return ResizeEdge::Top;
+    case WMSZ_BOTTOM:
+        return ResizeEdge::Bottom;
+    case WMSZ_TOPLEFT:
+        return ResizeEdge::TopLeft;
+    case WMSZ_TOPRIGHT:
+        return ResizeEdge::TopRight;
+    case WMSZ_BOTTOMLEFT:
+        return ResizeEdge::BottomLeft;
+    case WMSZ_BOTTOMRIGHT:
+    default:
+        return ResizeEdge::BottomRight;
+    }
 }
 
 } // namespace
@@ -144,9 +186,23 @@ ATOM Win32Window::ensureWindowClass(HINSTANCE instance) {
     windowClass.style = 0;
     windowClass.lpfnWndProc = &Win32Window::staticWindowProc;
     windowClass.hInstance = instance;
+    windowClass.hIcon = loadIconResource(instance,
+                                         GetSystemMetrics(SM_CXICON),
+                                         GetSystemMetrics(SM_CYICON));
+    if (windowClass.hIcon == nullptr) {
+        windowClass.hIcon = loadDefaultIcon(GetSystemMetrics(SM_CXICON),
+                                            GetSystemMetrics(SM_CYICON));
+    }
     windowClass.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512));
     windowClass.hbrBackground = nullptr;
     windowClass.lpszClassName = windowClassName();
+    windowClass.hIconSm = loadIconResource(instance,
+                                           GetSystemMetrics(SM_CXSMICON),
+                                           GetSystemMetrics(SM_CYSMICON));
+    if (windowClass.hIconSm == nullptr) {
+        windowClass.hIconSm = loadDefaultIcon(GetSystemMetrics(SM_CXSMICON),
+                                              GetSystemMetrics(SM_CYSMICON));
+    }
 
     registeredClass = RegisterClassExW(&windowClass);
     if (registeredClass == 0) {
@@ -196,6 +252,19 @@ LRESULT Win32Window::handleMessage(UINT message, WPARAM wordParam, LPARAM longPa
             static_cast<int>(GET_Y_LPARAM(longParam)),
             MouseButton::Left));
         return 0;
+    case WM_SIZING: {
+        auto* rect = reinterpret_cast<RECT*>(longParam);
+        const auto constrained = WindowSizingPolicy::constrainAspectRatio(
+            {rect->left, rect->top, rect->right, rect->bottom},
+            resizeEdgeFromNative(wordParam),
+            config_.width,
+            config_.height);
+        rect->left = constrained.left;
+        rect->top = constrained.top;
+        rect->right = constrained.right;
+        rect->bottom = constrained.bottom;
+        return TRUE;
+    }
     case WM_SIZE:
         pendingEvents_.push_back(WindowEvent::resized(static_cast<int>(LOWORD(longParam)),
                                                       static_cast<int>(HIWORD(longParam))));

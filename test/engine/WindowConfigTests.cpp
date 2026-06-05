@@ -36,3 +36,27 @@ HARU_TEST(window_event_can_describe_mouse_button_release_position) {
     HARU_EXPECT_EQ(event.y, 64);
     HARU_EXPECT_EQ(event.button, MouseButton::Left);
 }
+
+HARU_TEST(window_sizing_policy_keeps_aspect_when_dragging_right_or_bottom_edges) {
+    using haru::engine::platform::ResizeEdge;
+    using haru::engine::platform::WindowBounds;
+    using haru::engine::platform::WindowSizingPolicy;
+
+    const WindowBounds draggedRight =
+        WindowSizingPolicy::constrainAspectRatio({100, 100, 1500, 820},
+                                                 ResizeEdge::Right,
+                                                 16,
+                                                 9);
+    HARU_EXPECT_EQ(draggedRight.left, 100);
+    HARU_EXPECT_EQ(draggedRight.right, 1500);
+    HARU_EXPECT_EQ(draggedRight.bottom - draggedRight.top, 788);
+
+    const WindowBounds draggedBottom =
+        WindowSizingPolicy::constrainAspectRatio({100, 100, 1400, 900},
+                                                 ResizeEdge::Bottom,
+                                                 16,
+                                                 9);
+    HARU_EXPECT_EQ(draggedBottom.top, 100);
+    HARU_EXPECT_EQ(draggedBottom.bottom, 900);
+    HARU_EXPECT_EQ(draggedBottom.right - draggedBottom.left, 1422);
+}

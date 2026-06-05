@@ -1,0 +1,40 @@
+#pragma code_page(65001)
+
+#include <winver.h>
+
+#define IDI_HARUFUSHI_APP 101
+
+IDI_HARUFUSHI_APP ICON "../../resources/icons/app/haru_icon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "Aperip Daedalus Foundation\0"
+            VALUE "FileDescription", "Harufushi Patch Dependency\0"
+            VALUE "FileVersion", "0.0.1.0\0"
+            VALUE "InternalName", "HarufushiPatchDependency\0"
+            VALUE "LegalCopyright", "Copyright © 2026 Qiuqi Institute\0"
+            VALUE "OriginalFilename", "HarufushiPatchDependency.exe\0"
+            VALUE "ProductName", "Harufushi Patch Dependency\0"
+            VALUE "ProductVersion", "0.0.1.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0000, 1200
+    END
+END

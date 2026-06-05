@@ -3,6 +3,7 @@
 #include "../core/HaruFrame.hpp"
 
 #include "HaruApplication"
+#include "HaruAsyncStartupTask"
 #include "HaruButton"
 #include "HaruColor"
 #include "HaruEngineOpeningGate"
@@ -11,6 +12,7 @@
 #include "HaruLanguageDocument"
 #include "HaruLocaleRegistry"
 #include "HaruProtectedResourceStore"
+#include "HaruResourcePackage"
 #include "HaruRenderQueue"
 #include "HaruResourceId"
 #include "HaruResourceManifest"

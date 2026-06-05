@@ -27,7 +27,7 @@ Rect ViewportScaler::presentationRect(Size targetSize, int scalePercent) const {
                                          static_cast<double>(designSize_.height));
     const double requestedScale =
         fitScale * (static_cast<double>(std::clamp(scalePercent, 10, 200)) / 100.0);
-    const double scale = std::clamp(requestedScale, 0.01, fitScale);
+    const double scale = std::min(std::max(requestedScale, 0.0), fitScale);
     const int width = std::max(1, static_cast<int>(std::round(designSize_.width * scale)));
     const int height = std::max(1, static_cast<int>(std::round(designSize_.height * scale)));
     return {(targetSize.width - width) / 2, (targetSize.height - height) / 2, width, height};

@@ -9,7 +9,7 @@ namespace haru::game::scenes {
 
 namespace {
 
-constexpr const char* homeBackgroundPath = "resources/images/backgrounds/home_chunfu.png";
+constexpr const char* homeBackgroundResourceId = "images.backgrounds.home_chunfu";
 constexpr engine::graphics::Color nightInk{49, 59, 82, 255};
 constexpr engine::graphics::Color slate{67, 76, 104, 255};
 constexpr engine::graphics::Color porcelain{246, 250, 246, 242};
@@ -18,7 +18,6 @@ constexpr engine::graphics::Color pearl{255, 255, 251, 255};
 constexpr engine::graphics::Color logoBlue{11, 119, 155, 230};
 constexpr engine::graphics::Color logoBlueSoft{185, 226, 232, 220};
 constexpr engine::graphics::Color logoPink{255, 183, 205, 230};
-constexpr engine::graphics::Color logoPinkSoft{255, 210, 222, 220};
 constexpr engine::graphics::Color glassLine{185, 226, 232, 210};
 constexpr engine::graphics::Color softShadow{67, 76, 104, 128};
 
@@ -27,19 +26,19 @@ engine::ui::ButtonStyle titleMenuStyle(engine::graphics::Color background) {
 }
 
 engine::graphics::Rect newGameBounds() {
-    return {74, 666, 226, 38};
+    return {72, 676, 236, 38};
 }
 
 engine::graphics::Rect loadBounds() {
-    return {340, 666, 226, 38};
+    return {372, 676, 236, 38};
 }
 
 engine::graphics::Rect settingsBounds() {
-    return {662, 666, 226, 38};
+    return {672, 676, 236, 38};
 }
 
 engine::graphics::Rect quitBounds() {
-    return {1000, 666, 202, 38};
+    return {972, 676, 236, 38};
 }
 
 engine::graphics::Rect backBounds() {
@@ -114,122 +113,23 @@ void drawSceneBackground(engine::graphics::RenderQueue& queue,
     const int width = std::max(surfaceSize.width, 1);
     const int height = std::max(surfaceSize.height, 1);
     queue.clear({0, 0, 0, 0});
-    queue.drawImage({0, 0, width, height}, homeBackgroundPath);
-}
-
-void drawLogoStroke(engine::graphics::RenderQueue& queue,
-                    engine::graphics::Rect rect,
-                    engine::graphics::Color color) {
-    queue.fillRoundedRect({rect.x + 5, rect.y + 6, rect.width, rect.height},
-                          {255, 255, 255, 212},
-                          std::max(rect.height / 3, 2));
-    queue.fillRoundedRect(rect, color, std::max(rect.height / 3, 2));
-}
-
-std::vector<engine::graphics::Point> shiftedPolygon(
-    const std::vector<engine::graphics::Point>& points,
-    int dx,
-    int dy) {
-    std::vector<engine::graphics::Point> shifted;
-    shifted.reserve(points.size());
-    for (const auto point : points) {
-        shifted.push_back({point.x + dx, point.y + dy});
-    }
-    return shifted;
-}
-
-engine::graphics::Rect shiftedRect(engine::graphics::Rect rect, int dx, int dy) {
-    rect.x += dx;
-    rect.y += dy;
-    return rect;
-}
-
-void drawLogoPolygon(engine::graphics::RenderQueue& queue,
-                     std::vector<engine::graphics::Point> points,
-                     engine::graphics::Color color) {
-    queue.fillPolygon(shiftedPolygon(points, 5, 6), {255, 255, 255, 205});
-    queue.fillPolygon(std::move(points), color);
-}
-
-void renderArtTitleMark(engine::graphics::RenderQueue& queue) {
-    constexpr int logoOffsetX = -92;
-    constexpr int logoOffsetY = 2;
-    constexpr int subtitleOffsetY = 36;
-    const auto artRect = [=](engine::graphics::Rect rect) {
-        return shiftedRect(rect, logoOffsetX, logoOffsetY);
-    };
-    const auto artPolygon =
-        [&](std::vector<engine::graphics::Point> points, engine::graphics::Color color) {
-            drawLogoPolygon(queue, shiftedPolygon(points, logoOffsetX, logoOffsetY), color);
-        };
-    const auto subtitleRect = [=](engine::graphics::Rect rect) {
-        return shiftedRect(rect, logoOffsetX, logoOffsetY + subtitleOffsetY);
-    };
-    const auto subtitlePolygon =
-        [&](std::vector<engine::graphics::Point> points, engine::graphics::Color color) {
-            drawLogoPolygon(
-                queue,
-                shiftedPolygon(points, logoOffsetX, logoOffsetY + subtitleOffsetY),
-                color);
-        };
-    const auto subtitleStroke = [&](engine::graphics::Rect rect, engine::graphics::Color color) {
-        drawLogoStroke(queue, subtitleRect(rect), color);
-    };
-    const auto artStroke = [&](engine::graphics::Rect rect, engine::graphics::Color color) {
-        drawLogoStroke(queue, artRect(rect), color);
-    };
-
-    queue.fillEllipse(artRect({890, 432, 342, 142}), {255, 255, 255, 66});
-    queue.fillEllipse(artRect({966, 462, 230, 92}), {185, 226, 232, 56});
-    queue.fillEllipse(artRect({916, 520, 246, 82}), {255, 210, 222, 46});
-
-    // ハ
-    artPolygon({{936, 452}, {956, 458}, {928, 534}, {908, 528}}, logoBlue);
-    artPolygon({{976, 452}, {996, 456}, {1020, 532}, {998, 536}}, logoBlue);
-
-    // ル
-    artStroke({1030, 454, 15, 66}, logoPink);
-    artPolygon({{1064, 456}, {1082, 459}, {1074, 528}, {1056, 524}}, logoPink);
-    artPolygon({{1028, 512}, {1088, 498}, {1092, 516}, {1034, 536}}, logoPink);
-
-    // フ
-    artStroke({1100, 456, 68, 13}, logoBlue);
-    artPolygon({{1150, 466}, {1168, 474}, {1124, 536}, {1106, 526}}, logoBlue);
-
-    // シ
-    artPolygon({{1190, 462}, {1220, 468}, {1218, 480}, {1188, 474}}, logoPink);
-    artPolygon({{1182, 488}, {1214, 494}, {1212, 506}, {1180, 500}}, logoPink);
-    artPolygon({{1174, 532}, {1222, 498}, {1228, 512}, {1182, 546}}, logoPink);
-
-    // パ
-    subtitlePolygon({{940, 532}, {958, 536}, {938, 594}, {920, 590}}, logoPink);
-    subtitlePolygon({{972, 530}, {990, 534}, {1010, 592}, {990, 596}}, logoPink);
-    queue.fillEllipse(subtitleRect({1004, 526, 12, 12}), {255, 255, 255, 205});
-    queue.fillEllipse(subtitleRect({1000, 522, 12, 12}), logoPink);
-    queue.fillEllipse(subtitleRect({1018, 526, 10, 10}), {255, 255, 255, 205});
-    queue.fillEllipse(subtitleRect({1015, 522, 10, 10}), logoPink);
-
-    // ッ
-    subtitlePolygon({{1044, 548}, {1062, 552}, {1058, 568}, {1040, 564}}, logoBlue);
-    subtitlePolygon({{1070, 542}, {1088, 546}, {1082, 568}, {1064, 564}}, logoBlue);
-    subtitlePolygon({{1090, 546}, {1108, 554}, {1078, 596}, {1060, 588}}, logoBlue);
-
-    // チ
-    subtitleStroke({1128, 530, 74, 12}, logoPink);
-    subtitleStroke({1118, 556, 84, 12}, logoPink);
-    subtitlePolygon({{1160, 538}, {1178, 541}, {1166, 604}, {1148, 600}}, logoPink);
-
+    queue.drawImage({0, 0, width, height}, homeBackgroundResourceId);
 }
 
 void renderTitleMenuButton(engine::graphics::RenderQueue& queue,
                            const engine::ui::Button& button) {
     const auto& bounds = button.bounds();
-    drawTextBox(queue,
-                {bounds.x + 24, bounds.y + 3, bounds.width - 48, 28},
-                button.label(),
-                pearl,
-                10,
-                32);
+    const bool needsTallBounds =
+        std::any_of(button.label().begin(), button.label().end(), [](unsigned char byte) {
+            return byte >= 0x80;
+        });
+    const int textY = needsTallBounds ? bounds.y - 4 : bounds.y + 8;
+    const int textHeight = needsTallBounds ? 42 : 28;
+    queue.drawText({bounds.x, textY, bounds.width, textHeight},
+                   button.label(),
+                   pearl,
+                   engine::graphics::TextRole::ZenMaruBlack,
+                   needsTallBounds ? 67 : 100);
 }
 
 void renderBottomMenu(engine::graphics::RenderQueue& queue,
@@ -307,13 +207,11 @@ void HomeScene::render(engine::graphics::RenderQueue& queue,
     drawSceneBackground(queue, surfaceSize);
 
     if (panel == HomePanel::Saves) {
-        renderArtTitleMark(queue);
         renderSavesPanel(queue, text_, saveSummaries);
         return;
     }
 
     renderBottomMenu(queue, text_);
-    renderArtTitleMark(queue);
 }
 
 std::optional<HomeAction> HomeScene::actionAt(engine::graphics::Point point,

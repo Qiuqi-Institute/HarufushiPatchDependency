@@ -69,17 +69,18 @@ TextBox::TextBox(graphics::Rect bounds, std::string text, TextBoxStyle style)
     : bounds_(bounds), text_(std::move(text)), style_(style) {}
 
 void TextBox::render(graphics::RenderQueue& queue) const {
-    queue.drawText(textRect(), text_, style_.text);
+    queue.drawText(textRect(), text_, style_.text, style_.textRole);
 }
 
 graphics::Rect TextBox::textRect() const {
     const int estimatedWidth = estimateTextWidth(text_);
     const int availableWidth = std::max(bounds_.width, 0);
     const int availableRoom = std::max(availableWidth - estimatedWidth, 0);
-    const int padding = std::clamp(availableRoom / 6,
-                                   std::max(style_.minHorizontalPadding, 0),
-                                   std::max(style_.maxHorizontalPadding,
-                                            style_.minHorizontalPadding));
+    const int minPadding = std::max(style_.minHorizontalPadding, 0);
+    const int maxPadding =
+        std::max(std::max(style_.maxHorizontalPadding, style_.minHorizontalPadding),
+                 minPadding);
+    const int padding = std::clamp(availableRoom / 6, minPadding, maxPadding);
     const int desiredWidth = std::max(style_.minWidth, estimatedWidth + (padding * 2));
     const int width = std::clamp(desiredWidth, 0, availableWidth);
     return {bounds_.x + ((availableWidth - width) / 2), bounds_.y, width, bounds_.height};

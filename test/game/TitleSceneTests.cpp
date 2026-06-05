@@ -2,6 +2,7 @@
 
 #include "game/localization/GameText.hpp"
 #include "game/scenes/TitleScene.hpp"
+#include "game/systems/DailyDialogueScript.hpp"
 
 #include <optional>
 #include <sstream>
@@ -157,6 +158,32 @@ HARU_TEST(title_scene_renders_daily_loop_stats_feedback) {
     titleScene.render(queue, {1280, 720}, state.stats());
 
     HARU_EXPECT_TRUE(hasText(queue, statsLine(state.stats())));
+}
+
+HARU_TEST(title_scene_renders_daily_activity_dialogue_panel) {
+    haru::game::scenes::TitleScene titleScene;
+    haru::game::systems::DailyDialogueEntry dialogue;
+    dialogue.speaker = "Harufushi ping";
+    dialogue.lines = {"Your patch queue blinked again.",
+                      "Pick one task before opening another editor.",
+                      "A branch opened because the build finally stabilized."};
+    haru::engine::graphics::RenderQueue queue;
+
+    titleScene.render(queue, {1280, 720}, {}, &dialogue);
+
+    const auto* speaker = findText(queue, "Harufushi ping");
+    const auto* firstLine = findText(queue, "Your patch queue blinked again.");
+    const auto* secondLine = findText(queue, "Pick one task before opening another editor.");
+    const auto* thirdLine =
+        findText(queue, "A branch opened because the build finally stabilized.");
+    HARU_EXPECT_TRUE(speaker != nullptr);
+    HARU_EXPECT_TRUE(firstLine != nullptr);
+    HARU_EXPECT_TRUE(secondLine != nullptr);
+    HARU_EXPECT_TRUE(thirdLine != nullptr);
+    HARU_EXPECT_TRUE(speaker->rect.y >= 540);
+    HARU_EXPECT_TRUE(firstLine->rect.y > speaker->rect.y);
+    HARU_EXPECT_TRUE(secondLine->rect.y > firstLine->rect.y);
+    HARU_EXPECT_TRUE(thirdLine->rect.y > secondLine->rect.y);
 }
 
 HARU_TEST(title_scene_uses_game_text_localization) {

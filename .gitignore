@@ -20,4 +20,4 @@
 *.tmp
 *.cache
 *.haruenv
-
+.env

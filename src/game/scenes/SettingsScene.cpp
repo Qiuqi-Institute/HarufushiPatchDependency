@@ -57,9 +57,12 @@ void renderAdaptiveText(engine::graphics::RenderQueue& queue,
                         engine::graphics::Rect bounds,
                         const std::string& value,
                         engine::graphics::Color color,
-                        int maxPadding = 72) {
+                        int maxPadding = 72,
+                        engine::graphics::TextRole textRole =
+                            engine::graphics::TextRole::ZenMaruBold) {
     engine::ui::TextBoxStyle style;
     style.text = color;
+    style.textRole = textRole;
     style.minHorizontalPadding = 18;
     style.maxHorizontalPadding = maxPadding;
     engine::ui::TextBox(bounds, value, style).render(queue);
@@ -68,7 +71,9 @@ void renderAdaptiveText(engine::graphics::RenderQueue& queue,
 void renderButton(engine::graphics::RenderQueue& queue,
                   const engine::ui::Button& button,
                   engine::graphics::Color fill,
-                  bool selected = false) {
+                  bool selected = false,
+                  engine::graphics::TextRole textRole =
+                      engine::graphics::TextRole::ZenMaruBold) {
     const auto& bounds = button.bounds();
     queue.fillRoundedRect({bounds.x + 4, bounds.y + 5, bounds.width, bounds.height},
                           {203, 210, 222, 150},
@@ -79,7 +84,8 @@ void renderButton(engine::graphics::RenderQueue& queue,
                        {bounds.x + 14, bounds.y + 9, bounds.width - 28, bounds.height - 16},
                        button.label(),
                        selected ? slate : deepInk,
-                       28);
+                       28,
+                       textRole);
 }
 
 void drawSettingRail(engine::graphics::RenderQueue& queue,
@@ -167,7 +173,10 @@ void renderStepButton(engine::graphics::RenderQueue& queue,
                       const std::string& label) {
     queue.fillRoundedRect(rect, warmWhite, 10);
     queue.strokeRect(rect, line, 2);
-    queue.drawText({rect.x, rect.y + 7, rect.width, rect.height - 14}, label, slate);
+    queue.drawText({rect.x, rect.y + 7, rect.width, rect.height - 14},
+                   label,
+                   slate,
+                   engine::graphics::TextRole::ZenMaruBold);
 }
 
 void renderValueRow(engine::graphics::RenderQueue& queue,
@@ -177,7 +186,7 @@ void renderValueRow(engine::graphics::RenderQueue& queue,
                     engine::graphics::Color accent,
                     engine::graphics::Rect downRect,
                     engine::graphics::Rect upRect) {
-    queue.drawText(labelRect, label, ink);
+    queue.drawText(labelRect, label, ink, engine::graphics::TextRole::ZenMaruBold);
     renderStepButton(queue, downRect, "-");
     drawSettingRail(queue, {548, downRect.y + 15, 420, 10}, accent, value);
     renderStepButton(queue, upRect, "+");
@@ -185,7 +194,8 @@ void renderValueRow(engine::graphics::RenderQueue& queue,
                        {912, downRect.y + 4, 72, 32},
                        std::to_string(value),
                        slate,
-                       18);
+                       18,
+                       engine::graphics::TextRole::ZenMaruBold);
 }
 
 void renderSettingPanel(engine::graphics::RenderQueue& queue,
@@ -219,28 +229,37 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
                        {98, 52, 300, 54},
                        "System Setting",
                        ink,
-                       54);
+                       54,
+                       engine::graphics::TextRole::ZenMaruBlack);
     renderAdaptiveText(queue,
                        {900, 82, 280, 38},
                        text_.get(localization::TextId::GameTitle),
-                       ink);
+                       ink,
+                       72,
+                       engine::graphics::TextRole::ZenMaruBlack);
 
     renderButton(queue,
                  tabButton(text_, SettingsTab::Game),
                  state_.activeTab == SettingsTab::Game ? sakura : panelBlue,
-                 state_.activeTab == SettingsTab::Game);
+                 state_.activeTab == SettingsTab::Game,
+                 engine::graphics::TextRole::ZenMaruBlack);
     renderButton(queue,
                  tabButton(text_, SettingsTab::Audio),
                  state_.activeTab == SettingsTab::Audio ? sakura : panelBlue,
-                 state_.activeTab == SettingsTab::Audio);
+                 state_.activeTab == SettingsTab::Audio,
+                 engine::graphics::TextRole::ZenMaruBlack);
     renderButton(queue,
                  tabButton(text_, SettingsTab::Display),
                  state_.activeTab == SettingsTab::Display ? sakura : panelBlue,
-                 state_.activeTab == SettingsTab::Display);
+                 state_.activeTab == SettingsTab::Display,
+                 engine::graphics::TextRole::ZenMaruBlack);
 
     if (state_.activeTab == SettingsTab::Game) {
         renderSettingPanel(queue, {356, 158, std::max(width - 428, 1), 126}, {246, 251, 252, 255});
-        queue.drawText({392, 180, 220, 30}, text_.get(localization::TextId::Language), deepInk);
+        queue.drawText({392, 180, 220, 30},
+                       text_.get(localization::TextId::Language),
+                       deepInk,
+                       engine::graphics::TextRole::ZenMaruBold);
 
         renderButton(queue, englishButton(text_), sky, text_.activeLocale() == "en-US");
         renderButton(queue,
@@ -259,7 +278,10 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
                        audioIncreaseRect());
 
         renderSettingPanel(queue, {356, 408, std::max(width - 428, 1), 88});
-        queue.drawText({392, 416, 220, 24}, text_.get(localization::TextId::SettingsSkipMode), ink);
+        queue.drawText({392, 416, 220, 24},
+                       text_.get(localization::TextId::SettingsSkipMode),
+                       ink,
+                       engine::graphics::TextRole::ZenMaruBold);
         renderButton(queue,
                      {{536, 432, 180, 40}, text_.get(localization::TextId::SettingsReadOnly),
                       tabButtonStyle()},
@@ -271,7 +293,10 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
                      panelBlue);
 
         renderSettingPanel(queue, {356, 508, std::max(width - 428, 1), 88});
-        queue.drawText({392, 516, 220, 24}, text_.get(localization::TextId::SettingsAutoMode), ink);
+        queue.drawText({392, 516, 220, 24},
+                       text_.get(localization::TextId::SettingsAutoMode),
+                       ink,
+                       engine::graphics::TextRole::ZenMaruBold);
         renderButton(queue,
                      {{536, 532, 180, 40}, "Normal", tabButtonStyle()},
                      sky,
@@ -310,7 +335,8 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
         renderSettingPanel(queue, {356, 158, std::max(width - 428, 1), 126}, {246, 251, 252, 255});
         queue.drawText({392, 180, 220, 30},
                        text_.get(localization::TextId::SettingsAspectRatio),
-                       deepInk);
+                       deepInk,
+                       engine::graphics::TextRole::ZenMaruBold);
         renderButton(queue,
                      {{468, 228, 132, 40}, "16:9", tabButtonStyle()},
                      sky,
@@ -329,7 +355,10 @@ void SettingsScene::render(engine::graphics::RenderQueue& queue,
                        audioIncreaseRect());
 
         renderSettingPanel(queue, {356, 408, std::max(width - 428, 1), 88});
-        queue.drawText({392, 416, 220, 24}, text_.get(localization::TextId::SettingsDisplayMode), ink);
+        queue.drawText({392, 416, 220, 24},
+                       text_.get(localization::TextId::SettingsDisplayMode),
+                       ink,
+                       engine::graphics::TextRole::ZenMaruBold);
         renderButton(queue,
                      {{536, 432, 180, 40}, text_.get(localization::TextId::SettingsWindowed),
                       tabButtonStyle()},

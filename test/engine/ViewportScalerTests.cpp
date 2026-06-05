@@ -33,3 +33,17 @@ HARU_TEST(viewport_scaler_applies_resolution_scale_percent_inside_target_size) {
     HARU_EXPECT_EQ(center->y, 360);
     HARU_EXPECT_FALSE(scaler.mapPointToDesign({100, 100}, {1280, 720}, 50).has_value());
 }
+
+HARU_TEST(viewport_scaler_handles_tiny_windows_without_invalid_clamp_bounds) {
+    haru::engine::graphics::ViewportScaler scaler({1280, 720});
+
+    const auto rect = scaler.presentationRect({1, 1}, 100);
+
+    HARU_EXPECT_EQ(rect.x, 0);
+    HARU_EXPECT_EQ(rect.y, 0);
+    HARU_EXPECT_EQ(rect.width, 1);
+    HARU_EXPECT_EQ(rect.height, 1);
+
+    const auto mapped = scaler.mapPointToDesign({0, 0}, {1, 1}, 100);
+    HARU_EXPECT_TRUE(mapped.has_value());
+}

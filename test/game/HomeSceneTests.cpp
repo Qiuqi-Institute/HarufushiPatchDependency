@@ -20,33 +20,6 @@ bool hasText(const haru::engine::graphics::RenderQueue& queue, const std::string
     return false;
 }
 
-bool hasFillColor(const haru::engine::graphics::RenderQueue& queue,
-                  haru::engine::graphics::Color color) {
-    for (const auto& command : queue.commands()) {
-        if ((command.kind == haru::engine::graphics::DrawCommandKind::FillRect ||
-             command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect ||
-             command.kind == haru::engine::graphics::DrawCommandKind::FillEllipse ||
-             command.kind == haru::engine::graphics::DrawCommandKind::FillPolygon ||
-             command.kind == haru::engine::graphics::DrawCommandKind::FillVerticalGradient) &&
-            command.color == color) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool hasCommandKind(const haru::engine::graphics::RenderQueue& queue,
-                    haru::engine::graphics::DrawCommandKind kind) {
-    for (const auto& command : queue.commands()) {
-        if (command.kind == kind) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool hasVerticalGradientAt(const haru::engine::graphics::RenderQueue& queue,
                            haru::engine::graphics::Rect rect,
                            haru::engine::graphics::Color topColor,
@@ -119,39 +92,30 @@ const haru::engine::graphics::DrawCommand* findText(
     return nullptr;
 }
 
-std::size_t countGlyphCells(const haru::engine::graphics::RenderQueue& queue) {
-    std::size_t count = 0;
+bool hasJapaneseArtTitleCommand(const haru::engine::graphics::RenderQueue& queue) {
     for (const auto& command : queue.commands()) {
-        if (command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect &&
-            command.rect.x >= 900 && command.rect.x <= 1220 &&
-            command.rect.y >= 460 && command.rect.y <= 610 &&
-            command.rect.width == 7 && command.rect.height == 7) {
-            ++count;
+        if (command.kind != haru::engine::graphics::DrawCommandKind::FillPolygon &&
+            command.kind != haru::engine::graphics::DrawCommandKind::FillEllipse) {
+            continue;
         }
-    }
 
-    return count;
-}
-
-std::size_t countLogoPolygons(const haru::engine::graphics::RenderQueue& queue) {
-    std::size_t count = 0;
-    for (const auto& command : queue.commands()) {
-        if (command.kind == haru::engine::graphics::DrawCommandKind::FillPolygon &&
-            command.points.size() >= static_cast<std::size_t>(4)) {
-            bool inLogoArea = true;
+        bool inTitleArea = command.rect.x >= 700 && command.rect.x <= 1160 &&
+                           command.rect.y >= 400 && command.rect.y <= 660;
+        if (command.kind == haru::engine::graphics::DrawCommandKind::FillPolygon) {
+            inTitleArea = !command.points.empty();
             for (const auto& point : command.points) {
-                if (point.x < 780 || point.x > 1160 || point.y < 430 || point.y > 660) {
-                    inLogoArea = false;
+                if (point.x < 700 || point.x > 1160 || point.y < 400 || point.y > 660) {
+                    inTitleArea = false;
                     break;
                 }
             }
-            if (inLogoArea) {
-                ++count;
-            }
+        }
+        if (inTitleArea) {
+            return true;
         }
     }
 
-    return count;
+    return false;
 }
 
 } // namespace
@@ -162,7 +126,7 @@ HARU_TEST(home_scene_renders_main_menu_actions_after_splashes) {
 
     homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
 
-    HARU_EXPECT_TRUE(queue.commands().size() >= static_cast<std::size_t>(12));
+    HARU_EXPECT_TRUE(queue.commands().size() >= static_cast<std::size_t>(7));
     HARU_EXPECT_EQ(queue.commands()[0].kind, haru::engine::graphics::DrawCommandKind::Clear);
     HARU_EXPECT_TRUE(hasText(queue, "New Game"));
     HARU_EXPECT_TRUE(hasText(queue, "Load"));
@@ -174,7 +138,7 @@ HARU_TEST(home_scene_renders_main_menu_actions_after_splashes) {
     HARU_EXPECT_FALSE(hasText(queue, "Harufushi is watching your commits"));
 }
 
-HARU_TEST(home_scene_uses_png_background_transparent_text_menu_and_shape_logo) {
+HARU_TEST(home_scene_uses_png_background_and_transparent_text_menu) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue queue;
 
@@ -182,19 +146,15 @@ HARU_TEST(home_scene_uses_png_background_transparent_text_menu_and_shape_logo) {
 
     HARU_EXPECT_EQ(queue.commands()[0].color, (haru::engine::graphics::Color{0, 0, 0, 0}));
     HARU_EXPECT_TRUE(hasImage(queue,
-                              "resources/images/backgrounds/home_chunfu.png",
+                              "images.backgrounds.home_chunfu",
                               {0, 0, 1280, 720}));
     HARU_EXPECT_TRUE(hasVerticalGradientAt(queue,
                                            {0, 520, 1280, 200},
                                            {33, 47, 75, 0},
                                            {33, 47, 75, 176}));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {11, 119, 155, 230}));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 183, 205, 230}));
-    HARU_EXPECT_TRUE(hasCommandKind(queue,
-                                    haru::engine::graphics::DrawCommandKind::
-                                        FillRoundedRect));
     HARU_EXPECT_FALSE(hasText(queue, "Harufushi Patch Dependency"));
     HARU_EXPECT_FALSE(hasText(queue, "ハルフシ・パッチ・ディペンデンシー"));
+    HARU_EXPECT_FALSE(hasJapaneseArtTitleCommand(queue));
 
     const auto* newGame = findText(queue, "New Game");
     const auto* load = findText(queue, "Load");
@@ -222,7 +182,7 @@ HARU_TEST(home_scene_uses_png_background_transparent_text_menu_and_shape_logo) {
     HARU_EXPECT_TRUE(boardTitle == nullptr);
 }
 
-HARU_TEST(home_scene_menu_is_plain_text_without_button_decoration) {
+HARU_TEST(home_scene_menu_removes_old_underlines_and_dot_decorations) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue queue;
 
@@ -231,11 +191,11 @@ HARU_TEST(home_scene_menu_is_plain_text_without_button_decoration) {
     bool menuDecorationFound = false;
     for (const auto& command : queue.commands()) {
         if (command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect &&
-            command.rect.y >= 620 && command.rect.height <= 8) {
+            command.rect.y == 634 && command.rect.height <= 8) {
             menuDecorationFound = true;
         }
         if (command.kind == haru::engine::graphics::DrawCommandKind::FillEllipse &&
-            command.rect.y >= 620) {
+            command.rect.y >= 620 && command.rect.width <= 14 && command.rect.height <= 14) {
             menuDecorationFound = true;
         }
     }
@@ -243,18 +203,120 @@ HARU_TEST(home_scene_menu_is_plain_text_without_button_decoration) {
     HARU_EXPECT_FALSE(menuDecorationFound);
 }
 
-HARU_TEST(home_scene_art_title_is_shape_drawn_katakana_logo_strokes) {
+HARU_TEST(home_scene_bottom_menu_is_low_plain_text_without_card_backs) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue queue;
 
     homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
 
-    HARU_EXPECT_TRUE(countLogoPolygons(queue) >= static_cast<std::size_t>(12));
-    HARU_EXPECT_EQ(countGlyphCells(queue), static_cast<std::size_t>(0));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {11, 119, 155, 230}));
-    HARU_EXPECT_TRUE(hasFillColor(queue, {255, 183, 205, 230}));
-    HARU_EXPECT_FALSE(hasText(queue, "ハルフシ"));
-    HARU_EXPECT_FALSE(hasText(queue, "パッチ"));
+    const auto* newGame = findText(queue, "New Game");
+    const auto* settings = findText(queue, "Settings");
+    HARU_EXPECT_TRUE(newGame != nullptr);
+    HARU_EXPECT_TRUE(settings != nullptr);
+    HARU_EXPECT_TRUE(newGame->rect.y >= 682);
+    HARU_EXPECT_TRUE(settings->rect.y >= 682);
+
+    bool cardBackFound = false;
+    for (const auto& command : queue.commands()) {
+        if ((command.kind == haru::engine::graphics::DrawCommandKind::FillRect ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillRoundedRect ||
+             command.kind == haru::engine::graphics::DrawCommandKind::FillEllipse) &&
+            command.rect.y >= 660) {
+            cardBackFound = true;
+        }
+    }
+    HARU_EXPECT_FALSE(cardBackFound);
+    HARU_EXPECT_EQ(countText(queue, "New Game"), static_cast<std::size_t>(1));
+    HARU_EXPECT_EQ(countText(queue, "Settings"), static_cast<std::size_t>(1));
+}
+
+HARU_TEST(home_scene_bottom_menu_uses_black_font_without_synthetic_outline) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::HomeScene homeScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
+
+    for (const auto* label : {"开始游戏", "读取存档", "游戏设置", "退出游戏"}) {
+        std::size_t matchingCommands = 0;
+        for (const auto& command : queue.commands()) {
+            if (command.kind == haru::engine::graphics::DrawCommandKind::Text &&
+                command.text == label) {
+                ++matchingCommands;
+                HARU_EXPECT_EQ(command.textRole,
+                               haru::engine::graphics::TextRole::ZenMaruBlack);
+                HARU_EXPECT_EQ(command.color,
+                               (haru::engine::graphics::Color{255, 255, 251, 255}));
+            }
+        }
+
+        HARU_EXPECT_EQ(matchingCommands, static_cast<std::size_t>(1));
+    }
+}
+
+HARU_TEST(home_scene_bottom_menu_gives_heavy_font_enough_vertical_room) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::HomeScene homeScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
+
+    for (const auto* label : {"开始游戏", "读取存档", "游戏设置", "退出游戏"}) {
+        const auto* command = findText(queue, label);
+        HARU_EXPECT_TRUE(command != nullptr);
+        HARU_EXPECT_TRUE(command->rect.y >= 670);
+        HARU_EXPECT_TRUE(command->rect.y <= 674);
+        HARU_EXPECT_TRUE(command->rect.height >= 40);
+        HARU_EXPECT_TRUE(command->rect.height <= 44);
+        HARU_EXPECT_TRUE(command->rect.y + command->rect.height <= 718);
+        HARU_EXPECT_EQ(command->fontScalePercent, 67);
+    }
+}
+
+HARU_TEST(home_scene_bottom_menu_spaces_four_actions_evenly) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::HomeScene homeScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {1280, 720}, haru::game::scenes::HomePanel::Main);
+
+    const auto* newGame = findText(queue, "开始游戏");
+    const auto* load = findText(queue, "读取存档");
+    const auto* settings = findText(queue, "游戏设置");
+    const auto* quit = findText(queue, "退出游戏");
+    HARU_EXPECT_TRUE(newGame != nullptr);
+    HARU_EXPECT_TRUE(load != nullptr);
+    HARU_EXPECT_TRUE(settings != nullptr);
+    HARU_EXPECT_TRUE(quit != nullptr);
+
+    const int firstGap = (load->rect.x + load->rect.width / 2) -
+                         (newGame->rect.x + newGame->rect.width / 2);
+    const int secondGap = (settings->rect.x + settings->rect.width / 2) -
+                          (load->rect.x + load->rect.width / 2);
+    const int thirdGap = (quit->rect.x + quit->rect.width / 2) -
+                         (settings->rect.x + settings->rect.width / 2);
+    HARU_EXPECT_EQ(firstGap, secondGap);
+    HARU_EXPECT_EQ(secondGap, thirdGap);
+    HARU_EXPECT_EQ(newGame->rect.width, load->rect.width);
+    HARU_EXPECT_EQ(load->rect.width, settings->rect.width);
+    HARU_EXPECT_EQ(settings->rect.width, quit->rect.width);
+}
+
+HARU_TEST(home_scene_omits_japanese_art_title_for_now) {
+    haru::game::scenes::HomeScene homeScene;
+    haru::engine::graphics::RenderQueue mainQueue;
+    haru::engine::graphics::RenderQueue savesQueue;
+
+    homeScene.render(mainQueue, {1280, 720}, haru::game::scenes::HomePanel::Main);
+    homeScene.render(savesQueue, {1280, 720}, haru::game::scenes::HomePanel::Saves);
+
+    HARU_EXPECT_FALSE(hasText(mainQueue, "ハルフシ"));
+    HARU_EXPECT_FALSE(hasText(mainQueue, "パッチ"));
+    HARU_EXPECT_FALSE(hasJapaneseArtTitleCommand(mainQueue));
+    HARU_EXPECT_FALSE(hasJapaneseArtTitleCommand(savesQueue));
 }
 
 HARU_TEST(home_scene_maps_main_menu_points_to_home_actions) {
@@ -333,7 +395,7 @@ HARU_TEST(home_scene_uses_game_text_localization) {
     HARU_EXPECT_FALSE(hasText(queue, "春伏补丁依存症"));
     HARU_EXPECT_TRUE(hasText(queue, "开始游戏"));
     HARU_EXPECT_TRUE(hasText(queue, "读取存档"));
-    HARU_EXPECT_TRUE(hasText(queue, "设置"));
-    HARU_EXPECT_TRUE(hasText(queue, "退出"));
+    HARU_EXPECT_TRUE(hasText(queue, "游戏设置"));
+    HARU_EXPECT_TRUE(hasText(queue, "退出游戏"));
     HARU_EXPECT_FALSE(hasText(queue, "补丁看板"));
 }

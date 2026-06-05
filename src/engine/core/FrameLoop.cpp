@@ -2,7 +2,8 @@
 
 namespace haru::engine::core {
 
-FrameLoop::FrameLoop(double fixedDeltaSeconds) : fixedDeltaSeconds_(fixedDeltaSeconds) {}
+FrameLoop::FrameLoop(double fixedDeltaSeconds)
+    : fixedDeltaSeconds_(fixedDeltaSeconds > 0.0 ? fixedDeltaSeconds : 1.0 / 60.0) {}
 
 FrameLoopResult FrameLoop::run(const FrameCallback& onFrame) const {
     std::uint64_t frameIndex = 0;

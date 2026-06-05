@@ -96,7 +96,46 @@ void drawProgressBar(engine::graphics::RenderQueue& queue,
     const int fillWidth = std::max((bounds.width * std::clamp(value, 0, 100)) / 100, 1);
     queue.fillRoundedRect({bounds.x, bounds.y, fillWidth, bounds.height},
                           fill,
-                          bounds.height / 2);
+                           bounds.height / 2);
+}
+
+void renderStatusPanel(engine::graphics::RenderQueue& queue,
+                       const localization::GameText& text,
+                       int width,
+                       int height,
+                       const systems::DailyStats& stats) {
+    queue.fillRoundedRect({92, std::max(height - 150, 1), 168, 38}, sakuraStrong, 18);
+    queue.strokeRect({92, std::max(height - 150, 1), 168, 38}, warmWhite, 2);
+    queue.drawText({108, std::max(height - 143, 1), 136, 24},
+                   text.get(localization::TextId::Harufushi),
+                   deepInk);
+    queue.drawText({286, std::max(height - 126, 1), std::max(width - 372, 1), 32},
+                   text.formatDailyStats(stats),
+                   ink);
+}
+
+void renderDialoguePanel(engine::graphics::RenderQueue& queue,
+                         int width,
+                         int height,
+                         const systems::DailyDialogueEntry& dialogue) {
+    const int panelY = std::max(height - 150, 1);
+    queue.fillRoundedRect({92, panelY, 208, 38}, sakuraStrong, 18);
+    queue.strokeRect({92, panelY, 208, 38}, warmWhite, 2);
+    queue.drawText({112, panelY + 7, 168, 24}, dialogue.speaker, deepInk);
+
+    const int textX = 326;
+    const int textWidth = std::max(width - textX - 112, 1);
+    if (!dialogue.lines.empty()) {
+        queue.drawText({textX, panelY + 8, textWidth, 26}, dialogue.lines[0], ink);
+    }
+    if (dialogue.lines.size() > 1U) {
+        queue.drawText({textX, panelY + 38, textWidth, 26}, dialogue.lines[1], deepInk);
+    }
+    if (dialogue.lines.size() > 2U) {
+        queue.drawText({textX, panelY + 68, textWidth, 26}, dialogue.lines[2], ink);
+    }
+    queue.fillRoundedRect({std::max(width - 190, 1), panelY + 96, 76, 8}, sky, 4);
+    queue.fillEllipse({std::max(width - 98, 1), panelY + 90, 14, 14}, sakuraStrong);
 }
 
 } // namespace
@@ -105,7 +144,8 @@ TitleScene::TitleScene(localization::GameText text) : text_(std::move(text)) {}
 
 void TitleScene::render(engine::graphics::RenderQueue& queue,
                         engine::graphics::Size surfaceSize,
-                        const systems::DailyStats& stats) const {
+                        const systems::DailyStats& stats,
+                        const systems::DailyDialogueEntry* activeDialogue) const {
     queue.clear(bgCream);
 
     const int width = std::max(surfaceSize.width, 1);
@@ -162,14 +202,11 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
     queue.drawText({520, 374, 130, 28}, text_.get(localization::TextId::Bond), ink);
     drawProgressBar(queue, {650, 384, 360, 12}, stats.harufushiBond, mint);
 
-    queue.fillRoundedRect({92, std::max(height - 150, 1), 168, 38}, sakuraStrong, 18);
-    queue.strokeRect({92, std::max(height - 150, 1), 168, 38}, warmWhite, 2);
-    queue.drawText({108, std::max(height - 143, 1), 136, 24},
-                   text_.get(localization::TextId::Harufushi),
-                   deepInk);
-    queue.drawText({286, std::max(height - 126, 1), std::max(width - 372, 1), 32},
-                   text_.formatDailyStats(stats),
-                   ink);
+    if (activeDialogue != nullptr) {
+        renderDialoguePanel(queue, width, height, *activeDialogue);
+    } else {
+        renderStatusPanel(queue, text_, width, height, stats);
+    }
 }
 
 std::optional<systems::DailyAction> TitleScene::actionAt(

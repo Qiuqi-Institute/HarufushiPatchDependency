@@ -1,5 +1,6 @@
 #include "engine/graphics/RenderQueue.hpp"
 
+#include <algorithm>
 #include <utility>
 
 namespace haru::engine::graphics {
@@ -45,8 +46,15 @@ void RenderQueue::drawImage(Rect rect, std::string imagePath) {
                          std::move(imagePath)});
 }
 
-void RenderQueue::drawText(Rect rect, std::string text, Color color) {
-    commands_.push_back({DrawCommandKind::Text, rect, color, std::move(text)});
+void RenderQueue::drawText(Rect rect,
+                           std::string text,
+                           Color color,
+                           TextRole textRole,
+                           int fontScalePercent) {
+    DrawCommand command{DrawCommandKind::Text, rect, color, std::move(text)};
+    command.textRole = textRole;
+    command.fontScalePercent = std::clamp(fontScalePercent, 25, 200);
+    commands_.push_back(std::move(command));
 }
 
 void RenderQueue::reset() {

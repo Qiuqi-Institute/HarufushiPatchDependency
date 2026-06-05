@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HaruApplication"
+#include "HaruAsyncStartupTask"
 #include "HaruButton"
 #include "HaruColor"
 #include "HaruEngineOpeningGate"
@@ -8,6 +9,7 @@
 #include "HaruGeometry"
 #include "HaruLocaleRegistry"
 #include "HaruProtectedResourceStore"
+#include "HaruResourcePackage"
 #include "HaruRenderQueue"
 #include "HaruResourceId"
 #include "HaruResourceManifest"

@@ -13,6 +13,7 @@ void Button::render(graphics::RenderQueue& queue) const {
     queue.fillRect(bounds_, style_.background);
     TextBoxStyle textStyle;
     textStyle.text = style_.text;
+    textStyle.textRole = style_.textRole;
     textStyle.minHorizontalPadding = std::max(style_.textPadding / 2, 4);
     textStyle.maxHorizontalPadding = std::max(style_.textPadding * 2, textStyle.minHorizontalPadding);
     TextBox({bounds_.x + style_.textPadding,

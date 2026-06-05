@@ -66,3 +66,18 @@ HARU_TEST(text_box_clamps_very_long_text_inside_container) {
     HARU_EXPECT_TRUE(text->rect.x + text->rect.width <= 260);
     HARU_EXPECT_TRUE(text->rect.width >= 180);
 }
+
+HARU_TEST(text_box_normalizes_negative_padding_style_without_invalid_clamp_bounds) {
+    haru::engine::ui::TextBoxStyle style;
+    style.minHorizontalPadding = -24;
+    style.maxHorizontalPadding = -8;
+    style.minWidth = -40;
+
+    haru::engine::ui::TextBox textBox({12, 34, 96, 28}, "Patch", style);
+
+    const auto rect = textBox.textRect();
+
+    HARU_EXPECT_TRUE(rect.x >= 12);
+    HARU_EXPECT_TRUE(rect.x + rect.width <= 108);
+    HARU_EXPECT_TRUE(rect.width >= 0);
+}

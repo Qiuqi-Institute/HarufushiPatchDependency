@@ -3,6 +3,7 @@
 #include <HaruFrame>
 
 #include "../localization/GameText.hpp"
+#include "../systems/DailyDialogueScript.hpp"
 #include "../systems/DailyLoopState.hpp"
 
 #include <optional>
@@ -19,7 +20,8 @@ public:
 
     void render(engine::graphics::RenderQueue& queue,
                 engine::graphics::Size surfaceSize,
-                const systems::DailyStats& stats = systems::DailyStats{}) const;
+                const systems::DailyStats& stats = systems::DailyStats{},
+                const systems::DailyDialogueEntry* activeDialogue = nullptr) const;
     std::optional<systems::DailyAction> actionAt(engine::graphics::Point point,
                                                  engine::graphics::Size surfaceSize) const;
     std::optional<TitleNavigationAction> navigationActionAt(

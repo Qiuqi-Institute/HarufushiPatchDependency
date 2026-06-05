@@ -1,0 +1,163 @@
+harudlg v1
+
+dialogue en-US study Akioki
+branch study_notes
+line "Notebook first. Harufushi keeps the chair warm."
+line "One clean note now saves three confused commits later."
+line "The evening route stays quiet, but the day has a spine."
+
+dialogue en-US study Akioki
+branch exam_thread
+when study >= 24
+line "The same paragraph finally stops sliding away."
+line "Harufushi taps the margin twice, then writes a tiny star beside your summary."
+line "A study route opens: prototype notes, then a patch plan before sleep."
+
+dialogue en-US modding Harufushi
+branch routine_patch
+line "The preview window blinked again."
+line "Touch one UI edge at a time, or the patch queue will bite back."
+line "Tonight's route stays in polish work: small fixes, visible results."
+
+dialogue en-US modding Harufushi
+branch release_candidate
+when mod >= 35
+when energy >= 20
+line "The build light finally turned green."
+line "Harufushi leans over the log and whispers the forbidden words: release candidate."
+line "A new branch opens around screenshots, changelog notes, and one risky late patch."
+
+dialogue en-US harufushi Harufushi
+branch quiet_bond
+line "You closed the editor before dinner. I saw that."
+line "Stay here for a minute. The build can wait."
+line "The route turns softer: fewer commits, more eye contact."
+
+dialogue en-US harufushi Harufushi
+branch dependence_lock
+when bond >= 20
+when dependence >= 8
+line "Do not pretend this is just pair programming."
+line "Harufushi keeps your sleeve between two fingers, gentle enough to deny everything."
+line "A dependence route opens, and every future choice will ask how close is too close."
+
+dialogue en-US rest Akioki
+branch clean_rest
+line "No heroic all-nighter today."
+line "Sleep is also dependency management."
+line "Tomorrow's route will remember that you did not burn the day down."
+
+dialogue en-US rest Akioki
+branch recovery_day
+when energy <= 35
+line "The screen glow has gone sour."
+line "You close the laptop before the error list starts sounding personal."
+line "A recovery route opens: fewer rewards today, but no collapse tomorrow."
+
+dialogue zh-CN study 秋起
+branch study_notes
+line "先记笔记。春伏已经把椅子占暖了。"
+line "现在理清一个概念，晚上就少改三次提交。"
+line "今天的路线暂时安静，但至少有了骨架。"
+
+dialogue zh-CN study 秋起
+branch exam_thread
+when study >= 24
+line "同一段文字终于不再从脑子里滑走。"
+line "春伏在页边轻轻敲了两下，又给你的总结画了一颗小星星。"
+line "学习线展开：先把原型笔记整理完，睡前再拆补丁计划。"
+
+dialogue zh-CN modding 春伏
+branch routine_patch
+line "预览窗口又闪了一下。"
+line "一次只动一个 UI 边界，不然补丁队列会反咬你。"
+line "今晚先走润色线：改动小一点，反馈明确一点。"
+
+dialogue zh-CN modding 春伏
+branch release_candidate
+when mod >= 35
+when energy >= 20
+line "构建灯终于绿了。"
+line "春伏凑到日志旁边，小声说出那个危险词：候选发布。"
+line "新故事线展开：截图、更新说明，还有一个很想插队的深夜补丁。"
+
+dialogue zh-CN harufushi 春伏
+branch quiet_bond
+line "你居然在晚饭前关了编辑器，我看见了。"
+line "在这里坐一分钟，构建可以等。"
+line "今天的路线变软了一点：提交少一些，对视多一些。"
+
+dialogue zh-CN harufushi 春伏
+branch dependence_lock
+when bond >= 20
+when dependence >= 8
+line "别装成这只是结对编程。"
+line "春伏用两根手指牵住你的袖口，轻到足够让人继续嘴硬。"
+line "依存线展开，之后每个选择都会追问：靠得太近是从哪里开始的。"
+
+dialogue zh-CN rest 秋起
+branch clean_rest
+line "今天不搞通宵英雄主义。"
+line "睡觉也是依赖管理。"
+line "明天的路线会记得你今天没有把自己烧穿。"
+
+dialogue zh-CN rest 秋起
+branch recovery_day
+when energy <= 35
+line "屏幕光已经发涩了。"
+line "你在错误列表开始像是在骂人之前合上电脑。"
+line "恢复线展开：今天奖励少一点，但明天不会崩。"
+
+dialogue ja-JP study アキオキ
+branch study_notes
+line "まずノート。ハルフシが椅子を温めている。"
+line "今ひとつ整理すれば、夜のコミットが三回減る。"
+line "今日のルートは静かだが、芯はできた。"
+
+dialogue ja-JP study アキオキ
+branch exam_thread
+when study >= 24
+line "同じ段落が、ようやく頭からこぼれなくなった。"
+line "ハルフシが余白を二度たたき、要約の横に小さな星を描く。"
+line "勉強ルートが開く。原型ノート、それから眠る前のパッチ計画。"
+
+dialogue ja-JP modding ハルフシ
+branch routine_patch
+line "プレビュー画面がまた光った。"
+line "UIの境界は一度にひとつだけ。パッチ列が噛み返すよ。"
+line "今夜は調整ルート。小さく直して、確実に見える結果へ。"
+
+dialogue ja-JP modding ハルフシ
+branch release_candidate
+when mod >= 35
+when energy >= 20
+line "ビルドランプがやっと緑になった。"
+line "ハルフシがログをのぞき込み、禁句をささやく。リリース候補。"
+line "新しいルートが開く。スクショ、更新メモ、そして深夜の危ない追加パッチ。"
+
+dialogue ja-JP harufushi ハルフシ
+branch quiet_bond
+line "夕食前にエディタを閉じたね。見てたよ。"
+line "ここで一分だけ座って。ビルドは待てる。"
+line "今日のルートは少し柔らかい。コミットより、目を合わせる時間。"
+
+dialogue ja-JP harufushi ハルフシ
+branch dependence_lock
+when bond >= 20
+when dependence >= 8
+line "これをただのペア作業って言うつもり？"
+line "ハルフシは袖を二本の指でつまむ。否定できるくらい、やさしく。"
+line "依存ルートが開く。近すぎる、はどこから始まったのか。"
+
+dialogue ja-JP rest アキオキ
+branch clean_rest
+line "今日は徹夜の英雄ごっこなし。"
+line "眠ることも依存関係の管理だ。"
+line "明日のルートは、今日燃え尽きなかったことを覚えている。"
+
+dialogue ja-JP rest アキオキ
+branch recovery_day
+when energy <= 35
+line "画面の光が苦くなってきた。"
+line "エラー一覧が人格攻撃に見える前に、ノートPCを閉じる。"
+line "回復ルートが開く。今日の報酬は少ないが、明日は壊れない。"

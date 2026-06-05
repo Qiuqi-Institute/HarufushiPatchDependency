@@ -1,0 +1,104 @@
+#include "support/TestHarness.hpp"
+
+#include "game/systems/DailyDialogueScript.hpp"
+
+#include <string>
+
+HARU_TEST(daily_dialogue_script_parses_activity_dialogues_by_locale) {
+    const std::string source =
+        "harudlg v1\n"
+        "dialogue en-US study Akioki\n"
+        "line \"Notebook first. Harufushi keeps the chair warm.\"\n"
+        "line \"One clean note now saves three confused commits later.\"\n"
+        "dialogue zh-CN modding 春伏\n"
+        "branch ui_review\n"
+        "line \"你又在调 UI。\"\n";
+
+    const auto script = haru::game::systems::DailyDialogueScript::parse(source);
+    const auto study =
+        script.entryFor("en-US", haru::game::systems::DailyAction::Study);
+    const auto modding =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding);
+    const auto fallback =
+        script.entryFor("ja-JP", haru::game::systems::DailyAction::Study);
+
+    HARU_EXPECT_TRUE(study.has_value());
+    HARU_EXPECT_EQ(study->branchId, "default");
+    HARU_EXPECT_EQ(study->speaker, "Akioki");
+    HARU_EXPECT_EQ(study->lines.size(), static_cast<std::size_t>(2));
+    HARU_EXPECT_EQ(study->lines[0], "Notebook first. Harufushi keeps the chair warm.");
+    HARU_EXPECT_TRUE(modding.has_value());
+    HARU_EXPECT_EQ(modding->branchId, "ui_review");
+    HARU_EXPECT_EQ(modding->speaker, "春伏");
+    HARU_EXPECT_EQ(modding->lines[0], "你又在调 UI。");
+    HARU_EXPECT_TRUE(fallback.has_value());
+    HARU_EXPECT_EQ(fallback->speaker, "Akioki");
+}
+
+HARU_TEST(daily_dialogue_script_selects_story_branch_from_resulting_stats) {
+    const std::string source =
+        "harudlg v1\n"
+        "dialogue en-US modding Harufushi\n"
+        "branch routine_patch\n"
+        "line \"The issue list is still breathing.\"\n"
+        "dialogue en-US modding Harufushi\n"
+        "branch release_candidate\n"
+        "when mod >= 25\n"
+        "when energy >= 20\n"
+        "line \"The build light finally turned green.\"\n"
+        "dialogue en-US harufushi Harufushi\n"
+        "branch dependence_lock\n"
+        "when dependence >= 8\n"
+        "line \"Do not pretend this is just pair programming.\"\n";
+
+    const auto script = haru::game::systems::DailyDialogueScript::parse(source);
+    haru::game::systems::DailyStats routineStats;
+    routineStats.modProgress = 20;
+    routineStats.energy = 70;
+    haru::game::systems::DailyStats releaseStats;
+    releaseStats.modProgress = 31;
+    releaseStats.energy = 35;
+    haru::game::systems::DailyStats dependentStats;
+    dependentStats.dependence = 10;
+
+    const auto routine =
+        script.entryFor("en-US", haru::game::systems::DailyAction::Modding, routineStats);
+    const auto release =
+        script.entryFor("en-US", haru::game::systems::DailyAction::Modding, releaseStats);
+    const auto dependence =
+        script.entryFor("en-US",
+                        haru::game::systems::DailyAction::SpendTimeWithHarufushi,
+                        dependentStats);
+
+    HARU_EXPECT_TRUE(routine.has_value());
+    HARU_EXPECT_EQ(routine->branchId, "routine_patch");
+    HARU_EXPECT_EQ(routine->lines[0], "The issue list is still breathing.");
+    HARU_EXPECT_TRUE(release.has_value());
+    HARU_EXPECT_EQ(release->branchId, "release_candidate");
+    HARU_EXPECT_EQ(release->lines[0], "The build light finally turned green.");
+    HARU_EXPECT_TRUE(dependence.has_value());
+    HARU_EXPECT_EQ(dependence->branchId, "dependence_lock");
+}
+
+HARU_TEST(daily_dialogue_script_default_resource_contains_four_daily_actions) {
+    const auto script = haru::game::systems::DailyDialogueScript::loadDefault();
+
+    HARU_EXPECT_TRUE(
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Study).has_value());
+    HARU_EXPECT_TRUE(
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding).has_value());
+    HARU_EXPECT_TRUE(script
+                         .entryFor("zh-CN",
+                                   haru::game::systems::DailyAction::SpendTimeWithHarufushi)
+                         .has_value());
+    HARU_EXPECT_TRUE(
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Rest).has_value());
+
+    haru::game::systems::DailyStats modFocused;
+    modFocused.modProgress = 42;
+    modFocused.energy = 40;
+    const auto modBranch =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, modFocused);
+    HARU_EXPECT_TRUE(modBranch.has_value());
+    HARU_EXPECT_EQ(modBranch->branchId, "release_candidate");
+}

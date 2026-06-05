@@ -1,11 +1,19 @@
 #include "engine/platform/windows/Win32SoftwarePresenter.hpp"
 #include "engine/graphics/ViewportScaler.hpp"
+#include "engine/resources/ResourceId.hpp"
+#include "engine/resources/ResourcePackage.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
+#include <memory>
+#include <mutex>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <wincodec.h>
@@ -157,6 +165,103 @@ std::wstring resolveImagePath(const std::string& imagePath) {
     return widePath;
 }
 
+std::filesystem::path executableDirectory() {
+    wchar_t modulePath[MAX_PATH]{};
+    const DWORD length = GetModuleFileNameW(nullptr, modulePath, MAX_PATH);
+    if (length == 0 || length >= MAX_PATH) {
+        return std::filesystem::current_path();
+    }
+
+    std::filesystem::path path(std::wstring(modulePath, modulePath + length));
+    return path.parent_path();
+}
+
+std::optional<std::filesystem::path> findEnvFile() {
+    std::filesystem::path directory = executableDirectory();
+    for (int depth = 0; depth < 5; ++depth) {
+        const auto candidate = directory / ".env";
+        if (std::filesystem::exists(candidate)) {
+            return candidate;
+        }
+        if (!directory.has_parent_path() || directory == directory.parent_path()) {
+            break;
+        }
+        directory = directory.parent_path();
+    }
+
+    const auto cwdCandidate = std::filesystem::current_path() / ".env";
+    if (std::filesystem::exists(cwdCandidate)) {
+        return cwdCandidate;
+    }
+    return std::nullopt;
+}
+
+std::filesystem::path packageRootDirectory() {
+    return executableDirectory() / "resources";
+}
+
+std::shared_ptr<haru::engine::resources::PackagedResourceRuntime> packagedResourceRuntime() {
+    static std::mutex mutex;
+    static bool attempted = false;
+    static std::shared_ptr<haru::engine::resources::PackagedResourceRuntime> runtime;
+
+    std::lock_guard<std::mutex> lock(mutex);
+    if (attempted) {
+        return runtime;
+    }
+    attempted = true;
+
+    const auto envFile = findEnvFile();
+    if (!envFile.has_value()) {
+        return nullptr;
+    }
+    const auto key = haru::engine::resources::readResourceMasterKeyFromEnvFile(*envFile);
+    if (!key.has_value()) {
+        return nullptr;
+    }
+
+    auto opened = haru::engine::resources::PackagedResourceRuntime::open(packageRootDirectory(),
+                                                                         *key);
+    if (!opened.has_value()) {
+        return nullptr;
+    }
+
+    runtime =
+        std::make_shared<haru::engine::resources::PackagedResourceRuntime>(std::move(*opened));
+    return runtime;
+}
+
+std::optional<std::vector<std::byte>> loadPackagedResourceBytes(const std::string& resourceId) {
+    const auto parsedId = haru::engine::resources::ResourceId::parse(resourceId);
+    if (!parsedId.has_value()) {
+        return std::nullopt;
+    }
+
+    const auto runtime = packagedResourceRuntime();
+    if (runtime == nullptr) {
+        return std::nullopt;
+    }
+    std::vector<std::byte> bytes;
+    const auto result =
+        runtime->withPresentedResource(*parsedId,
+                                       [&](const haru::engine::resources::PresentedResourceView& view) {
+                                           bytes.assign(view.data(), view.data() + view.size());
+                                       });
+    if (result != haru::engine::resources::ResourceReadError::None) {
+        return std::nullopt;
+    }
+    return bytes;
+}
+
+std::string developmentPathForResourceId(const std::string& resourceId) {
+    std::string path = "resources/";
+    for (const char character : resourceId) {
+        path.push_back(character == '.' ? '/' : character);
+    }
+    path += ".png";
+    return path;
+}
+
 COLORREF toColorRef(graphics::Color color) {
     return RGB(color.r, color.g, color.b);
 }
@@ -164,6 +269,166 @@ COLORREF toColorRef(graphics::Color color) {
 bool isSplashTitleLetter(const graphics::DrawCommand& command) {
     return command.text.size() == 1U && command.rect.height >= 60 &&
            command.color == graphics::Color{11, 119, 155, 255};
+}
+
+bool isHomeMenuText(const graphics::DrawCommand& command) {
+    return command.rect.y >= 660 && command.rect.height <= 34 &&
+           command.color != graphics::Color{11, 119, 155, 255};
+}
+
+std::wstring resolveResourcePath(const std::filesystem::path& relativePath) {
+    std::filesystem::path directory = executableDirectory();
+    for (int depth = 0; depth < 5; ++depth) {
+        const auto candidate = directory / relativePath;
+        if (std::filesystem::exists(candidate)) {
+            return candidate.wstring();
+        }
+        if (!directory.has_parent_path() || directory == directory.parent_path()) {
+            break;
+        }
+        directory = directory.parent_path();
+    }
+
+    const auto cwdCandidate = std::filesystem::current_path() / relativePath;
+    if (std::filesystem::exists(cwdCandidate)) {
+        return cwdCandidate.wstring();
+    }
+    return relativePath.wstring();
+}
+
+void loadPrivateFontFile(const std::filesystem::path& relativePath,
+                         const std::string& packagedResourceId) {
+    const std::wstring fontPath = resolveResourcePath(relativePath);
+    if (GetFileAttributesW(fontPath.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        AddFontResourceExW(fontPath.c_str(), FR_PRIVATE, nullptr);
+        return;
+    }
+
+    auto packagedBytes = loadPackagedResourceBytes(packagedResourceId);
+    if (!packagedBytes.has_value() || packagedBytes->empty()) {
+        return;
+    }
+
+    DWORD faceCount = 0;
+    HANDLE fontHandle = AddFontMemResourceEx(
+        reinterpret_cast<void*>(packagedBytes->data()),
+        static_cast<DWORD>(packagedBytes->size()),
+        nullptr,
+        &faceCount);
+    if (fontHandle == nullptr) {
+        return;
+    }
+
+    static std::vector<std::vector<std::byte>> loadedFontBytes;
+    static std::vector<HANDLE> loadedFontHandles;
+    loadedFontBytes.push_back(std::move(*packagedBytes));
+    loadedFontHandles.push_back(fontHandle);
+}
+
+void ensureZenMaruFontsLoaded() {
+    static bool loaded = false;
+    if (loaded) {
+        return;
+    }
+
+    loadPrivateFontFile("resources/fonts/ZenMaruGothic-Black.ttf",
+                        "fonts.ZenMaruGothic-Black");
+    loadPrivateFontFile("resources/fonts/ZenMaruGothic-Bold.ttf",
+                        "fonts.ZenMaruGothic-Bold");
+    loadPrivateFontFile("resources/fonts/ResourceHanRoundedSC-Heavy.ttf",
+                        "fonts.ResourceHanRoundedSC-Heavy");
+    loadPrivateFontFile("resources/fonts/ResourceHanRoundedSC-Bold.ttf",
+                        "fonts.ResourceHanRoundedSC-Bold");
+    loaded = true;
+}
+
+bool usesZenMaruRole(const graphics::DrawCommand& command) {
+    return command.textRole == graphics::TextRole::ZenMaruBlack ||
+           command.textRole == graphics::TextRole::ZenMaruBold;
+}
+
+int fontSizeForCommand(const graphics::DrawCommand& command) {
+    int baseFontSize = 20;
+    if (command.textRole == graphics::TextRole::ZenMaruBlack) {
+        baseFontSize = std::clamp(command.rect.height - 8, 22, 44);
+    } else if (command.textRole == graphics::TextRole::ZenMaruBold) {
+        baseFontSize = std::clamp(command.rect.height - 7, 18, 28);
+    } else {
+        const bool splashTitle = isSplashTitleLetter(command);
+        const bool homeMenuText = isHomeMenuText(command);
+        const bool displayText = !splashTitle && command.rect.height >= 56 &&
+                                 command.rect.width <= 600;
+        const bool sceneTitle = !splashTitle && !homeMenuText && !displayText &&
+                                command.rect.height >= 40 &&
+                                command.rect.width >= 520;
+        baseFontSize =
+            displayText ? 54 : (splashTitle ? 42 : (sceneTitle ? 30 : (homeMenuText ? 24 : 20)));
+    }
+
+    return std::max(1, (baseFontSize * std::clamp(command.fontScalePercent, 25, 200) + 50) /
+                           100);
+}
+
+int fontWeightForCommand(const graphics::DrawCommand& command) {
+    if (command.textRole == graphics::TextRole::ZenMaruBlack) {
+        return FW_BLACK;
+    }
+    if (command.textRole == graphics::TextRole::ZenMaruBold) {
+        return FW_BOLD;
+    }
+
+    const bool splashTitle = isSplashTitleLetter(command);
+    const bool homeMenuText = isHomeMenuText(command);
+    const bool displayText = !splashTitle && command.rect.height >= 56 &&
+                             command.rect.width <= 600;
+    const bool sceneTitle = !splashTitle && !homeMenuText && !displayText &&
+                            command.rect.height >= 40 &&
+                            command.rect.width >= 520;
+    return homeMenuText ? FW_BLACK :
+                          ((splashTitle || displayText || sceneTitle) ? FW_BOLD :
+                                                                        FW_SEMIBOLD);
+}
+
+const wchar_t* fontFaceForCommand(const graphics::DrawCommand& command) {
+    if (command.textRole == graphics::TextRole::ZenMaruBlack) {
+        return L"Zen Maru Gothic Black";
+    }
+    if (command.textRole == graphics::TextRole::ZenMaruBold) {
+        return L"Zen Maru Gothic";
+    }
+
+    const bool splashTitle = isSplashTitleLetter(command);
+    const bool homeMenuText = isHomeMenuText(command);
+    const bool displayText = !splashTitle && command.rect.height >= 56 &&
+                             command.rect.width <= 600;
+    const bool sceneTitle = !splashTitle && !homeMenuText && !displayText &&
+                            command.rect.height >= 40 &&
+                            command.rect.width >= 520;
+    return homeMenuText ? L"Comic Sans MS" :
+                          (displayText ? L"Bahnschrift" :
+                                         (splashTitle ? L"Segoe Print" :
+                                                        (sceneTitle ? L"Yu Mincho" :
+                                                                      L"Yu Gothic UI")));
+}
+
+const wchar_t* fallbackFontFaceForCommand(const graphics::DrawCommand& command) {
+    if (command.textRole == graphics::TextRole::ZenMaruBlack) {
+        return L"Resource Han Rounded SC Heavy";
+    }
+    if (command.textRole == graphics::TextRole::ZenMaruBold) {
+        return L"Resource Han Rounded SC";
+    }
+    return fontFaceForCommand(command);
+}
+
+int fallbackFontWeightForCommand(const graphics::DrawCommand& command) {
+    if (command.textRole == graphics::TextRole::ZenMaruBlack) {
+        return FW_HEAVY;
+    }
+    if (command.textRole == graphics::TextRole::ZenMaruBold) {
+        return FW_BOLD;
+    }
+    return fontWeightForCommand(command);
 }
 
 graphics::Rect scaleRect(graphics::Rect rect,
@@ -175,20 +440,22 @@ graphics::Rect scaleRect(graphics::Rect rect,
             std::max(1, (rect.height * presentationRect.height) / surface.height())};
 }
 
-HFONT createFontForText(const graphics::DrawCommand& command, double scale) {
-    const bool splashTitle = isSplashTitleLetter(command);
-    const bool displayText = !splashTitle && command.rect.height >= 56 &&
-                             command.rect.width <= 600;
-    const bool sceneTitle = !splashTitle && !displayText && command.rect.height >= 40 &&
-                            command.rect.width >= 520;
-    const int baseFontSize = displayText ? 54 : (splashTitle ? 42 : (sceneTitle ? 30 : 20));
+HFONT createFontForFace(const graphics::DrawCommand& command,
+                        double scale,
+                        const wchar_t* faceName,
+                        int fontWeight) {
+    if (usesZenMaruRole(command)) {
+        ensureZenMaruFontsLoaded();
+    }
+
+    const int baseFontSize = fontSizeForCommand(command);
     const int fontSize =
         -std::max(1, static_cast<int>(std::round(static_cast<double>(baseFontSize) * scale)));
     return CreateFontW(fontSize,
                        0,
                        0,
                        0,
-                       (splashTitle || displayText || sceneTitle) ? FW_BOLD : FW_SEMIBOLD,
+                       fontWeight,
                        FALSE,
                        FALSE,
                        FALSE,
@@ -197,10 +464,173 @@ HFONT createFontForText(const graphics::DrawCommand& command, double scale) {
                        CLIP_DEFAULT_PRECIS,
                        CLEARTYPE_QUALITY,
                        DEFAULT_PITCH | FF_DONTCARE,
-                       displayText ? L"Bahnschrift" :
-                                     (splashTitle ? L"Segoe Print" :
-                                                    (sceneTitle ? L"Yu Mincho" :
-                                                                  L"Yu Gothic UI")));
+                       faceName);
+}
+
+HFONT createFontForText(const graphics::DrawCommand& command, double scale) {
+    return createFontForFace(command, scale, fontFaceForCommand(command),
+                             fontWeightForCommand(command));
+}
+
+HFONT createFallbackFontForText(const graphics::DrawCommand& command, double scale) {
+    return createFontForFace(command, scale, fallbackFontFaceForCommand(command),
+                             fallbackFontWeightForCommand(command));
+}
+
+std::size_t codeUnitCountAt(const std::wstring& text, std::size_t index) {
+    if (index + 1U < text.size() && text[index] >= 0xD800 && text[index] <= 0xDBFF &&
+        text[index + 1U] >= 0xDC00 && text[index + 1U] <= 0xDFFF) {
+        return 2U;
+    }
+    return 1U;
+}
+
+bool fontHasGlyph(HDC deviceContext, HFONT font, const std::wstring& text,
+                  std::size_t index) {
+    if (font == nullptr) {
+        return false;
+    }
+
+    const HGDIOBJ previousFont = SelectObject(deviceContext, font);
+    const std::size_t codeUnits = codeUnitCountAt(text, index);
+    WORD glyphs[2]{0, 0};
+    const DWORD result = GetGlyphIndicesW(deviceContext,
+                                          text.data() + index,
+                                          static_cast<int>(codeUnits),
+                                          glyphs,
+                                          GGI_MARK_NONEXISTING_GLYPHS);
+    if (previousFont != nullptr) {
+        SelectObject(deviceContext, previousFont);
+    }
+    if (result == GDI_ERROR) {
+        return false;
+    }
+    for (std::size_t glyphIndex = 0; glyphIndex < codeUnits; ++glyphIndex) {
+        if (glyphs[glyphIndex] == 0xFFFFU) {
+            return false;
+        }
+    }
+    return true;
+}
+
+struct TextRun {
+    std::wstring text;
+    bool fallback = false;
+    int width = 0;
+};
+
+int textWidth(HDC deviceContext, HFONT font, const std::wstring& text) {
+    if (font == nullptr || text.empty()) {
+        return 0;
+    }
+
+    const HGDIOBJ previousFont = SelectObject(deviceContext, font);
+    SIZE size{0, 0};
+    GetTextExtentPoint32W(deviceContext,
+                          text.c_str(),
+                          static_cast<int>(text.size()),
+                          &size);
+    if (previousFont != nullptr) {
+        SelectObject(deviceContext, previousFont);
+    }
+    return std::max(size.cx, 0L);
+}
+
+std::vector<TextRun> splitFallbackRuns(HDC deviceContext,
+                                       HFONT primaryFont,
+                                       HFONT fallbackFont,
+                                       const std::wstring& text) {
+    std::vector<TextRun> runs;
+    std::size_t cursor = 0;
+    while (cursor < text.size()) {
+        const bool fallback = !fontHasGlyph(deviceContext, primaryFont, text, cursor);
+        const std::size_t count = codeUnitCountAt(text, cursor);
+        if (runs.empty() || runs.back().fallback != fallback) {
+            runs.push_back({text.substr(cursor, count), fallback, 0});
+        } else {
+            runs.back().text += text.substr(cursor, count);
+        }
+        cursor += count;
+    }
+
+    for (auto& run : runs) {
+        run.width = textWidth(deviceContext, run.fallback ? fallbackFont : primaryFont, run.text);
+    }
+    return runs;
+}
+
+std::wstring fallbackRunCacheKey(const graphics::DrawCommand& command,
+                                 const std::wstring& text) {
+    return std::to_wstring(static_cast<int>(command.textRole)) + L"|" +
+           std::to_wstring(fontSizeForCommand(command)) + L"|" + text;
+}
+
+const std::vector<TextRun>& cachedFallbackRuns(HDC deviceContext,
+                                               const graphics::DrawCommand& command,
+                                               HFONT primaryFont,
+                                               HFONT fallbackFont,
+                                               const std::wstring& text) {
+    static std::unordered_map<std::wstring, std::vector<TextRun>> cache;
+    const std::wstring key = fallbackRunCacheKey(command, text);
+    const auto found = cache.find(key);
+    if (found != cache.end()) {
+        return found->second;
+    }
+
+    auto inserted = cache.emplace(key,
+                                  splitFallbackRuns(deviceContext,
+                                                    primaryFont,
+                                                    fallbackFont,
+                                                    text));
+    return inserted.first->second;
+}
+
+void drawFallbackText(HDC deviceContext,
+                      const graphics::DrawCommand& command,
+                      graphics::Rect scaledRect,
+                      double scale,
+                      const std::wstring& text) {
+    HFONT primaryFont = createFontForText(command, scale);
+    HFONT fallbackFont = createFallbackFontForText(command, scale);
+    const auto& runs =
+        cachedFallbackRuns(deviceContext, command, primaryFont, fallbackFont, text);
+
+    int totalWidth = 0;
+    for (const auto& run : runs) {
+        totalWidth += run.width;
+    }
+    const int textX = scaledRect.x + std::max((scaledRect.width - totalWidth) / 2, 0);
+    const int textY = scaledRect.y + std::max((scaledRect.height - fontSizeForCommand(command)) / 2,
+                                             0);
+    RECT clip{scaledRect.x,
+              scaledRect.y,
+              scaledRect.x + scaledRect.width,
+              scaledRect.y + scaledRect.height};
+
+    int cursorX = textX;
+    for (const auto& run : runs) {
+        HFONT font = run.fallback ? fallbackFont : primaryFont;
+        const HGDIOBJ previousFont = font != nullptr ? SelectObject(deviceContext, font) : nullptr;
+        ExtTextOutW(deviceContext,
+                    cursorX,
+                    textY,
+                    ETO_CLIPPED,
+                    &clip,
+                    run.text.c_str(),
+                    static_cast<UINT>(run.text.size()),
+                    nullptr);
+        if (previousFont != nullptr) {
+            SelectObject(deviceContext, previousFont);
+        }
+        cursorX += run.width;
+    }
+
+    if (primaryFont != nullptr) {
+        DeleteObject(primaryFont);
+    }
+    if (fallbackFont != nullptr) {
+        DeleteObject(fallbackFont);
+    }
 }
 
 void drawTextCommands(HDC deviceContext,
@@ -219,9 +649,6 @@ void drawTextCommands(HDC deviceContext,
         const graphics::Rect scaledRect = scaleRect(command.rect, presentationRect, surface);
         graphics::DrawCommand scaledCommand = command;
         scaledCommand.rect = scaledRect;
-        HFONT font = createFontForText(scaledCommand, scale);
-        const HGDIOBJ previousFont =
-            font != nullptr ? SelectObject(deviceContext, font) : nullptr;
 
         SetTextColor(deviceContext, toColorRef(command.color));
         RECT rect{scaledRect.x,
@@ -229,6 +656,14 @@ void drawTextCommands(HDC deviceContext,
                   scaledRect.x + scaledRect.width,
                   scaledRect.y + scaledRect.height};
         const std::wstring text = utf8ToWide(command.text);
+        if (usesZenMaruRole(scaledCommand)) {
+            drawFallbackText(deviceContext, scaledCommand, scaledRect, scale, text);
+            continue;
+        }
+
+        HFONT font = createFontForText(scaledCommand, scale);
+        const HGDIOBJ previousFont =
+            font != nullptr ? SelectObject(deviceContext, font) : nullptr;
         const bool splashTitleLetter = isSplashTitleLetter(command);
         const UINT format =
             (splashTitleLetter ? (DT_LEFT | DT_NOCLIP) : (DT_CENTER | DT_END_ELLIPSIS)) |
@@ -250,6 +685,131 @@ void drawTextCommands(HDC deviceContext,
     SetBkMode(deviceContext, previousBkMode);
 }
 
+struct DecodedImage {
+    UINT width = 0;
+    UINT height = 0;
+    std::vector<std::uint32_t> pixels;
+};
+
+std::optional<DecodedImage> decodeImageCommand(const graphics::DrawCommand& command,
+                                               WicFactory& wicFactory) {
+    IWICBitmapDecoder* decoder = nullptr;
+    IWICBitmapFrameDecode* frame = nullptr;
+    IWICFormatConverter* converter = nullptr;
+    IWICStream* stream = nullptr;
+    auto packagedBytes = loadPackagedResourceBytes(command.text);
+    HRESULT result = E_FAIL;
+    if (packagedBytes.has_value()) {
+        result = wicFactory.get()->CreateStream(&stream);
+        if (SUCCEEDED(result)) {
+            result = stream->InitializeFromMemory(
+                reinterpret_cast<BYTE*>(packagedBytes->data()),
+                static_cast<DWORD>(packagedBytes->size()));
+        }
+        if (SUCCEEDED(result)) {
+            result = wicFactory.get()->CreateDecoderFromStream(stream,
+                                                               nullptr,
+                                                               WICDecodeMetadataCacheOnLoad,
+                                                               &decoder);
+        }
+    } else {
+        const bool looksLikeResourceId =
+            command.text.find('/') == std::string::npos &&
+            command.text.find('\\') == std::string::npos;
+        const std::wstring path =
+            resolveImagePath(looksLikeResourceId ? developmentPathForResourceId(command.text)
+                                                 : command.text);
+        result = wicFactory.get()->CreateDecoderFromFilename(path.c_str(),
+                                                              nullptr,
+                                                              GENERIC_READ,
+                                                              WICDecodeMetadataCacheOnLoad,
+                                                              &decoder);
+    }
+    if (FAILED(result)) {
+        releaseCom(stream);
+        releaseCom(converter);
+        releaseCom(frame);
+        releaseCom(decoder);
+        return std::nullopt;
+    }
+
+    result = decoder->GetFrame(0, &frame);
+    if (FAILED(result)) {
+        releaseCom(stream);
+        releaseCom(converter);
+        releaseCom(frame);
+        releaseCom(decoder);
+        return std::nullopt;
+    }
+
+    result = wicFactory.get()->CreateFormatConverter(&converter);
+    if (FAILED(result)) {
+        releaseCom(stream);
+        releaseCom(converter);
+        releaseCom(frame);
+        releaseCom(decoder);
+        return std::nullopt;
+    }
+
+    result = converter->Initialize(frame,
+                                   GUID_WICPixelFormat32bppBGRA,
+                                   WICBitmapDitherTypeNone,
+                                   nullptr,
+                                   0.0,
+                                   WICBitmapPaletteTypeCustom);
+    if (FAILED(result)) {
+        releaseCom(stream);
+        releaseCom(converter);
+        releaseCom(frame);
+        releaseCom(decoder);
+        return std::nullopt;
+    }
+
+    DecodedImage image;
+    result = converter->GetSize(&image.width, &image.height);
+    if (FAILED(result) || image.width == 0 || image.height == 0) {
+        releaseCom(stream);
+        releaseCom(converter);
+        releaseCom(frame);
+        releaseCom(decoder);
+        return std::nullopt;
+    }
+
+    image.pixels.resize(static_cast<std::size_t>(image.width) * image.height);
+    result = converter->CopyPixels(nullptr,
+                                   image.width * sizeof(std::uint32_t),
+                                   static_cast<UINT>(image.pixels.size() *
+                                                     sizeof(std::uint32_t)),
+                                   reinterpret_cast<BYTE*>(image.pixels.data()));
+
+    releaseCom(converter);
+    releaseCom(frame);
+    releaseCom(decoder);
+    releaseCom(stream);
+
+    if (FAILED(result)) {
+        return std::nullopt;
+    }
+    return image;
+}
+
+const DecodedImage* cachedDecodedImage(const graphics::DrawCommand& command,
+                                       WicFactory& wicFactory) {
+    static std::unordered_map<std::string, DecodedImage> cache;
+    const auto found = cache.find(command.text);
+    if (found != cache.end()) {
+        return &found->second;
+    }
+
+    auto decoded = decodeImageCommand(command, wicFactory);
+    if (!decoded.has_value()) {
+        return nullptr;
+    }
+
+    auto inserted = cache.emplace(command.text, std::move(*decoded));
+    return &inserted.first->second;
+}
+
 void drawImageCommands(HDC deviceContext,
                        const graphics::RenderQueue& imageSource,
                        graphics::Rect presentationRect,
@@ -260,95 +820,32 @@ void drawImageCommands(HDC deviceContext,
             continue;
         }
 
-        IWICBitmapDecoder* decoder = nullptr;
-        IWICBitmapFrameDecode* frame = nullptr;
-        IWICFormatConverter* converter = nullptr;
-        const std::wstring path = resolveImagePath(command.text);
-        HRESULT result = wicFactory.get()->CreateDecoderFromFilename(path.c_str(),
-                                                                      nullptr,
-                                                                      GENERIC_READ,
-                                                                      WICDecodeMetadataCacheOnLoad,
-                                                                      &decoder);
-        if (FAILED(result)) {
-            releaseCom(converter);
-            releaseCom(frame);
-            releaseCom(decoder);
+        const DecodedImage* image = cachedDecodedImage(command, wicFactory);
+        if (image == nullptr) {
             continue;
         }
 
-        result = decoder->GetFrame(0, &frame);
-        if (FAILED(result)) {
-            releaseCom(converter);
-            releaseCom(frame);
-            releaseCom(decoder);
-            continue;
-        }
-
-        result = wicFactory.get()->CreateFormatConverter(&converter);
-        if (FAILED(result)) {
-            releaseCom(converter);
-            releaseCom(frame);
-            releaseCom(decoder);
-            continue;
-        }
-
-        result = converter->Initialize(frame,
-                                       GUID_WICPixelFormat32bppBGRA,
-                                       WICBitmapDitherTypeNone,
-                                       nullptr,
-                                       0.0,
-                                       WICBitmapPaletteTypeCustom);
-        if (FAILED(result)) {
-            releaseCom(converter);
-            releaseCom(frame);
-            releaseCom(decoder);
-            continue;
-        }
-
-        UINT imageWidth = 0;
-        UINT imageHeight = 0;
-        result = converter->GetSize(&imageWidth, &imageHeight);
-        if (FAILED(result) || imageWidth == 0 || imageHeight == 0) {
-            releaseCom(converter);
-            releaseCom(frame);
-            releaseCom(decoder);
-            continue;
-        }
-
-        std::vector<std::uint32_t> pixels(static_cast<std::size_t>(imageWidth) * imageHeight);
-        result = converter->CopyPixels(nullptr,
-                                       imageWidth * sizeof(std::uint32_t),
-                                       static_cast<UINT>(pixels.size() *
-                                                         sizeof(std::uint32_t)),
-                                       reinterpret_cast<BYTE*>(pixels.data()));
-        if (SUCCEEDED(result)) {
-            BITMAPINFO imageInfo{};
-            imageInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            imageInfo.bmiHeader.biWidth = static_cast<LONG>(imageWidth);
-            imageInfo.bmiHeader.biHeight = -static_cast<LONG>(imageHeight);
-            imageInfo.bmiHeader.biPlanes = 1;
-            imageInfo.bmiHeader.biBitCount = 32;
-            imageInfo.bmiHeader.biCompression = BI_RGB;
-            const graphics::Rect targetRect =
-                scaleRect(command.rect, presentationRect, surface);
-            StretchDIBits(deviceContext,
-                          targetRect.x,
-                          targetRect.y,
-                          targetRect.width,
-                          targetRect.height,
-                          0,
-                          0,
-                          static_cast<int>(imageWidth),
-                          static_cast<int>(imageHeight),
-                          pixels.data(),
-                          &imageInfo,
-                          DIB_RGB_COLORS,
-                          SRCCOPY);
-        }
-
-        releaseCom(converter);
-        releaseCom(frame);
-        releaseCom(decoder);
+        BITMAPINFO imageInfo{};
+        imageInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        imageInfo.bmiHeader.biWidth = static_cast<LONG>(image->width);
+        imageInfo.bmiHeader.biHeight = -static_cast<LONG>(image->height);
+        imageInfo.bmiHeader.biPlanes = 1;
+        imageInfo.bmiHeader.biBitCount = 32;
+        imageInfo.bmiHeader.biCompression = BI_RGB;
+        const graphics::Rect targetRect = scaleRect(command.rect, presentationRect, surface);
+        StretchDIBits(deviceContext,
+                      targetRect.x,
+                      targetRect.y,
+                      targetRect.width,
+                      targetRect.height,
+                      0,
+                      0,
+                      static_cast<int>(image->width),
+                      static_cast<int>(image->height),
+                      image->pixels.data(),
+                      &imageInfo,
+                      DIB_RGB_COLORS,
+                      SRCCOPY);
     }
 }
 

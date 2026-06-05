@@ -11,6 +11,7 @@ namespace haru::engine::ui {
 
 struct TextBoxStyle {
     graphics::Color text{245, 235, 228, 255};
+    graphics::TextRole textRole = graphics::TextRole::Default;
     int minHorizontalPadding = 12;
     int maxHorizontalPadding = 56;
     int minWidth = 24;

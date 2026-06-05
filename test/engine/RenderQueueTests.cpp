@@ -42,6 +42,36 @@ HARU_TEST(render_queue_records_text_commands) {
     HARU_EXPECT_EQ(queue.commands()[0].rect.y, 2);
     HARU_EXPECT_EQ(queue.commands()[0].text, "秋起");
     HARU_EXPECT_EQ(queue.commands()[0].color, textColor);
+    HARU_EXPECT_EQ(queue.commands()[0].textRole,
+                   haru::engine::graphics::TextRole::Default);
+}
+
+HARU_TEST(render_queue_records_text_font_roles) {
+    haru::engine::graphics::RenderQueue queue;
+
+    queue.drawText({4, 8, 160, 32},
+                   "春伏",
+                   {67, 76, 104, 255},
+                   haru::engine::graphics::TextRole::ZenMaruBlack);
+
+    HARU_EXPECT_EQ(queue.commands().size(), static_cast<std::size_t>(1));
+    HARU_EXPECT_EQ(queue.commands()[0].kind, haru::engine::graphics::DrawCommandKind::Text);
+    HARU_EXPECT_EQ(queue.commands()[0].textRole,
+                   haru::engine::graphics::TextRole::ZenMaruBlack);
+}
+
+HARU_TEST(render_queue_records_text_font_scale_independent_from_bounds) {
+    haru::engine::graphics::RenderQueue queue;
+
+    queue.drawText({4, 8, 160, 42},
+                   "开始游戏",
+                   {255, 255, 251, 255},
+                   haru::engine::graphics::TextRole::ZenMaruBlack,
+                   67);
+
+    HARU_EXPECT_EQ(queue.commands().size(), static_cast<std::size_t>(1));
+    HARU_EXPECT_EQ(queue.commands()[0].rect.height, 42);
+    HARU_EXPECT_EQ(queue.commands()[0].fontScalePercent, 67);
 }
 
 HARU_TEST(render_queue_records_image_commands) {

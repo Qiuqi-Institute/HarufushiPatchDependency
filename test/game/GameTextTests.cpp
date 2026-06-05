@@ -10,9 +10,14 @@ HARU_TEST(game_text_registers_supported_i18n_locales_without_scene_branches) {
     HARU_EXPECT_TRUE(text.locales().contains("zh-CN"));
     HARU_EXPECT_TRUE(text.locales().contains("ja-JP"));
     HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::NewGame), "开始游戏");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Settings), "游戏设置");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Quit), "退出游戏");
 
     HARU_EXPECT_TRUE(text.setLocale("ja-JP"));
-    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Settings), "設定");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::NewGame), "はじめから");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Load), "セーブから");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Settings), "システム設定");
+    HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::Quit), "ゲームの終了");
     HARU_EXPECT_EQ(text.get(haru::game::localization::TextId::GameTitle),
                    "ハルフシ・パッチ・ディペンデンシー");
     HARU_EXPECT_FALSE(text.setLocale("ko-KR"));

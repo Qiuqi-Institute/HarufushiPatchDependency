@@ -15,6 +15,32 @@ struct WindowConfig {
     bool valid() const;
 };
 
+struct WindowBounds {
+    int left;
+    int top;
+    int right;
+    int bottom;
+};
+
+enum class ResizeEdge {
+    Left,
+    Right,
+    Top,
+    Bottom,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+};
+
+class WindowSizingPolicy {
+public:
+    static WindowBounds constrainAspectRatio(WindowBounds proposed,
+                                             ResizeEdge edge,
+                                             int aspectWidth,
+                                             int aspectHeight);
+};
+
 enum class WindowEventKind {
     CloseRequested,
     Resized,

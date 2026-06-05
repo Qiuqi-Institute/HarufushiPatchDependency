@@ -12,6 +12,7 @@ struct ButtonStyle {
     graphics::Color background{68, 48, 72, 255};
     graphics::Color text{245, 235, 228, 255};
     int textPadding = 12;
+    graphics::TextRole textRole = graphics::TextRole::Default;
 };
 
 class Button {

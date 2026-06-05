@@ -20,6 +20,12 @@ enum class DrawCommandKind {
     Text,
 };
 
+enum class TextRole {
+    Default,
+    ZenMaruBlack,
+    ZenMaruBold,
+};
+
 struct DrawCommand {
     DrawCommandKind kind;
     Rect rect;
@@ -29,6 +35,8 @@ struct DrawCommand {
     int radius = 0;
     int thickness = 0;
     std::vector<Point> points;
+    TextRole textRole = TextRole::Default;
+    int fontScalePercent = 100;
 };
 
 class RenderQueue {
@@ -41,7 +49,11 @@ public:
     void fillVerticalGradient(Rect rect, Color topColor, Color bottomColor);
     void fillPolygon(std::vector<Point> points, Color color);
     void drawImage(Rect rect, std::string imagePath);
-    void drawText(Rect rect, std::string text, Color color);
+    void drawText(Rect rect,
+                  std::string text,
+                  Color color,
+                  TextRole textRole = TextRole::Default,
+                  int fontScalePercent = 100);
     void reset();
 
     const std::vector<DrawCommand>& commands() const;

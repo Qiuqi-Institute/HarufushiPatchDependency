@@ -205,6 +205,29 @@ HARU_TEST(settings_scene_uses_commercial_settings_layout_grid) {
     HARU_EXPECT_TRUE(back->rect.y >= 620);
 }
 
+HARU_TEST(settings_scene_uses_black_titles_and_bold_body_font_roles) {
+    haru::game::localization::GameText text =
+        haru::game::localization::GameText::loadDefault("zh-CN");
+    haru::game::scenes::SettingsScene settingsScene(text);
+    haru::engine::graphics::RenderQueue queue;
+
+    settingsScene.render(queue, {1280, 720});
+
+    for (const auto* title : {"System Setting", "春伏补丁依存症", "游戏", "音频", "画面"}) {
+        const auto* command = findText(queue, title);
+        HARU_EXPECT_TRUE(command != nullptr);
+        HARU_EXPECT_EQ(command->textRole,
+                       haru::engine::graphics::TextRole::ZenMaruBlack);
+    }
+
+    for (const auto* body : {"语言", "文字速度", "跳过模式", "自动模式", "简体中文", "返回"}) {
+        const auto* command = findText(queue, body);
+        HARU_EXPECT_TRUE(command != nullptr);
+        HARU_EXPECT_EQ(command->textRole,
+                       haru::engine::graphics::TextRole::ZenMaruBold);
+    }
+}
+
 HARU_TEST(settings_scene_uses_blue_pink_white_palette_without_yellow_header) {
     haru::game::scenes::SettingsScene settingsScene;
     haru::engine::graphics::RenderQueue queue;
