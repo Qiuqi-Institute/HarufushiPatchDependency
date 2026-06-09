@@ -4,7 +4,7 @@ dialogue en-US study Akioki
 branch study_notes
 line "Akioki opens the notebook before the laptop can tempt him."
 line "Harufushi sits across the table, quiet enough for the pencil to sound honest."
-line "One clean page steadies the day better than another half-written patch."
+line "One clean page steadies the day better than another half-finished AOR outline."
 
 dialogue en-US study Akioki
 branch second_reading
@@ -29,7 +29,7 @@ when study >= 48
 when mod >= 20
 line "The same paragraph finally stops sliding away."
 line "Harufushi taps the margin twice, then writes a tiny star beside your summary."
-line "A study route opens: prototype notes, then a patch plan before sleep."
+line "A study route opens: prototype notes, then a small AOR checklist before sleep."
 
 dialogue en-US study Akioki
 branch archive_method
@@ -50,7 +50,7 @@ branch first_patch
 when day >= 2
 when study >= 12
 when mod <= 10
-line "The first patch of the save is not grand."
+line "The first AOR revision in the save is not grand."
 line "Akioki rewrites a brittle scripted trigger, reloads the HOI4 save twice, and records which focus broke."
 line "Harufushi nods because real progress often arrives wearing a plain coat."
 
@@ -59,9 +59,9 @@ branch feature_pass
 when mod >= 20
 when energy >= 35
 when study >= 24
-line "The task list stops looking like weather and starts looking like work."
+line "The AOR task list stops looking like weather and starts looking like work."
 line "Harufushi keeps the test notes in order while Akioki trims the roughest AOR focus branch."
-line "By midnight, the feature is not beautiful, but it is testable and true."
+line "By midnight, the focus branch is not beautiful, but it is testable and true."
 
 dialogue en-US modding Harufushi
 branch scenario_candidate
@@ -78,7 +78,7 @@ when study >= 36
 when energy >= 35
 when dependence <= 60
 line "The regression is real, not a curse and not a mood."
-line "Akioki reads the diff aloud until the cause loses its disguise."
+line "Akioki reads the event chain aloud until the cause loses its disguise."
 line "Harufushi writes the fix beside him, close enough to help and far enough to let him think."
 
 dialogue en-US harufushi Harufushi
@@ -93,7 +93,7 @@ when day >= 2
 when energy >= 35
 line "The convenience store is only six minutes away."
 line "Harufushi buys tea that is too sweet, and Akioki complains without giving it back."
-line "On the walk home, the repo feels smaller than the streetlights and the wet pavement."
+line "On the walk home, the AOR folder feels smaller than the streetlights and the wet pavement."
 
 dialogue en-US harufushi Harufushi
 branch after_release
@@ -115,7 +115,7 @@ dialogue en-US harufushi Harufushi
 branch dependence_lock
 when bond >= 45
 when dependence >= 35
-line "Do not pretend this is just pair programming."
+line "Do not pretend this is just checking the same focus tree."
 line "Harufushi keeps your sleeve between two fingers, gentle enough to deny everything."
 line "A dependence route opens, and every future choice will ask how close is too close."
 
@@ -129,7 +129,7 @@ dialogue en-US rest Akioki
 branch recovery_day
 when energy <= 60
 line "The screen glow has gone sour."
-line "You close the laptop before the error list starts sounding personal."
+line "You close the laptop before the player notes start sounding personal."
 line "A recovery route opens: fewer rewards today, but no collapse tomorrow."
 
 dialogue en-US rest Akioki
@@ -145,7 +145,7 @@ branch quiet_sunday
 when day >= 6
 when bond >= 30
 when energy > 60
-line "By Sunday, even the patch board looks embarrassed by its own urgency."
+line "By Sunday, even the AOR checklist looks embarrassed by its own urgency."
 line "Harufushi folds the blanket with grave ceremony and confiscates the keyboard until morning."
 line "Akioki laughs, then sleeps like someone who has been allowed to remain human."
 
@@ -153,7 +153,7 @@ dialogue zh-CN study 秋起
 branch study_notes
 line "秋起先翻开笔记本，免得电脑屏幕又把他拽回去。"
 line "春伏坐在桌对面，安静得让铅笔摩擦纸面的声音也显得诚实。"
-line "一页清楚的笔记，比半个没写完的补丁更能稳住今天。"
+line "一页清楚的笔记，比半截没收束的 AOR 设定更能稳住今天。"
 
 dialogue zh-CN study 秋起
 branch second_reading
@@ -178,7 +178,7 @@ when study >= 48
 when mod >= 20
 line "同一段文字终于不再从脑子里滑走。"
 line "春伏在页边轻轻敲了两下，又给你的总结画了一颗小星星。"
-line "学习线展开：原型笔记先收束，睡前再把补丁计划拆成明天能做的小块。"
+line "学习线展开：原型笔记先收束，睡前再把国策草图拆成明天能做的小块。"
 
 dialogue zh-CN study 秋起
 branch archive_method
@@ -227,7 +227,7 @@ when study >= 36
 when energy >= 35
 when dependence <= 60
 line "回归问题是真的，不是诅咒，也不是坏心情。"
-line "秋起把 diff 一行行读出声，直到原因终于卸下伪装。"
+line "秋起把事件链一段段读出声，直到原因终于卸下伪装。"
 line "春伏在旁边写修复，靠得足够近以便帮忙，又足够远以便让他自己想清楚。"
 
 dialogue zh-CN harufushi 春伏
@@ -242,7 +242,7 @@ when day >= 2
 when energy >= 35
 line "便利店离宿舍只有六分钟。"
 line "春伏买了甜得过分的茶，秋起嫌弃了一句，却没有还给她。"
-line "回去的路上，仓库、待办和错误列表都比路灯下的水痕小得多。"
+line "回去的路上，AOR 文件夹、待查国策和玩家反馈都比路灯下的水痕小得多。"
 
 dialogue zh-CN harufushi 春伏
 branch after_release
@@ -264,7 +264,7 @@ dialogue zh-CN harufushi 春伏
 branch dependence_lock
 when bond >= 45
 when dependence >= 35
-line "别装成这只是结对编程。"
+line "别装成这只是一起查国策树。"
 line "春伏用两根手指牵住你的袖口，轻到足够让人继续嘴硬。"
 line "依存线展开，之后每个选择都会追问：靠得太近是从哪里开始的。"
 
@@ -278,7 +278,7 @@ dialogue zh-CN rest 秋起
 branch recovery_day
 when energy <= 60
 line "屏幕光已经发涩了。"
-line "你在错误列表开始像是在骂人之前合上电脑。"
+line "你在玩家反馈开始像是在骂人之前合上电脑。"
 line "恢复线展开：今天奖励少一点，但明天不会崩。"
 
 dialogue zh-CN rest 秋起
@@ -294,7 +294,7 @@ branch quiet_sunday
 when day >= 6
 when bond >= 30
 when energy > 60
-line "到了周日，连补丁看板都像是对自己的急迫有点不好意思。"
+line "到了周日，连 AOR 待查清单都像是对自己的急迫有点不好意思。"
 line "春伏庄重地叠好毯子，宣布键盘到明早以前暂时归她保管。"
 line "秋起笑了一下，随后睡得像终于被允许继续当一个普通人。"
 
@@ -302,7 +302,7 @@ dialogue ja-JP study アキオキ
 branch study_notes
 line "アキオキはノートを先に開く。画面に連れ戻される前に。"
 line "ハルフシは向かいに座り、鉛筆の音まで正直に聞こえるほど静かだ。"
-line "半端なパッチより、一枚の整理されたノートが今日を支える。"
+line "半端なAOR設定より、一枚の整理されたノートが今日を支える。"
 
 dialogue ja-JP study アキオキ
 branch second_reading
@@ -327,7 +327,7 @@ when study >= 48
 when mod >= 20
 line "同じ段落が、ようやく頭からこぼれなくなった。"
 line "ハルフシが余白を二度たたき、要約の横に小さな星を描く。"
-line "勉強ルートが開く。原型ノート、それから明日できる小さなパッチ計画。"
+line "勉強ルートが開く。原型ノート、それから明日できる小さな国家方針案。"
 
 dialogue ja-JP study アキオキ
 branch archive_method
@@ -339,17 +339,17 @@ line "ハルフシは短くなったページを、霧から道が出るよう�
 
 dialogue ja-JP modding ハルフシ
 branch routine_patch
-line "プレビュー画面が一度光って、それから待つ。"
-line "ハルフシは言う。余白、文言、ビルド、スクショ。一度にひとつ。"
-line "今夜は現実的に進める。小さく直して、証拠を残す。"
+line "HOI4のエラーログが一度光り、AORの国家方針ファイルで止まる。"
+line "ハルフシは言う。前提、イベント選択肢、ローカライズ、テストセーブ。一度にひとつ。"
+line "今夜は現実的に進める。小さく直して、ゲーム内で証拠を残す。"
 
 dialogue ja-JP modding ハルフシ
 branch first_patch
 when day >= 2
 when study >= 12
 when mod <= 10
-line "このセーブで最初のパッチは、決して大きくない。"
-line "アキオキは壊れやすいヘルパーを直し、二度ビルドして、壊れた場所を書き残す。"
+line "このセーブで最初のAOR修正は、決して大きくない。"
+line "アキオキは壊れやすいscripted triggerを直し、HOI4のセーブを二度読み直して、折れた国家方針を書き残す。"
 line "本物の進捗は、たいてい地味な顔で来る。"
 
 dialogue ja-JP modding ハルフシ
@@ -358,16 +358,16 @@ when mod >= 20
 when energy >= 35
 when study >= 24
 line "タスクリストは天気のように見えなくなり、仕事の形を取り戻す。"
-line "ハルフシはスクショを並べ、アキオキは荒いブランチをテストできるところまで削る。"
+line "ハルフシは観察者セーブの記録を並べ、アキオキは荒いAOR分岐をテストできるところまで削る。"
 line "深夜、機能は美しくはないが、確かに動く。"
 
 dialogue ja-JP modding ハルフシ
 branch scenario_candidate
 when mod >= 35
 when energy >= 30
-line "ビルドランプがやっと緑になった。"
-line "ハルフシがログをのぞき込み、危ない言葉をささやく。リリース候補。"
-line "スクショ、更新メモ、そして割り込む価値を証明すべき深夜パッチ。"
+line "AORのテストセーブが、ようやく1940年まで進んだ。"
+line "ハルフシがログをのぞき込み、危ない言葉をささやく。シナリオ候補。"
+line "国家方針バランス、Workshop説明、そして割り込む価値を証明すべき深夜イベント。"
 
 dialogue ja-JP modding ハルフシ
 branch regression_night
@@ -376,14 +376,14 @@ when study >= 36
 when energy >= 35
 when dependence <= 60
 line "回帰は本物だ。呪いでも気分でもない。"
-line "アキオキはdiffを声に出して読み、原因が変装を解くまで待つ。"
+line "アキオキはイベントチェーンを声に出して読み、原因が変装を解くまで待つ。"
 line "ハルフシは隣で修正を書く。助けられるほど近く、考えられるほど遠く。"
 
 dialogue ja-JP harufushi ハルフシ
 branch quiet_bond
 line "夕食前にエディタを閉じたね。見てたよ。"
-line "ここで一分だけ座って。ビルドは待てる。"
-line "今日のルートは少し柔らかい。コミットより、目を合わせる時間。"
+line "ここで一分だけ座って。AORの国家方針は待てる。"
+line "今日のルートは少し柔らかい。作業記録より、目を合わせる時間。"
 
 dialogue ja-JP harufushi ハルフシ
 branch tea_walk
@@ -391,13 +391,13 @@ when day >= 2
 when energy >= 35
 line "コンビニまでは六分だけ。"
 line "ハルフシは甘すぎるお茶を買い、アキオキは文句を言うが返さない。"
-line "帰り道、リポジトリもTODOも、街灯の水たまりより小さく見えた。"
+line "帰り道、AORフォルダも未確認の国家方針も、街灯の水たまりより小さく見えた。"
 
 dialogue ja-JP harufushi ハルフシ
 branch after_release
 when mod >= 45
 when bond >= 30
-line "リリースノートを送ったあと、二人はしばらく黙っていた。"
+line "Workshop説明を送ったあと、二人はしばらく黙っていた。"
 line "部屋には扇風機、カップの音、疲れているのに本当の笑いだけが残る。"
 line "ハルフシは仕事には意味があったと言い、手首に軽く触れる。ほかのことも同じだと。"
 
@@ -443,7 +443,7 @@ branch quiet_sunday
 when day >= 6
 when bond >= 30
 when energy > 60
-line "日曜になると、パッチボードでさえ自分の焦りを恥じているようだった。"
+line "日曜になると、AORチェックリストでさえ自分の焦りを恥じているようだった。"
 line "ハルフシは毛布を厳かにたたみ、朝までキーボードを没収すると宣言する。"
 line "アキオキは笑い、それから人間でいることを許されたように眠る。"
 
@@ -461,7 +461,8 @@ line "她说，先把能证明你存在的东西找出来。"
 line "成绩单、竞赛截图、导师邮件，一件件被翻出来。"
 line "每个文件都像旧日的证词，冷淡，却并不背叛。"
 line "秋起忽然想起，大一那年他也曾很笃定。"
-line "那时没有补丁队列，没有深夜崩溃的窗口。"
+line "那时没有国策队列，没有深夜卡住的观察者档。"
+line "也没有为 state 613 的 owner 和胜利点 province 对不上而反复熬夜。"
 line "也没有春伏坐在旁边，替他保管沉默。"
 line "他把申请理由写到第三遍，删掉所有漂亮空话。"
 line "最后只剩一句：我想把做坏的东西修好。"
@@ -625,10 +626,11 @@ when energy >= 25
 when dependence <= 55
 line "社团机房的空调坏了，电脑风扇像小型暴雨。"
 line "秋起坐在最靠门的位置，方便随时逃出去。"
-line "春伏把错误列表打印成纸，厚得像一份不近人情的合同。"
-line "他们从最底层的历史文件和 scripted effect 开始复盘。"
-line "哪里该写成国策前置，哪里必须交给事件目标。"
+line "春伏把玩家反馈和错误日志打印成纸，厚得像一份不近人情的合同。"
+line "他们从最底层的历史文件、scripted effect 和 on_action 开始复盘。"
+line "哪里该写成国策前置，哪里必须交给事件目标，哪里只能让每日脉冲轻轻碰一下。"
 line "哪里允许 AI 权重介入，哪里绝不许玩家被脚本偷走选择。"
+line "一条稳定度 modifier 如果给错时机，就会让整个国家像被看不见的手推偏。"
 line "这些规则听起来像铁丝网。"
 line "可秋起知道，没有铁丝网，历史分歧迟早会塌成万能按钮。"
 line "春伏问，你真的愿意为这些麻烦负责吗。"
@@ -917,7 +919,7 @@ line "他们没有谈今天完成了多少。"
 line "只谈盐是不是放多了，明天会不会下雨。"
 line "这些话题小得几乎不配进入故事。"
 line "可秋起忽然明白，故事不能只靠事故推进。"
-line "人真正活下去，靠的是这些不会被写进更新日志的间隙。"
+line "人真正活下去，靠的是这些不会被写进创意工坊说明的间隙。"
 line "春伏尝了一口汤，皱眉说酸。"
 line "秋起说那我加糖。"
 line "她说别，酸也有酸的道理。"
@@ -972,7 +974,7 @@ when day >= 7
 when study >= 72
 when mod >= 40
 when energy >= 30
-line "At dawn, the clubroom whiteboard turns the patch into a graph."
+line "At dawn, the clubroom whiteboard turns the AOR focus route into a graph."
 line "Akioki sees that he has been fixing symptoms, not structure."
 line "Harufushi hands him the blue marker."
 line "The arrows grow fewer and the responsibility grows clearer."
@@ -997,11 +999,11 @@ when day >= 3
 when mod >= 25
 when study >= 20
 line "The AOR focus tree refuses to load in the test save."
-line "This time Akioki writes the tamper test instead of adding a bypass."
-line "The red output feels almost merciful."
-line "At least the lock is failing closed."
+line "This time Akioki opens an observer save instead of adding a universal prerequisite."
+line "The red error line feels almost merciful."
+line "At least the broken focus tree is admitting where it breaks."
 line "Harufushi saves the evidence with a cold filename."
-line "Security design cannot live on enthusiasm."
+line "Scenario design cannot live on enthusiasm."
 
 dialogue en-US modding Harufushi
 branch midnight_incident
@@ -1036,32 +1038,32 @@ when dependence >= 30
 line "A tester says the old version was better."
 line "Harufushi stops Akioki from sending his hurt as a workshop note."
 line "They separate facts from bruises."
-line "The compatibility note becomes short, responsible, and useful."
+line "The save-compatibility note becomes short, responsible, and useful."
 line "He sends it and does not refresh the comments."
-line "That restraint is harder than the patch."
+line "That restraint is harder than the AOR edit."
 
 dialogue en-US modding Harufushi
 branch update_postmortem
 when day >= 8
 when mod >= 80
 when study >= 48
-line "The postmortem has two people and three chairs."
+line "The AOR review has two people and three chairs."
 line "The empty chair is for the truth they kept postponing."
 line "Akioki writes decisions, names, and consequences."
 line "Harufushi asks him to mark what saved them too."
-line "A postmortem is not a trial."
-line "It is finding the load-bearing walls in the ruin."
+line "A review is not a trial."
+line "It is finding which focus prerequisite still holds after the route collapses."
 
 dialogue en-US modding Harufushi
 branch player_report
 when day >= 9
 when mod >= 90
 when bond >= 50
-line "The first stranger's bug report arrives with an unfamiliar language."
+line "The first stranger's AOR report arrives with an unfamiliar language."
 line "Missing focus icons and broken localization need no translation."
 line "Akioki realizes the work has left the room."
 line "Every overlooked edge can be someone else's front door."
-line "They answer clearly, with steps and a workaround."
+line "They answer clearly, with reproduction steps and a temporary workshop note."
 line "The team name is only two people, and it is enough."
 
 dialogue en-US harufushi Harufushi
@@ -1105,7 +1107,7 @@ branch ordinary_room
 when day >= 8
 when bond >= 70
 when dependence <= 60
-line "They spend a night without patches, exams, or plans."
+line "They spend a night without AOR, exams, or plans."
 line "A puzzle spreads over the carpet like quiet snow."
 line "Akioki says he would share an observer-save result because he wants to, not because he cannot survive."
 line "Harufushi places a piece of blue sky."
@@ -1214,7 +1216,7 @@ when day >= 7
 when study >= 72
 when mod >= 40
 when energy >= 30
-line "夜明けの白板に、パッチはグラフとして現れる。"
+line "夜明けの白板に、AORの国家方針ルートはグラフとして現れる。"
 line "アキオキは症状だけ直していたことに気づく。"
 line "ハルフシが青いペンを渡す。"
 line "矢印は減り、責任ははっきりする。"
@@ -1263,7 +1265,7 @@ when day >= 6
 when mod >= 70
 when energy >= 25
 when dependence <= 55
-line "ビルド室は暑く、機械が怒っているように鳴る。"
+line "部室は暑く、機械が怒っているように鳴る。"
 line "二人は歴史ファイル、scripted effect、イベント対象を下から点検する。"
 line "規則は針金のように感じる。"
 line "作品を愛するなら、鍵も愛さねばならない。"
@@ -1276,11 +1278,11 @@ when day >= 7
 when mod >= 65
 when dependence >= 30
 line "テスターが、前の版のほうが良かったと言う。"
-line "ハルフシは、傷ついた心を更新履歴として送らせない。"
+line "ハルフシは、傷ついた心をWorkshop説明として送らせない。"
 line "二人は事実と痛みを分ける。"
 line "ロールバック文は短く、責任があり、役に立つ。"
 line "彼は送信し、コメントを更新しない。"
-line "その我慢はパッチより難しい。"
+line "その我慢はAORの修正より難しい。"
 
 dialogue ja-JP modding ハルフシ
 branch update_postmortem
@@ -1347,9 +1349,9 @@ branch ordinary_room
 when day >= 8
 when bond >= 70
 when dependence <= 60
-line "パッチも試験も予定も話さない夜。"
+line "AORも試験も予定も話さない夜。"
 line "パズルが静かな雪のように絨毯へ広がる。"
-line "生きるためではなく、共有したいからスクショを送ると言う。"
+line "生きるためではなく、共有したいから写真を送ると言う。"
 line "ハルフシは青い空のピースを置く。"
 line "普通の部屋が、ほとんど結末のように感じる。"
 line "明日は、互いを消耗せずに続く。"
@@ -1409,7 +1411,7 @@ when energy >= 70
 line "トマトスープが台所を忍耐の匂いにする。"
 line "二人は塩、天気、壊れた廊下灯の話をする。"
 line "物語は事故だけでは生きられない。"
-line "人は更新履歴に載らない隙間で生き延びる。"
+line "人はWorkshop説明に載らない隙間で生き延びる。"
 line "アキオキはその日を書き留める。"
 line "燃えず、逃げず。"
 
@@ -1658,24 +1660,24 @@ branch morning_after_workshop
 when day >= 13
 when mod >= 98
 when energy <= 70
-line "发布后的早晨没有想象中灿烂。"
+line "创意工坊更新后的早晨没有想象中灿烂。"
 line "秋起醒来时，脖子酸，窗帘漏进一条灰白的光。"
-line "手机上有新反馈，也有祝贺，还有两个看不懂的错误截图。"
+line "手机上有新反馈，也有祝贺，还有两张看不懂的国策树截图。"
 line "他差点立刻坐起来。"
 line "春伏的消息先跳出来：先喝水。"
 line "他盯着那三个字，笑了一下。"
 line "于是先喝水。"
 line "水很普通，甚至有一点凉。"
-line "可这普通把他从发布后的虚浮里拽回地面。"
+line "可这普通把他从公开更新后的虚浮里拽回地面。"
 line "他吃完早饭，才打开反馈表。"
 line "把祝贺归档，把问题编号，把情绪放到一边。"
 line "太阳慢慢爬上窗台。"
-line "秋起忽然明白，发布不是终点的烟火。"
-line "发布是把作品交给现实，然后仍然愿意照顾它。"
+line "秋起忽然明白，创意工坊更新不是终点的烟火。"
+line "它是把作品交给现实，然后仍然愿意照顾它。"
 line "春伏到中午才过来，手里提着药和甜面包。"
 line "她说，看吧，世界没有因为上线就温柔。"
 line "秋起接过面包，说，也没有因为不温柔就不可爱。"
-line "他们在桌边坐下，开始处理第一张错误截图。"
+line "他们在桌边坐下，开始处理第一张国策树截图。"
 
 dialogue en-US study Akioki
 branch mock_exam_return
@@ -1687,7 +1689,7 @@ line "The score is neither triumph nor ruin."
 line "Harufushi asks which problem made him feel present."
 line "Akioki names the proof he could not finish."
 line "Knowing the next line is a kind of return."
-line "That night he chooses corrections before patches."
+line "That night he chooses corrections before AOR."
 
 dialogue en-US study Akioki
 branch teacher_meeting
@@ -1719,7 +1721,7 @@ when day >= 10
 when mod >= 95
 when study >= 52
 line "The leak rumor starts on a small forum."
-line "The forum screenshot is vague enough to wound and clear enough to matter."
+line "The forum image is vague enough to wound and clear enough to matter."
 line "They cut the test link, compare event files, and trace who received the AOR draft."
 line "Akioki remembers the AOR test archive he sent too casually."
 line "Stop bleeding, apologize, then fix the system, Harufushi says."
@@ -1745,7 +1747,7 @@ when bond >= 60
 line "On workshop eve, every checklist item is marked."
 line "That makes Akioki more nervous, not less."
 line "Harufushi reminds him bugs will still come."
-line "That is why compatibility notes, postmortems, and player notices exist."
+line "That is why compatibility notes, AOR reviews, and player notices exist."
 line "He adds one last thanks to sharp but honest feedback."
 line "The upload bar moves like a road admitting it can arrive."
 
@@ -1803,7 +1805,7 @@ when day >= 13
 when mod >= 98
 when energy <= 70
 line "The morning after the workshop update is gray, not glorious."
-line "Feedback, praise, and two strange focus-tree screenshots wait on the phone."
+line "Feedback, praise, and two strange focus-tree images wait on the phone."
 line "Harufushi's message arrives first: drink water."
 line "So he drinks water."
 line "A workshop update is not fireworks at the end."
@@ -1819,7 +1821,7 @@ line "点数は勝利でも破滅でもない。"
 line "ハルフシは、どの問題で自分がそこにいると思えたかを聞く。"
 line "アキオキは解き切れなかった証明を挙げる。"
 line "次の一行が見えることは、帰還の一種だ。"
-line "その夜、彼はパッチより先に誤答を直す。"
+line "その夜、彼はAORより先に誤答を直す。"
 
 dialogue ja-JP study アキオキ
 branch teacher_meeting
@@ -1851,9 +1853,9 @@ when day >= 10
 when mod >= 95
 when study >= 52
 line "流出の噂は小さな掲示板から始まる。"
-line "曖昧なスクショは、傷つけるには十分だった。"
+line "曖昧な画像は、傷つけるには十分だった。"
 line "二人はテストリンクを切り、指紋と配布経路を追う。"
-line "アキオキは軽く送った開発ビルドを思い出す。"
+line "アキオキは軽く送ったAORテスト版を思い出す。"
 line "止血、謝罪、それから制度を直す、とハルフシは言う。"
 line "夜明け、噂は小さくなったが、油断は小さくならない。"
 
@@ -1879,7 +1881,7 @@ line "そのせいで、かえって落ち着かない。"
 line "ハルフシは、明日もバグは来ると言う。"
 line "だからロールバック、復盤、説明を書く。"
 line "彼は鋭く正直なフィードバックへの感謝を足す。"
-line "アップロードバーは、到着を認める道のように進む。"
+line "Workshopの進捗表示は、到着を認める道のように進む。"
 
 dialogue ja-JP harufushi ハルフシ
 branch two_day_distance
@@ -1902,7 +1904,7 @@ line "アキオキは長いメッセージを書き、送らない。"
 line "寂しいという文の後ろに、要求が隠れている。"
 line "寂しさが嘘なわけではない。"
 line "ただ、いつも救援の服を着てはいけない。"
-line "彼は代わりにフォントfallbackを直す。"
+line "彼は代わりにAORのローカライズkeyを直す。"
 line "依存は、奪取にならない方法を学び始める。"
 
 dialogue ja-JP harufushi ハルフシ
@@ -1934,11 +1936,11 @@ branch morning_after_workshop
 when day >= 13
 when mod >= 98
 when energy <= 70
-line "公開翌朝は、輝かしくなく灰色だ。"
+line "Workshop更新の翌朝は、輝かしくなく灰色だ。"
 line "フィードバック、祝福、読めないエラー画像が携帯にある。"
 line "最初にハルフシのメッセージが来る。水を飲んで。"
 line "だから彼は水を飲む。"
-line "公開は終点の花火ではない。"
+line "Workshop更新は終点の花火ではない。"
 line "作品を現実へ渡し、それでも世話を続けることだ。"
 
 dialogue zh-CN study 秋起
@@ -2002,7 +2004,7 @@ line "她没有比口型说加油。"
 line "她只是举起手，掌心朝他，像把最后一段路交还给他。"
 line "秋起突然不想再要求更多。"
 line "他已经带着足够多的东西。"
-line "错题、睡眠、道歉、发布事故、那张没发送的长消息。"
+line "错题、睡眠、道歉、那次 AOR 兼容事故、那张没发送的长消息。"
 line "还有春伏没有替他走完的每一步。"
 line "进考场前，他把手机关机。"
 line "屏幕黑下去时，他没有慌。"
@@ -2058,7 +2060,7 @@ line "她说，是最低规格的夸奖。"
 line "回复发出去后，评论没有立刻变好。"
 line "现实很少按下发送就结算。"
 line "可秋起至少没有把自己的不安泼回玩家身上。"
-line "这也是一种发布后的维护。"
+line "这也是一种公开更新后的维护。"
 line "维护作品，也维护说话的方式。"
 
 dialogue zh-CN modding 春伏
@@ -2125,7 +2127,7 @@ line "你是想让我证明你还可以继续不长大。"
 line "秋起脸色白了。"
 line "这句话没有提高音量，却像把灯全部打开。"
 line "他想说不是。"
-line "可是桌上的外卖盒、未关的错误列表、她眼底的疲惫都在替他作证。"
+line "可是桌上的外卖盒、未关的玩家反馈、她眼底的疲惫都在替他作证。"
 line "春伏走到门口，停了一下。"
 line "她说，我明天会来，但不是为了收拾今天这句话。"
 line "门关上后，房间没有立刻变空。"
@@ -2215,11 +2217,11 @@ line "最后的清晨来得很慢。"
 line "窗外天色从蓝灰变成浅白，城市像刚刚重新加载。"
 line "秋起坐在桌前，没有打开任何工程。"
 line "春伏把两杯水放下，一杯推给他，一杯留给自己。"
-line "他们面前摊着三样东西：准考证、发布清单、一本写满旧错误的笔记。"
+line "他们面前摊着三样东西：准考证、AOR 更新清单、一本写满旧错误的笔记。"
 line "哪一样都不是结局。"
 line "它们只是证明，人可以带着未完成继续出门。"
-line "秋起说，我以前以为补丁能修好我。"
-line "春伏说，补丁只能修软件。"
+line "秋起说，我以前以为 AOR 能替我证明一切。"
+line "春伏说，作品只能证明你曾经认真，不能替你活。"
 line "他说，那你呢。"
 line "她看着窗外，没有立刻回答。"
 line "过了一会儿，她说，我也不能修好你。"
@@ -2271,10 +2273,10 @@ branch false_positive
 when day >= 13
 when mod >= 98
 when study >= 70
-line "A red security alert wakes them before dawn."
+line "A red workshop report wakes them before dawn."
 line "Seventeen minutes later, it is only a mirror cache delay."
 line "The fear remains useful."
-line "False positives deserve postmortems too."
+line "False positives deserve AOR reviews too."
 line "Next time the danger may be real."
 line "Akioki adjusts the threshold and documents why."
 
@@ -2295,11 +2297,11 @@ branch coauthored_aor_update
 when day >= 15
 when mod >= 100
 when bond >= 80
-line "The final AOR compatibility note pauses at the contributor field."
+line "The final AOR compatibility note pauses at the credit field."
 line "Akioki asks whether they can coauthor it."
 line "Harufushi says she did not write the function."
 line "You wrote the conditions that let me write it, he says."
-line "The AOR contributor line records both names."
+line "The AOR credit line records both names."
 line "Not attachment, but shared responsibility."
 
 dialogue en-US harufushi Harufushi
@@ -2331,7 +2333,7 @@ branch shared_nameplate
 when day >= 15
 when bond >= 92
 when dependence <= 65
-line "The workshop page needs the final contributor names."
+line "The workshop page needs the final credit names."
 line "Akioki places Harufushi's name beside his without decoration."
 line "Stable is not something they naturally were."
 line "It was made by not running, not taking, not weaponizing silence."
@@ -2371,7 +2373,7 @@ when bond >= 90
 line "The final daybreak arrives slowly."
 line "Admission slip, AOR update checklist, and old wrong answers lie on the desk."
 line "None of them is an ending."
-line "Patches can only repair software, Harufushi says."
+line "AOR can only record a choice, Harufushi says."
 line "But they can confirm what should not break again."
 line "The door locks behind them like the first line of a new day."
 
@@ -2516,6 +2518,6 @@ when bond >= 90
 line "最後の夜明けはゆっくり来る。"
 line "受験票、公開チェックリスト、古い誤答が机にある。"
 line "どれも結末ではない。"
-line "パッチで直せるのはソフトだけ、とハルフシは言う。"
+line "AORが示せるのは、真剣だった時間だけ、とハルフシは言う。"
 line "でも、もう壊してはいけない場所は一緒に確かめられる。"
 line "閉まるドアの音は、新しい日の一行目のようだった。"

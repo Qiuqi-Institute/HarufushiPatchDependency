@@ -198,6 +198,11 @@ HARU_TEST(daily_dialogue_script_default_resource_uses_hoi4_mod_domain_language) 
     HARU_EXPECT_TRUE(source.find("本地化") != std::string::npos);
     HARU_EXPECT_TRUE(source.find("决议") != std::string::npos);
     HARU_EXPECT_TRUE(source.find("历史文件") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("modifier") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("province") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("state") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("on_action") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("focus tree") != std::string::npos);
 
     HARU_EXPECT_FALSE(containsAny(source,
                                   {"编译",
@@ -219,7 +224,20 @@ HARU_TEST(daily_dialogue_script_default_resource_uses_hoi4_mod_domain_language) 
                                    "字体 fallback",
                                    "热修包",
                                    "窗口卡顿",
-                                   "上传按钮"}));
+                                   "上传按钮",
+                                   "补丁计划",
+                                   "补丁队列",
+                                   "补丁看板",
+                                   "没写完的补丁",
+                                   "错误列表",
+                                   "更新日志",
+                                   "错误截图",
+                                   "发布后的",
+                                   "发布是",
+                                   "发布事故",
+                                   "发布清单",
+                                   "项目信息",
+                                   "项目进度"}));
 }
 
 HARU_TEST(daily_dialogue_script_default_resource_selects_story_chapter_branches) {
