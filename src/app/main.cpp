@@ -330,9 +330,9 @@ int main(int argc, char** argv) {
                         }
                         const auto action =
                             dailyScene.actionAt(*designPoint,
-                                                {surface.width(), surface.height()});
-                        if (action.has_value()) {
-                            dailyLoopState.apply(*action);
+                                                {surface.width(), surface.height()},
+                                                dailyLoopState.stats());
+                        if (action.has_value() && dailyLoopState.apply(*action)) {
                             saveManager.recordDailyAction(*action,
                                                           dailyLoopState.stats(),
                                                           gameText.activeLocale());

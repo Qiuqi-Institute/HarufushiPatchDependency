@@ -20,6 +20,8 @@ constexpr engine::graphics::Color gold{230, 198, 128, 255};
 constexpr engine::graphics::Color shadow{224, 216, 210, 255};
 constexpr engine::graphics::Color warmWhite{255, 250, 246, 255};
 constexpr engine::graphics::Color softLilac{226, 221, 249, 255};
+constexpr engine::graphics::Color disabledFill{226, 224, 220, 255};
+constexpr engine::graphics::Color disabledText{132, 132, 140, 255};
 
 engine::ui::ButtonStyle primaryButtonStyle() {
     return {sakuraStrong, deepInk, 12};
@@ -66,17 +68,23 @@ void drawPaper(engine::graphics::RenderQueue& queue,
                           4);
 }
 
-void renderButton(engine::graphics::RenderQueue& queue, const engine::ui::Button& button) {
+void renderButton(engine::graphics::RenderQueue& queue,
+                  const engine::ui::Button& button,
+                  engine::graphics::Color fill,
+                  bool available = true) {
     const auto& bounds = button.bounds();
     queue.fillRoundedRect({bounds.x + 8, bounds.y + 8, bounds.width, bounds.height},
                           shadow,
                           18);
-    queue.fillRoundedRect(bounds, bounds.y == 296 ? sakuraStrong : sky, 18);
+    queue.fillRoundedRect(bounds, available ? fill : disabledFill, 18);
     queue.strokeRect(bounds, warmWhite, 2);
-    queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8}, warmWhite, 4);
-    queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14}, warmWhite);
+    queue.fillRoundedRect({bounds.x + 16, bounds.y + 8, 48, 8},
+                          available ? warmWhite : shadow,
+                          4);
+    queue.fillEllipse({bounds.x + bounds.width - 34, bounds.y + 14, 14, 14},
+                      available ? warmWhite : shadow);
     engine::ui::TextBoxStyle textStyle;
-    textStyle.text = deepInk;
+    textStyle.text = available ? deepInk : disabledText;
     textStyle.minHorizontalPadding = 18;
     textStyle.maxHorizontalPadding = 42;
     engine::ui::TextBox({bounds.x + 28,
@@ -173,7 +181,7 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
                         text_.get(localization::TextId::GameTitle),
                         titleTextStyle)
         .render(queue);
-    renderButton(queue, homeButton(text_, width));
+    renderButton(queue, homeButton(text_, width), sky);
 
     queue.fillRoundedRect({464, 194, std::max(stageWidth - 92, 1), 52},
                           {231, 243, 250, 255},
@@ -184,10 +192,23 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
     queue.fillEllipse({width - 194, 230, 28, 28}, warmWhite);
     queue.fillRoundedRect({width - 218, 284, 76, 10}, sky, 5);
 
-    renderButton(queue, studyButton(text_));
-    renderButton(queue, moddingButton(text_));
-    renderButton(queue, harufushiButton(text_));
-    renderButton(queue, restButton(text_));
+    renderButton(queue,
+                 studyButton(text_),
+                 sky,
+                 systems::DailyLoopState::canApply(systems::DailyAction::Study, stats));
+    renderButton(queue,
+                 moddingButton(text_),
+                 sakuraStrong,
+                 systems::DailyLoopState::canApply(systems::DailyAction::Modding, stats));
+    renderButton(queue,
+                 harufushiButton(text_),
+                 sky,
+                 systems::DailyLoopState::canApply(systems::DailyAction::SpendTimeWithHarufushi,
+                                                   stats));
+    renderButton(queue,
+                 restButton(text_),
+                 sky,
+                 systems::DailyLoopState::canApply(systems::DailyAction::Rest, stats));
 
     queue.drawText({492, 208, 360, 34},
                    text_.get(localization::TextId::DailyBoardTitle),
@@ -212,20 +233,32 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
 std::optional<systems::DailyAction> TitleScene::actionAt(
     engine::graphics::Point point,
     engine::graphics::Size surfaceSize) const {
+    return actionAt(point, surfaceSize, systems::DailyStats{});
+}
+
+std::optional<systems::DailyAction> TitleScene::actionAt(
+    engine::graphics::Point point,
+    engine::graphics::Size surfaceSize,
+    const systems::DailyStats& stats) const {
     if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
         return std::nullopt;
     }
 
-    if (studyButton(text_).contains(point)) {
+    if (studyButton(text_).contains(point) &&
+        systems::DailyLoopState::canApply(systems::DailyAction::Study, stats)) {
         return systems::DailyAction::Study;
     }
-    if (moddingButton(text_).contains(point)) {
+    if (moddingButton(text_).contains(point) &&
+        systems::DailyLoopState::canApply(systems::DailyAction::Modding, stats)) {
         return systems::DailyAction::Modding;
     }
-    if (harufushiButton(text_).contains(point)) {
+    if (harufushiButton(text_).contains(point) &&
+        systems::DailyLoopState::canApply(systems::DailyAction::SpendTimeWithHarufushi,
+                                          stats)) {
         return systems::DailyAction::SpendTimeWithHarufushi;
     }
-    if (restButton(text_).contains(point)) {
+    if (restButton(text_).contains(point) &&
+        systems::DailyLoopState::canApply(systems::DailyAction::Rest, stats)) {
         return systems::DailyAction::Rest;
     }
 

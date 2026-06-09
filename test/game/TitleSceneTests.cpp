@@ -84,7 +84,7 @@ HARU_TEST(title_scene_renders_title_and_daily_loop_actions) {
     HARU_EXPECT_TRUE(hasText(queue, "Harufushi"));
     HARU_EXPECT_TRUE(hasText(queue, "Rest"));
     HARU_EXPECT_TRUE(hasText(queue, "Today's Mod Plan"));
-    HARU_EXPECT_TRUE(hasText(queue, "Queue: UI polish + Harufushi ping."));
+    HARU_EXPECT_TRUE(hasText(queue, "Plan: review notes, then one verifiable patch."));
     HARU_EXPECT_TRUE(findText(queue, "Harufushi Patch Dependency")->rect.height <= 56);
 }
 
@@ -114,17 +114,21 @@ HARU_TEST(title_scene_uses_light_visual_novel_daily_layout) {
 
 HARU_TEST(title_scene_maps_button_points_to_daily_actions) {
     haru::game::scenes::TitleScene titleScene;
+    haru::game::systems::DailyStats activeStats;
+    activeStats.day = 2;
+    activeStats.energy = 80;
+    activeStats.studyFocus = 12;
 
     const std::optional<haru::game::systems::DailyAction> study =
-        titleScene.actionAt({120, 250}, {1280, 720});
+        titleScene.actionAt({120, 250}, {1280, 720}, activeStats);
     const std::optional<haru::game::systems::DailyAction> modding =
-        titleScene.actionAt({120, 315}, {1280, 720});
+        titleScene.actionAt({120, 315}, {1280, 720}, activeStats);
     const std::optional<haru::game::systems::DailyAction> harufushi =
-        titleScene.actionAt({120, 380}, {1280, 720});
+        titleScene.actionAt({120, 380}, {1280, 720}, activeStats);
     const std::optional<haru::game::systems::DailyAction> rest =
-        titleScene.actionAt({120, 444}, {1280, 720});
+        titleScene.actionAt({120, 444}, {1280, 720}, activeStats);
     const std::optional<haru::game::systems::DailyAction> blank =
-        titleScene.actionAt({16, 16}, {1280, 720});
+        titleScene.actionAt({16, 16}, {1280, 720}, activeStats);
 
     HARU_EXPECT_TRUE(study.has_value());
     HARU_EXPECT_TRUE(modding.has_value());
@@ -135,6 +139,25 @@ HARU_TEST(title_scene_maps_button_points_to_daily_actions) {
     HARU_EXPECT_EQ(*modding, haru::game::systems::DailyAction::Modding);
     HARU_EXPECT_EQ(*harufushi, haru::game::systems::DailyAction::SpendTimeWithHarufushi);
     HARU_EXPECT_EQ(*rest, haru::game::systems::DailyAction::Rest);
+}
+
+HARU_TEST(title_scene_does_not_map_locked_daily_actions) {
+    haru::game::scenes::TitleScene titleScene;
+    const haru::game::systems::DailyStats firstDayStats;
+
+    const std::optional<haru::game::systems::DailyAction> study =
+        titleScene.actionAt({120, 250}, {1280, 720}, firstDayStats);
+    const std::optional<haru::game::systems::DailyAction> modding =
+        titleScene.actionAt({120, 315}, {1280, 720}, firstDayStats);
+    const std::optional<haru::game::systems::DailyAction> harufushi =
+        titleScene.actionAt({120, 380}, {1280, 720}, firstDayStats);
+    const std::optional<haru::game::systems::DailyAction> rest =
+        titleScene.actionAt({120, 444}, {1280, 720}, firstDayStats);
+
+    HARU_EXPECT_TRUE(study.has_value());
+    HARU_EXPECT_FALSE(modding.has_value());
+    HARU_EXPECT_FALSE(harufushi.has_value());
+    HARU_EXPECT_TRUE(rest.has_value());
 }
 
 HARU_TEST(title_scene_renders_and_maps_return_home_action) {

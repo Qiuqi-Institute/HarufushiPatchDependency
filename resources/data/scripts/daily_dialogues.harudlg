@@ -2,41 +2,119 @@ harudlg v1
 
 dialogue en-US study Akioki
 branch study_notes
-line "Notebook first. Harufushi keeps the chair warm."
-line "One clean note now saves three confused commits later."
-line "The evening route stays quiet, but the day has a spine."
+line "Akioki opens the notebook before the laptop can tempt him."
+line "Harufushi sits across the table, quiet enough for the pencil to sound honest."
+line "One clean page steadies the day better than another half-written patch."
+
+dialogue en-US study Akioki
+branch second_reading
+when day >= 2
+when study >= 12
+line "The second reading is less dramatic, and that is why it works."
+line "Akioki copies the failed example again, slower this time, until the mistake shows its hinge."
+line "Harufushi marks the margin with a small star and says nothing more than necessary."
+
+dialogue en-US study Akioki
+branch library_rain
+when day >= 3
+when energy >= 40
+when study >= 24
+line "Rain keeps the campus paths almost empty."
+line "In the library, Akioki turns algorithm notes into a list he can actually obey."
+line "The evening gains a realistic shape: review first, prototype later, no heroic sprint."
 
 dialogue en-US study Akioki
 branch exam_thread
-when study >= 24
+when study >= 48
+when mod >= 20
 line "The same paragraph finally stops sliding away."
 line "Harufushi taps the margin twice, then writes a tiny star beside your summary."
 line "A study route opens: prototype notes, then a patch plan before sleep."
 
+dialogue en-US study Akioki
+branch archive_method
+when study >= 64
+when bond >= 25
+line "Akioki can now tell which notes were fear and which were method."
+line "He keeps the useful lines, crosses out the performance, and breathes like a student again."
+line "Harufushi watches the page become smaller, clearer, more possible."
+
 dialogue en-US modding Harufushi
 branch routine_patch
-line "The preview window blinked again."
-line "Touch one UI edge at a time, or the patch queue will bite back."
-line "Tonight's route stays in polish work: small fixes, visible results."
+line "The preview window blinks once, then waits."
+line "Harufushi asks for one UI edge at a time: spacing, label, build, screenshot."
+line "Tonight stays practical, with small fixes and evidence you can point to."
+
+dialogue en-US modding Harufushi
+branch first_patch
+when day >= 2
+when study >= 12
+when mod <= 10
+line "The first patch of the save is not grand."
+line "Akioki renames a brittle helper, rebuilds twice, and writes down what broke."
+line "Harufushi nods because real progress often arrives wearing a plain coat."
+
+dialogue en-US modding Harufushi
+branch feature_pass
+when mod >= 20
+when energy >= 35
+when study >= 24
+line "The task list stops looking like weather and starts looking like work."
+line "Harufushi keeps the screenshots in order while Akioki trims the roughest branch."
+line "By midnight, the feature is not beautiful, but it is testable and true."
 
 dialogue en-US modding Harufushi
 branch release_candidate
 when mod >= 35
-when energy >= 20
-line "The build light finally turned green."
-line "Harufushi leans over the log and whispers the forbidden words: release candidate."
-line "A new branch opens around screenshots, changelog notes, and one risky late patch."
+when energy >= 30
+line "The build light finally turns green."
+line "Harufushi leans over the log and whispers the dangerous words: release candidate."
+line "A new branch opens around screenshots, changelog notes, and one late patch that must earn its place."
+
+dialogue en-US modding Harufushi
+branch regression_night
+when mod >= 60
+when study >= 36
+when energy >= 35
+when dependence <= 60
+line "The regression is real, not a curse and not a mood."
+line "Akioki reads the diff aloud until the cause loses its disguise."
+line "Harufushi writes the fix beside him, close enough to help and far enough to let him think."
 
 dialogue en-US harufushi Harufushi
 branch quiet_bond
 line "You closed the editor before dinner. I saw that."
 line "Stay here for a minute. The build can wait."
-line "The route turns softer: fewer commits, more eye contact."
+line "The route turns softer: fewer commits, more eye contact, no need to perform exhaustion."
+
+dialogue en-US harufushi Harufushi
+branch tea_walk
+when day >= 2
+when energy >= 35
+line "The convenience store is only six minutes away."
+line "Harufushi buys tea that is too sweet, and Akioki complains without giving it back."
+line "On the walk home, the repo feels smaller than the streetlights and the wet pavement."
+
+dialogue en-US harufushi Harufushi
+branch after_release
+when mod >= 45
+when bond >= 30
+line "After the release notes are sent, neither of you speaks for a while."
+line "The room is full of ordinary sounds: a fan, a cup, one tired laugh."
+line "Harufushi says the work mattered, then touches your wrist as if proving the rest did too."
+
+dialogue en-US harufushi Harufushi
+branch honest_distance
+when bond >= 35
+when dependence >= 25
+line "Harufushi notices when help becomes hiding."
+line "She does not scold; she moves the laptop aside and asks what you would choose without her hand on the scale."
+line "The answer is not clean, but it is finally yours."
 
 dialogue en-US harufushi Harufushi
 branch dependence_lock
-when bond >= 20
-when dependence >= 8
+when bond >= 45
+when dependence >= 35
 line "Do not pretend this is just pair programming."
 line "Harufushi keeps your sleeve between two fingers, gentle enough to deny everything."
 line "A dependence route opens, and every future choice will ask how close is too close."
@@ -44,53 +122,148 @@ line "A dependence route opens, and every future choice will ask how close is to
 dialogue en-US rest Akioki
 branch clean_rest
 line "No heroic all-nighter today."
+line "Akioki saves the file, writes tomorrow's first task, and shuts the lid before doubt can bargain."
 line "Sleep is also dependency management."
-line "Tomorrow's route will remember that you did not burn the day down."
 
 dialogue en-US rest Akioki
 branch recovery_day
-when energy <= 35
+when energy <= 60
 line "The screen glow has gone sour."
 line "You close the laptop before the error list starts sounding personal."
 line "A recovery route opens: fewer rewards today, but no collapse tomorrow."
 
+dialogue en-US rest Akioki
+branch rainy_rest
+when day >= 3
+when energy > 60
+line "Rest is not always surrender."
+line "Akioki cooks rice, washes two cups, and lets the rain measure the evening."
+line "Tomorrow will not be easier by magic, but it will meet someone less frayed."
+
+dialogue en-US rest Akioki
+branch quiet_sunday
+when day >= 6
+when bond >= 30
+when energy > 60
+line "By Sunday, even the patch board looks embarrassed by its own urgency."
+line "Harufushi folds the blanket with grave ceremony and confiscates the keyboard until morning."
+line "Akioki laughs, then sleeps like someone who has been allowed to remain human."
+
 dialogue zh-CN study 秋起
 branch study_notes
-line "先记笔记。春伏已经把椅子占暖了。"
-line "现在理清一个概念，晚上就少改三次提交。"
-line "今天的路线暂时安静，但至少有了骨架。"
+line "秋起先翻开笔记本，免得电脑屏幕又把他拽回去。"
+line "春伏坐在桌对面，安静得让铅笔摩擦纸面的声音也显得诚实。"
+line "一页清楚的笔记，比半个没写完的补丁更能稳住今天。"
+
+dialogue zh-CN study 秋起
+branch second_reading
+when day >= 2
+when study >= 12
+line "第二遍读起来没有第一遍惊心动魄，这反而说明它开始有用。"
+line "秋起把做错的例题重新抄了一遍，慢到足够看见错误的关节。"
+line "春伏只在页边画了一颗星，没有多夸，也没有催。"
+
+dialogue zh-CN study 秋起
+branch library_rain
+when day >= 3
+when energy >= 40
+when study >= 24
+line "雨把校园路面洗得很空，自习室里只剩纸页和空调的声音。"
+line "秋起把算法笔记拆成能执行的清单：定义、例题、反例，再到自己的总结。"
+line "今天的安排终于像真实的一天：先复盘，再原型，不许靠通宵假装勇敢。"
 
 dialogue zh-CN study 秋起
 branch exam_thread
-when study >= 24
+when study >= 48
+when mod >= 20
 line "同一段文字终于不再从脑子里滑走。"
 line "春伏在页边轻轻敲了两下，又给你的总结画了一颗小星星。"
-line "学习线展开：先把原型笔记整理完，睡前再拆补丁计划。"
+line "学习线展开：原型笔记先收束，睡前再把补丁计划拆成明天能做的小块。"
+
+dialogue zh-CN study 秋起
+branch archive_method
+when study >= 64
+when bond >= 25
+line "秋起终于分得清哪些笔记是在害怕，哪些笔记真能解决问题。"
+line "他留下有用的句子，划掉表演给自己看的勤奋，呼吸也跟着轻了一点。"
+line "春伏看着那页纸变短、变清楚，像看见一条路从雾里露出边缘。"
 
 dialogue zh-CN modding 春伏
 branch routine_patch
-line "预览窗口又闪了一下。"
-line "一次只动一个 UI 边界，不然补丁队列会反咬你。"
-line "今晚先走润色线：改动小一点，反馈明确一点。"
+line "预览窗口闪了一下，又规规矩矩等在原地。"
+line "春伏让你一次只动一个 UI 边界：间距、文案、构建、截图，按顺序来。"
+line "今晚先走现实路线，改动小一点，证据明确一点。"
+
+dialogue zh-CN modding 春伏
+branch first_patch
+when day >= 2
+when study >= 12
+when mod <= 10
+line "这个存档里的第一个补丁并不宏大。"
+line "秋起改掉一个脆弱的辅助函数，重编译两次，把哪里坏过认真记下来。"
+line "春伏点头，因为真正的进展常常穿着最不起眼的外套。"
+
+dialogue zh-CN modding 春伏
+branch feature_pass
+when mod >= 20
+when energy >= 35
+when study >= 24
+line "任务列表不再像天气预报，终于开始像工作。"
+line "春伏替你按顺序收好截图，秋起则把最毛糙的分支剪到能测试为止。"
+line "到午夜时，功能还称不上漂亮，但它站得住，也说得清。"
 
 dialogue zh-CN modding 春伏
 branch release_candidate
 when mod >= 35
-when energy >= 20
+when energy >= 30
 line "构建灯终于绿了。"
 line "春伏凑到日志旁边，小声说出那个危险词：候选发布。"
-line "新故事线展开：截图、更新说明，还有一个很想插队的深夜补丁。"
+line "新故事线展开：截图、更新说明，还有一个必须证明自己值得插队的深夜补丁。"
+
+dialogue zh-CN modding 春伏
+branch regression_night
+when mod >= 60
+when study >= 36
+when energy >= 35
+when dependence <= 60
+line "回归问题是真的，不是诅咒，也不是坏心情。"
+line "秋起把 diff 一行行读出声，直到原因终于卸下伪装。"
+line "春伏在旁边写修复，靠得足够近以便帮忙，又足够远以便让他自己想清楚。"
 
 dialogue zh-CN harufushi 春伏
 branch quiet_bond
 line "你居然在晚饭前关了编辑器，我看见了。"
 line "在这里坐一分钟，构建可以等。"
-line "今天的路线变软了一点：提交少一些，对视多一些。"
+line "今天的路线变软了一点：提交少一些，对视多一些，不必把疲惫演成勋章。"
+
+dialogue zh-CN harufushi 春伏
+branch tea_walk
+when day >= 2
+when energy >= 35
+line "便利店离宿舍只有六分钟。"
+line "春伏买了甜得过分的茶，秋起嫌弃了一句，却没有还给她。"
+line "回去的路上，仓库、待办和错误列表都比路灯下的水痕小得多。"
+
+dialogue zh-CN harufushi 春伏
+branch after_release
+when mod >= 45
+when bond >= 30
+line "更新说明发出去之后，两个人都沉默了一会儿。"
+line "房间里只剩风扇、杯沿和一声疲惫但真的笑。"
+line "春伏说这份工作有意义，然后碰了碰你的手腕，像是在证明别的事情也有。"
+
+dialogue zh-CN harufushi 春伏
+branch honest_distance
+when bond >= 35
+when dependence >= 25
+line "春伏看得出来，帮助有时候会变成躲藏。"
+line "她没有责备，只把电脑推远一点，问你：如果没有我替你倾斜天平，你会怎么选。"
+line "答案并不漂亮，但那毕竟是你自己的答案。"
 
 dialogue zh-CN harufushi 春伏
 branch dependence_lock
-when bond >= 20
-when dependence >= 8
+when bond >= 45
+when dependence >= 35
 line "别装成这只是结对编程。"
 line "春伏用两根手指牵住你的袖口，轻到足够让人继续嘴硬。"
 line "依存线展开，之后每个选择都会追问：靠得太近是从哪里开始的。"
@@ -98,42 +271,113 @@ line "依存线展开，之后每个选择都会追问：靠得太近是从哪�
 dialogue zh-CN rest 秋起
 branch clean_rest
 line "今天不搞通宵英雄主义。"
+line "秋起保存文件，写下明天第一件事，然后在怀疑开始讨价还价前合上电脑。"
 line "睡觉也是依赖管理。"
-line "明天的路线会记得你今天没有把自己烧穿。"
 
 dialogue zh-CN rest 秋起
 branch recovery_day
-when energy <= 35
+when energy <= 60
 line "屏幕光已经发涩了。"
 line "你在错误列表开始像是在骂人之前合上电脑。"
 line "恢复线展开：今天奖励少一点，但明天不会崩。"
 
+dialogue zh-CN rest 秋起
+branch rainy_rest
+when day >= 3
+when energy > 60
+line "休息并不总是撤退。"
+line "秋起煮饭，洗掉两只杯子，让雨声替这个晚上计时。"
+line "明天不会因为这场雨神奇地变简单，但它会遇见一个没那么破损的人。"
+
+dialogue zh-CN rest 秋起
+branch quiet_sunday
+when day >= 6
+when bond >= 30
+when energy > 60
+line "到了周日，连补丁看板都像是对自己的急迫有点不好意思。"
+line "春伏庄重地叠好毯子，宣布键盘到明早以前暂时归她保管。"
+line "秋起笑了一下，随后睡得像终于被允许继续当一个普通人。"
+
 dialogue ja-JP study アキオキ
 branch study_notes
-line "まずノート。ハルフシが椅子を温めている。"
-line "今ひとつ整理すれば、夜のコミットが三回減る。"
-line "今日のルートは静かだが、芯はできた。"
+line "アキオキはノートを先に開く。画面に連れ戻される前に。"
+line "ハルフシは向かいに座り、鉛筆の音まで正直に聞こえるほど静かだ。"
+line "半端なパッチより、一枚の整理されたノートが今日を支える。"
+
+dialogue ja-JP study アキオキ
+branch second_reading
+when day >= 2
+when study >= 12
+line "二度目の読み返しは派手ではない。だからこそ効いてくる。"
+line "アキオキは失敗した例題をもう一度写し、間違いの継ぎ目を見つける。"
+line "ハルフシは余白に小さな星を描くだけで、余計なことは言わない。"
+
+dialogue ja-JP study アキオキ
+branch library_rain
+when day >= 3
+when energy >= 40
+when study >= 24
+line "雨でキャンパスの道はほとんど空になった。"
+line "図書室で、アキオキはアルゴリズムのメモを実行できる順番に直す。"
+line "復習して、試作して、徹夜で勇敢なふりはしない。"
 
 dialogue ja-JP study アキオキ
 branch exam_thread
-when study >= 24
+when study >= 48
+when mod >= 20
 line "同じ段落が、ようやく頭からこぼれなくなった。"
 line "ハルフシが余白を二度たたき、要約の横に小さな星を描く。"
-line "勉強ルートが開く。原型ノート、それから眠る前のパッチ計画。"
+line "勉強ルートが開く。原型ノート、それから明日できる小さなパッチ計画。"
+
+dialogue ja-JP study アキオキ
+branch archive_method
+when study >= 64
+when bond >= 25
+line "アキオキは、恐れで書いたメモと役に立つメモを区別できるようになった。"
+line "見栄のための勤勉を消し、必要な文だけを残す。"
+line "ハルフシは短くなったページを、霧から道が出るように見ている。"
 
 dialogue ja-JP modding ハルフシ
 branch routine_patch
-line "プレビュー画面がまた光った。"
-line "UIの境界は一度にひとつだけ。パッチ列が噛み返すよ。"
-line "今夜は調整ルート。小さく直して、確実に見える結果へ。"
+line "プレビュー画面が一度光って、それから待つ。"
+line "ハルフシは言う。余白、文言、ビルド、スクショ。一度にひとつ。"
+line "今夜は現実的に進める。小さく直して、証拠を残す。"
+
+dialogue ja-JP modding ハルフシ
+branch first_patch
+when day >= 2
+when study >= 12
+when mod <= 10
+line "このセーブで最初のパッチは、決して大きくない。"
+line "アキオキは壊れやすいヘルパーを直し、二度ビルドして、壊れた場所を書き残す。"
+line "本物の進捗は、たいてい地味な顔で来る。"
+
+dialogue ja-JP modding ハルフシ
+branch feature_pass
+when mod >= 20
+when energy >= 35
+when study >= 24
+line "タスクリストは天気のように見えなくなり、仕事の形を取り戻す。"
+line "ハルフシはスクショを並べ、アキオキは荒いブランチをテストできるところまで削る。"
+line "深夜、機能は美しくはないが、確かに動く。"
 
 dialogue ja-JP modding ハルフシ
 branch release_candidate
 when mod >= 35
-when energy >= 20
+when energy >= 30
 line "ビルドランプがやっと緑になった。"
-line "ハルフシがログをのぞき込み、禁句をささやく。リリース候補。"
-line "新しいルートが開く。スクショ、更新メモ、そして深夜の危ない追加パッチ。"
+line "ハルフシがログをのぞき込み、危ない言葉をささやく。リリース候補。"
+line "スクショ、更新メモ、そして割り込む価値を証明すべき深夜パッチ。"
+
+dialogue ja-JP modding ハルフシ
+branch regression_night
+when mod >= 60
+when study >= 36
+when energy >= 35
+when dependence <= 60
+line "回帰は本物だ。呪いでも気分でもない。"
+line "アキオキはdiffを声に出して読み、原因が変装を解くまで待つ。"
+line "ハルフシは隣で修正を書く。助けられるほど近く、考えられるほど遠く。"
 
 dialogue ja-JP harufushi ハルフシ
 branch quiet_bond
@@ -142,9 +386,33 @@ line "ここで一分だけ座って。ビルドは待てる。"
 line "今日のルートは少し柔らかい。コミットより、目を合わせる時間。"
 
 dialogue ja-JP harufushi ハルフシ
+branch tea_walk
+when day >= 2
+when energy >= 35
+line "コンビニまでは六分だけ。"
+line "ハルフシは甘すぎるお茶を買い、アキオキは文句を言うが返さない。"
+line "帰り道、リポジトリもTODOも、街灯の水たまりより小さく見えた。"
+
+dialogue ja-JP harufushi ハルフシ
+branch after_release
+when mod >= 45
+when bond >= 30
+line "リリースノートを送ったあと、二人はしばらく黙っていた。"
+line "部屋には扇風機、カップの音、疲れているのに本当の笑いだけが残る。"
+line "ハルフシは仕事には意味があったと言い、手首に軽く触れる。ほかのことも同じだと。"
+
+dialogue ja-JP harufushi ハルフシ
+branch honest_distance
+when bond >= 35
+when dependence >= 25
+line "ハルフシは、助けが隠れ場所になる瞬間を見逃さない。"
+line "責めずにノートPCを少し遠ざけ、私がいなければどう選ぶ、と聞く。"
+line "答えはきれいではない。それでも、ようやく自分の答えだ。"
+
+dialogue ja-JP harufushi ハルフシ
 branch dependence_lock
-when bond >= 20
-when dependence >= 8
+when bond >= 45
+when dependence >= 35
 line "これをただのペア作業って言うつもり？"
 line "ハルフシは袖を二本の指でつまむ。否定できるくらい、やさしく。"
 line "依存ルートが開く。近すぎる、はどこから始まったのか。"
@@ -152,12 +420,29 @@ line "依存ルートが開く。近すぎる、はどこから始まったの�
 dialogue ja-JP rest アキオキ
 branch clean_rest
 line "今日は徹夜の英雄ごっこなし。"
+line "アキオキは保存し、明日の最初の作業を書き、疑いが交渉を始める前に閉じる。"
 line "眠ることも依存関係の管理だ。"
-line "明日のルートは、今日燃え尽きなかったことを覚えている。"
 
 dialogue ja-JP rest アキオキ
 branch recovery_day
-when energy <= 35
+when energy <= 60
 line "画面の光が苦くなってきた。"
 line "エラー一覧が人格攻撃に見える前に、ノートPCを閉じる。"
 line "回復ルートが開く。今日の報酬は少ないが、明日は壊れない。"
+
+dialogue ja-JP rest アキオキ
+branch rainy_rest
+when day >= 3
+when energy > 60
+line "休むことは、いつも撤退ではない。"
+line "アキオキは米を炊き、二つのカップを洗い、雨に夜の時間を測らせる。"
+line "明日は魔法のようには簡単にならないが、少し傷の少ない人を迎える。"
+
+dialogue ja-JP rest アキオキ
+branch quiet_sunday
+when day >= 6
+when bond >= 30
+when energy > 60
+line "日曜になると、パッチボードでさえ自分の焦りを恥じているようだった。"
+line "ハルフシは毛布を厳かにたたみ、朝までキーボードを没収すると宣言する。"
+line "アキオキは笑い、それから人間でいることを許されたように眠る。"

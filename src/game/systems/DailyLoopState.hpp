@@ -9,6 +9,13 @@ enum class DailyAction {
     Rest,
 };
 
+struct DailyActionRule {
+    int minimumDay = 1;
+    int minimumEnergy = 0;
+    int minimumStudyFocus = 0;
+    int maximumDependence = 100;
+};
+
 struct DailyStats {
     int day = 1;
     int energy = 70;
@@ -23,7 +30,11 @@ public:
     DailyLoopState() = default;
     explicit DailyLoopState(DailyStats stats);
 
-    void apply(DailyAction action);
+    static DailyActionRule ruleFor(DailyAction action);
+    static bool canApply(DailyAction action, const DailyStats& stats);
+
+    bool canApply(DailyAction action) const;
+    bool apply(DailyAction action);
     const DailyStats& stats() const;
 
 private:

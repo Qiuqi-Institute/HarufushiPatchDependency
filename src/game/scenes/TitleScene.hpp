@@ -24,6 +24,9 @@ public:
                 const systems::DailyDialogueEntry* activeDialogue = nullptr) const;
     std::optional<systems::DailyAction> actionAt(engine::graphics::Point point,
                                                  engine::graphics::Size surfaceSize) const;
+    std::optional<systems::DailyAction> actionAt(engine::graphics::Point point,
+                                                 engine::graphics::Size surfaceSize,
+                                                 const systems::DailyStats& stats) const;
     std::optional<TitleNavigationAction> navigationActionAt(
         engine::graphics::Point point,
         engine::graphics::Size surfaceSize) const;

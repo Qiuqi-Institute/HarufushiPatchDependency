@@ -101,4 +101,22 @@ HARU_TEST(daily_dialogue_script_default_resource_contains_four_daily_actions) {
         script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, modFocused);
     HARU_EXPECT_TRUE(modBranch.has_value());
     HARU_EXPECT_EQ(modBranch->branchId, "release_candidate");
+
+    haru::game::systems::DailyStats regressionStats;
+    regressionStats.energy = 45;
+    regressionStats.studyFocus = 40;
+    regressionStats.modProgress = 66;
+    regressionStats.dependence = 40;
+    const auto regressionBranch =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, regressionStats);
+    HARU_EXPECT_TRUE(regressionBranch.has_value());
+    HARU_EXPECT_EQ(regressionBranch->branchId, "regression_night");
+
+    haru::game::systems::DailyStats recoveredAfterLowEnergy;
+    recoveredAfterLowEnergy.day = 2;
+    recoveredAfterLowEnergy.energy = 55;
+    const auto recoveryBranch =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Rest, recoveredAfterLowEnergy);
+    HARU_EXPECT_TRUE(recoveryBranch.has_value());
+    HARU_EXPECT_EQ(recoveryBranch->branchId, "recovery_day");
 }
