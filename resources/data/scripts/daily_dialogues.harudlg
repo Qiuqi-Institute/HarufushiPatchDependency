@@ -1412,3 +1412,531 @@ line "物語は事故だけでは生きられない。"
 line "人は更新履歴に載らない隙間で生き延びる。"
 line "アキオキはその日を書き留める。"
 line "燃えず、逃げず。"
+
+dialogue zh-CN study 秋起
+branch mock_exam_return
+when day >= 10
+when study >= 88
+when energy >= 35
+line "模拟考结束时，雨正好停在校门口。"
+line "秋起把试卷卷成筒，又展开，像不确定该怎么对待一只受伤的鸟。"
+line "分数不坏，也不够漂亮。"
+line "它站在中间，让人无法用胜利或失败偷懒。"
+line "春伏没有问考得怎么样。"
+line "她问，哪一道题让你觉得自己还在场。"
+line "秋起想了很久，说，最后一道证明题。"
+line "我没做完，但我知道下一步该写什么。"
+line "这句话比高分更像归来。"
+line "他们沿着操场外侧走，塑胶跑道积着浅水。"
+line "秋起说，以前我只想把结果拿给别人看。"
+line "现在我也想知道自己是怎么走到结果前面的。"
+line "春伏把伞收好，伞尖滴水。"
+line "她说，那就是学习。"
+line "不是把你变成更会考试的人。"
+line "是让你在看见难题时，不立刻把自己判出局。"
+line "秋起把试卷放进包里，没有折得更小。"
+line "回去的路上，他第一次主动说，今晚不写补丁，先改错题。"
+
+dialogue zh-CN study 秋起
+branch teacher_meeting
+when day >= 11
+when study >= 92
+when dependence <= 55
+line "导师约在办公室谈话，门没关严。"
+line "秋起站在门口，听见里面粉笔擦过黑板的声音。"
+line "那声音让他想起许多次迟到、缺席、没有回复的邮件。"
+line "他本能地想让春伏陪他进去。"
+line "春伏却停在走廊，说，我在这里等。"
+line "这句话没有冷淡，反而像一把稳稳放在墙边的伞。"
+line "秋起独自敲门。"
+line "导师看见他，只说，坐。"
+line "谈话没有想象中严厉，也没有想象中宽容。"
+line "导师逐条指出他缺的作业、能补的项目、不能再拖的手续。"
+line "每一条都具体得无法用情绪反驳。"
+line "秋起记到最后，手心全是汗。"
+line "导师问，你现在还想毕业吗。"
+line "秋起抬头，说，想。"
+line "不是想逃离这里，是想把这里没有做完的事做完。"
+line "走出办公室时，春伏没有问细节。"
+line "她只递过一瓶水。"
+line "秋起接住，像接住一种不替他回答的陪伴。"
+
+dialogue zh-CN study 秋起
+branch archive_room_truth
+when day >= 12
+when study >= 96
+when mod >= 70
+line "档案室下午四点半关门，管理员已经开始收钥匙。"
+line "秋起抱着申请材料跑到窗口前，气喘得像刚从旧生活里逃出来。"
+line "缺的一份证明被夹在最底下。"
+line "纸张边缘磨破，印章却清楚。"
+line "管理员看了一眼，说，差点就过期。"
+line "秋起笑不出来，只觉得后背一阵冷。"
+line "原来人生不会因为剧情需要就替他延长截止时间。"
+line "春伏在旁边签收回执，字迹比平时更慢。"
+line "她说，你看，差点不是安全。"
+line "秋起点头。"
+line "他忽然明白，自己过去迷恋临界点。"
+line "最后一分钟提交，最后一格体力撑住，最后一句道歉挽回。"
+line "那样活着像在悬崖边证明平衡感。"
+line "可他想要的生活，不该以坠落为前提。"
+line "走出档案室时，天空灰得很均匀。"
+line "他把回执夹进文件袋。"
+line "春伏问，接下来呢。"
+line "秋起说，提前一天做下一件事。"
+
+dialogue zh-CN modding 春伏
+branch leak_rumor
+when day >= 10
+when mod >= 95
+when study >= 52
+line "资源泄露的传闻最先出现在一个很小的论坛。"
+line "标题写得暧昧，截图却足够刺眼。"
+line "有人声称已经拿到未发布的 UI 素材。"
+line "秋起的第一反应不是愤怒，而是冷。"
+line "那种冷从指尖往上爬，像他亲手修好的门忽然被人摸到了锁孔。"
+line "春伏把页面保存成证据，随后断开测试包下载链接。"
+line "她的动作很快，却没有慌。"
+line "两人开始核对 manifest 指纹、包版本、测试渠道。"
+line "每一个时间戳都像询问：你有没有偷懒。"
+line "秋起想起两天前临时发给朋友的构建包。"
+line "那包没有正式 key，只是开发包。"
+line "可开发包不等于可以被轻视的包。"
+line "他把这句话写进事故记录，写得很重。"
+line "春伏没有安慰。"
+line "她说，先止血，再道歉，再修制度。"
+line "他们撤掉旧包，轮换本地 key，更新测试分发名单。"
+line "凌晨三点，传闻暂时没有扩散。"
+line "秋起看着空荡荡的论坛页面，知道真正该修的是自己的侥幸。"
+
+dialogue zh-CN modding 春伏
+branch key_rotation_night
+when day >= 11
+when mod >= 96
+when dependence <= 65
+line "密钥轮换夜没有音乐，也没有戏剧性的黑客界面。"
+line "只有表格、哈希、版本号和一杯已经凉透的茶。"
+line "春伏负责核对渠道，秋起负责重建包。"
+line "他们把开发 key 从旧配置里清出来。"
+line "每删掉一处硬编码的路径，秋起都像从墙里拔出一根生锈的钉。"
+line "他曾经觉得这些规范太严。"
+line "现在才知道，规范不是为了让人显得专业。"
+line "规范是在疲惫、赶工、侥幸同时出现时，替人守住底线。"
+line "新包生成后，认证测试跑了七轮。"
+line "第五轮失败，原因是一个资源分组仍沿用旧派生参数。"
+line "秋起没有骂。"
+line "他只是把失败编号写进表格，重新跑。"
+line "春伏看了他一眼，说，你今天不像在赎罪。"
+line "他说，我不想靠赎罪写代码。"
+line "我想靠记住。"
+line "天快亮时，新测试包终于通过。"
+line "他们没有把旧包删进回收站。"
+line "他们把它归档为事故样本，像保存一块烫伤后的皮肤。"
+
+dialogue zh-CN modding 春伏
+branch release_eve
+when day >= 12
+when mod >= 98
+when bond >= 60
+line "正式发布前夜，所有检查项都打上了勾。"
+line "这反而让人不安。"
+line "秋起坐在椅子上，像坐在一艘已经离岸的船里。"
+line "春伏把最终包名念了一遍，确认没有错字。"
+line "版本号、资源指纹、语言包、窗口图标、版权信息。"
+line "这些词排列在一起，忽然比任何告白都正式。"
+line "秋起说，如果明天还有 bug 呢。"
+line "春伏说，会有。"
+line "她答得太快，快到秋起笑出来。"
+line "她接着说，所以我们才写回退、写复盘、写说明。"
+line "不是为了让明天没有风。"
+line "是为了风来时，房子知道自己哪里有梁。"
+line "秋起把鼠标移到上传按钮旁，没有按。"
+line "他先打开文档，补上最后一句发布说明。"
+line "感谢测试者，也感谢那些尖锐但真实的反馈。"
+line "写完后，他看向春伏。"
+line "她点头。"
+line "上传开始时，进度条慢慢向前，像一条终于承认自己会抵达的路。"
+
+dialogue zh-CN harufushi 春伏
+branch two_day_distance
+when day >= 10
+when bond >= 75
+when dependence <= 65
+line "春伏离开的第一晚，房间显得比平时大。"
+line "不是空，是边界突然有了回声。"
+line "秋起把她留下的便签贴在显示器边。"
+line "吃饭，睡觉，自己决定一个问题。"
+line "前两项像生活，第三项像考试。"
+line "他打开 issue 列表，手指悬在最想发给她的那个问题上。"
+line "三分钟后，他把聊天窗口关掉。"
+line "不是赌气，也不是逞强。"
+line "他只是把问题拆成三句，写进自己的笔记。"
+line "现象是什么。"
+line "我已经验证了什么。"
+line "下一步最小行动是什么。"
+line "答案慢慢浮上来，像水底的石阶。"
+line "晚上十点，他给春伏发消息。"
+line "我吃饭了，睡前会关机，今天自己决定了资源回退策略。"
+line "隔了很久，她回了一个句号和一句：很好。"
+line "秋起看着那两个字，竟然比收到长篇安慰还踏实。"
+line "原来被相信，有时就是不被立刻拯救。"
+
+dialogue zh-CN harufushi 春伏
+branch unsent_message
+when day >= 11
+when bond >= 78
+when dependence >= 50
+line "第二天夜里，秋起写了一条很长的消息。"
+line "开头是想你，中间是解释，结尾几乎变成求救。"
+line "他把光标停在发送键前。"
+line "屏幕上的字一行行站着，像一支等待命令的队伍。"
+line "他忽然看见，每一句想念后面都藏着要求。"
+line "要求她回来，要求她证明，要求她替他把夜晚变短。"
+line "这并不等于想念是假的。"
+line "只是想念不能总穿着求援的衣服。"
+line "秋起把消息复制到笔记里，标题写作未发送。"
+line "然后删掉聊天框。"
+line "他给自己倒水，坐回桌前。"
+line "窗口里还有一处字体 fallback 没修。"
+line "他修完，跑测试，记录结果。"
+line "凌晨一点，他只发了一句：今天也完成了一个小问题。"
+line "春伏早上才回：我看见了。"
+line "这四个字没有拥抱，却让秋起把手机扣到胸口。"
+line "他知道自己还是会依赖。"
+line "但依赖终于开始学习怎样不变成索取。"
+
+dialogue zh-CN harufushi 春伏
+branch return_station
+when day >= 12
+when bond >= 85
+when dependence <= 70
+line "春伏回来时，站台广播正好报到末班车。"
+line "秋起没有提前跑到车门边。"
+line "他站在黄线外，手里拿着一杯温热的茶。"
+line "春伏下车，看见他，第一句话是，你睡觉了吗。"
+line "他说，睡了。"
+line "第二句是，你吃饭了吗。"
+line "他说，吃了。"
+line "她接过茶，终于笑出来。"
+line "这笑不是奖赏，更像确认一盏灯没有被风吹灭。"
+line "他们并肩往出口走。"
+line "秋起讲这两天遇到的问题，讲自己怎样拆解，怎样犯错，怎样修正。"
+line "春伏听得很认真，却没有立刻点评。"
+line "到扶梯口，她说，你好像变远了一点。"
+line "秋起心里一紧。"
+line "她接着说，但也更清楚了。"
+line "他握着空茶杯，忽然觉得这比靠近更难得。"
+line "出口的风很凉。"
+line "他们没有牵手，却走得同样慢。"
+
+dialogue zh-CN rest 秋起
+branch empty_day
+when day >= 10
+when energy <= 55
+when bond >= 60
+line "那天没有发生值得写进日志的事。"
+line "秋起早起，买早饭，排队，回家。"
+line "洗衣机转了四十二分钟，阳台上的水一滴滴落进桶里。"
+line "他本来想把这一天归类为无效。"
+line "可傍晚整理床铺时，他忽然停住。"
+line "床单晒过太阳，有很轻的洗衣粉味。"
+line "桌面没有新的崩溃报告。"
+line "身体也没有发出抗议。"
+line "原来无事发生，有时正是生活在修复。"
+line "春伏发来一张路边树影的照片。"
+line "没有说明，没有表情。"
+line "秋起回了一张自己的晚饭。"
+line "两张照片隔着屏幕并排，像两块没有剧情功能的拼图。"
+line "可它们把一天拼完整了。"
+line "晚上他没有打开项目。"
+line "他读了二十页小说，读得很慢。"
+line "故事里的人也在学习如何活得不那么用力。"
+line "秋起把书签夹好，觉得今天并非空白。"
+
+dialogue zh-CN rest 秋起
+branch morning_after_release
+when day >= 13
+when mod >= 98
+when energy <= 70
+line "发布后的早晨没有想象中灿烂。"
+line "秋起醒来时，脖子酸，窗帘漏进一条灰白的光。"
+line "手机上有新反馈，也有祝贺，还有两个看不懂的错误截图。"
+line "他差点立刻坐起来。"
+line "春伏的消息先跳出来：先喝水。"
+line "他盯着那三个字，笑了一下。"
+line "于是先喝水。"
+line "水很普通，甚至有一点凉。"
+line "可这普通把他从发布后的虚浮里拽回地面。"
+line "他吃完早饭，才打开反馈表。"
+line "把祝贺归档，把问题编号，把情绪放到一边。"
+line "太阳慢慢爬上窗台。"
+line "秋起忽然明白，发布不是终点的烟火。"
+line "发布是把作品交给现实，然后仍然愿意照顾它。"
+line "春伏到中午才过来，手里提着药和甜面包。"
+line "她说，看吧，世界没有因为上线就温柔。"
+line "秋起接过面包，说，也没有因为不温柔就不可爱。"
+line "他们在桌边坐下，开始处理第一张错误截图。"
+
+dialogue en-US study Akioki
+branch mock_exam_return
+when day >= 10
+when study >= 88
+when energy >= 35
+line "The mock exam ends as the rain stops."
+line "The score is neither triumph nor ruin."
+line "Harufushi asks which problem made him feel present."
+line "Akioki names the proof he could not finish."
+line "Knowing the next line is a kind of return."
+line "That night he chooses corrections before patches."
+
+dialogue en-US study Akioki
+branch teacher_meeting
+when day >= 11
+when study >= 92
+when dependence <= 55
+line "The advisor's door is half open."
+line "Harufushi waits in the hall instead of entering with him."
+line "The meeting is neither cruel nor forgiving."
+line "It is specific: missing work, possible repairs, hard deadlines."
+line "Akioki says he still wants to graduate."
+line "Not to escape, but to finish what he left unfinished."
+
+dialogue en-US study Akioki
+branch archive_room_truth
+when day >= 12
+when study >= 96
+when mod >= 70
+line "The archive room nearly closes before he arrives."
+line "The missing certificate is frayed but valid."
+line "Almost late is not safe, Harufushi says."
+line "Akioki recognizes his old worship of last chances."
+line "He files the receipt carefully."
+line "The next task will be done one day early."
+
+dialogue en-US modding Harufushi
+branch leak_rumor
+when day >= 10
+when mod >= 95
+when study >= 52
+line "The leak rumor starts on a small forum."
+line "The screenshot is vague enough to wound and clear enough to matter."
+line "They cut the test link, check fingerprints, and trace channels."
+line "Akioki remembers the development build he sent too casually."
+line "Stop bleeding, apologize, then fix the system, Harufushi says."
+line "By dawn, the rumor is smaller, but his carelessness is not."
+
+dialogue en-US modding Harufushi
+branch key_rotation_night
+when day >= 11
+when mod >= 96
+when dependence <= 65
+line "Key rotation night has no music and no cinematic hacker screen."
+line "Only hashes, versions, package groups, and cold tea."
+line "Every removed hardcoded path feels like a rusty nail pulled from a wall."
+line "Rules are not decoration."
+line "They guard the line when fatigue and luck start bargaining."
+line "The old package is archived as an accident sample."
+
+dialogue en-US modding Harufushi
+branch release_eve
+when day >= 12
+when mod >= 98
+when bond >= 60
+line "On release eve, every checklist item is marked."
+line "That makes Akioki more nervous, not less."
+line "Harufushi reminds him bugs will still come."
+line "That is why rollback, postmortem, and notes exist."
+line "He adds one last thanks to sharp but honest feedback."
+line "The upload bar moves like a road admitting it can arrive."
+
+dialogue en-US harufushi Harufushi
+branch two_day_distance
+when day >= 10
+when bond >= 75
+when dependence <= 65
+line "The first night without Harufushi makes the room larger."
+line "Her note says: eat, sleep, decide one thing alone."
+line "Akioki closes the chat window and writes the question in his notebook."
+line "What is the symptom. What have I verified. What is the smallest next action."
+line "He sends her the result, not the panic."
+line "Being trusted sometimes means not being rescued immediately."
+
+dialogue en-US harufushi Harufushi
+branch unsent_message
+when day >= 11
+when bond >= 78
+when dependence >= 50
+line "Akioki writes a long message and does not send it."
+line "Every sentence of missing her is carrying a demand."
+line "Missing her is not false."
+line "It simply cannot always dress as rescue."
+line "He fixes the font fallback instead."
+line "Dependence begins learning how not to become extraction."
+
+dialogue en-US harufushi Harufushi
+branch return_station
+when day >= 12
+when bond >= 85
+when dependence <= 70
+line "Harufushi returns on the last train."
+line "Akioki waits behind the yellow line with warm tea."
+line "He slept, ate, and made decisions."
+line "She says he seems farther away, then clearer."
+line "The words frighten him before they steady him."
+line "They leave the station slowly, not holding hands."
+
+dialogue en-US rest Akioki
+branch empty_day
+when day >= 10
+when energy <= 55
+when bond >= 60
+line "Nothing worth logging happens."
+line "Breakfast, laundry, dinner, a photo of tree shadows."
+line "Akioki almost calls the day invalid."
+line "Then he notices the clean sheets and his unprotesting body."
+line "Sometimes nothing happens because life is repairing."
+line "He reads a novel and lets the day stay quiet."
+
+dialogue en-US rest Akioki
+branch morning_after_release
+when day >= 13
+when mod >= 98
+when energy <= 70
+line "The morning after release is gray, not glorious."
+line "Feedback, praise, and two strange bug screenshots wait on the phone."
+line "Harufushi's message arrives first: drink water."
+line "So he drinks water."
+line "Release is not fireworks at the end."
+line "It is giving the work to reality and still caring for it."
+
+dialogue ja-JP study アキオキ
+branch mock_exam_return
+when day >= 10
+when study >= 88
+when energy >= 35
+line "模試が終わると同時に雨が止む。"
+line "点数は勝利でも破滅でもない。"
+line "ハルフシは、どの問題で自分がそこにいると思えたかを聞く。"
+line "アキオキは解き切れなかった証明を挙げる。"
+line "次の一行が見えることは、帰還の一種だ。"
+line "その夜、彼はパッチより先に誤答を直す。"
+
+dialogue ja-JP study アキオキ
+branch teacher_meeting
+when day >= 11
+when study >= 92
+when dependence <= 55
+line "指導教員の扉は半分開いている。"
+line "ハルフシは一緒に入らず廊下で待つ。"
+line "面談は厳しすぎず、甘くもない。"
+line "足りない課題、補える項目、もう延ばせない手続き。"
+line "アキオキは、まだ卒業したいと言う。"
+line "逃げるためではなく、残したものを終えるために。"
+
+dialogue ja-JP study アキオキ
+branch archive_room_truth
+when day >= 12
+when study >= 96
+when mod >= 70
+line "資料室は閉まる寸前だった。"
+line "足りなかった証明書は擦り切れているが有効だ。"
+line "ぎりぎりは安全じゃない、とハルフシは言う。"
+line "アキオキは最後の機会を崇拝していた自分に気づく。"
+line "彼は受領書を丁寧にしまう。"
+line "次の作業は一日前に終わらせる。"
+
+dialogue ja-JP modding ハルフシ
+branch leak_rumor
+when day >= 10
+when mod >= 95
+when study >= 52
+line "流出の噂は小さな掲示板から始まる。"
+line "曖昧なスクショは、傷つけるには十分だった。"
+line "二人はテストリンクを切り、指紋と配布経路を追う。"
+line "アキオキは軽く送った開発ビルドを思い出す。"
+line "止血、謝罪、それから制度を直す、とハルフシは言う。"
+line "夜明け、噂は小さくなったが、油断は小さくならない。"
+
+dialogue ja-JP modding ハルフシ
+branch key_rotation_night
+when day >= 11
+when mod >= 96
+when dependence <= 65
+line "鍵の更新夜に音楽も映画的な画面もない。"
+line "あるのはハッシュ、版、資源グループ、冷めた茶だけ。"
+line "ハードコードされた道を消すたび、錆びた釘を抜くようだ。"
+line "規則は飾りではない。"
+line "疲れと幸運が取引を始める時、線を守るものだ。"
+line "旧パッケージは事故サンプルとして保存される。"
+
+dialogue ja-JP modding ハルフシ
+branch release_eve
+when day >= 12
+when mod >= 98
+when bond >= 60
+line "正式公開前夜、チェックはすべて埋まっている。"
+line "そのせいで、かえって落ち着かない。"
+line "ハルフシは、明日もバグは来ると言う。"
+line "だからロールバック、復盤、説明を書く。"
+line "彼は鋭く正直なフィードバックへの感謝を足す。"
+line "アップロードバーは、到着を認める道のように進む。"
+
+dialogue ja-JP harufushi ハルフシ
+branch two_day_distance
+when day >= 10
+when bond >= 75
+when dependence <= 65
+line "ハルフシがいない最初の夜、部屋は広くなる。"
+line "メモには、食べる、眠る、一問だけ自分で決める。"
+line "アキオキはチャットを閉じ、問いをノートへ書く。"
+line "現象は何か。何を検証したか。最小の次手は何か。"
+line "彼は恐怖ではなく結果を送る。"
+line "信頼されるとは、すぐ救われないことでもある。"
+
+dialogue ja-JP harufushi ハルフシ
+branch unsent_message
+when day >= 11
+when bond >= 78
+when dependence >= 50
+line "アキオキは長いメッセージを書き、送らない。"
+line "寂しいという文の後ろに、要求が隠れている。"
+line "寂しさが嘘なわけではない。"
+line "ただ、いつも救援の服を着てはいけない。"
+line "彼は代わりにフォントfallbackを直す。"
+line "依存は、奪取にならない方法を学び始める。"
+
+dialogue ja-JP harufushi ハルフシ
+branch return_station
+when day >= 12
+when bond >= 85
+when dependence <= 70
+line "ハルフシは終電で戻る。"
+line "アキオキは黄色い線の外で温かい茶を持って待つ。"
+line "彼は眠り、食べ、自分で決めた。"
+line "少し遠くなった、でもはっきりした、と彼女は言う。"
+line "その言葉は怖く、それから支えになる。"
+line "二人は手をつながず、ゆっくり駅を出る。"
+
+dialogue ja-JP rest アキオキ
+branch empty_day
+when day >= 10
+when energy <= 55
+when bond >= 60
+line "記録に残ることは何も起きない。"
+line "朝食、洗濯、夕飯、木陰の写真。"
+line "アキオキはその日を無効と呼びかける。"
+line "そして乾いたシーツと、抗議しない身体に気づく。"
+line "何も起きないのは、生活が修復しているからかもしれない。"
+line "彼は小説を読み、静かな日を静かなままにする。"
+
+dialogue ja-JP rest アキオキ
+branch morning_after_release
+when day >= 13
+when mod >= 98
+when energy <= 70
+line "公開翌朝は、輝かしくなく灰色だ。"
+line "フィードバック、祝福、読めないエラー画像が携帯にある。"
+line "最初にハルフシのメッセージが来る。水を飲んで。"
+line "だから彼は水を飲む。"
+line "公開は終点の花火ではない。"
+line "作品を現実へ渡し、それでも世話を続けることだ。"
