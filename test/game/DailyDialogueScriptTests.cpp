@@ -205,8 +205,7 @@ HARU_TEST(daily_dialogue_script_default_resource_uses_hoi4_mod_domain_language) 
     HARU_EXPECT_TRUE(source.find("focus tree") != std::string::npos);
 
     HARU_EXPECT_FALSE(containsAny(source,
-                                  {"编译",
-                                   "重编译",
+                                  {"重编译",
                                    "构建",
                                    "构建灯",
                                    "资源包",
@@ -238,6 +237,19 @@ HARU_TEST(daily_dialogue_script_default_resource_uses_hoi4_mod_domain_language) 
                                    "发布清单",
                                    "项目信息",
                                    "项目进度"}));
+}
+
+HARU_TEST(daily_dialogue_script_default_resource_tracks_aor_story_workflows) {
+    const std::string source = defaultDialogueSource();
+
+    HARU_EXPECT_TRUE(countOccurrences(source, "line \"") >= 1380U);
+    HARU_EXPECT_TRUE(source.find("互斥国策") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("state 742") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("province 11887") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("on_action 每日脉冲") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("AOR 子模组") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("不需要编译") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("观察者档跑到 1942 年") != std::string::npos);
 }
 
 HARU_TEST(daily_dialogue_script_default_resource_selects_story_chapter_branches) {
