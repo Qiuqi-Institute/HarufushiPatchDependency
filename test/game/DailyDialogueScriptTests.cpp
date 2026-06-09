@@ -151,12 +151,12 @@ HARU_TEST(daily_dialogue_script_default_resource_contains_four_daily_actions) {
 HARU_TEST(daily_dialogue_script_default_resource_has_story_scale_chinese_text) {
     const std::string source = defaultDialogueSource();
 
-    HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") >= 48U);
+    HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") >= 60U);
     HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") ==
                      countOccurrences(source, "dialogue en-US "));
     HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") ==
                      countOccurrences(source, "dialogue ja-JP "));
-    HARU_EXPECT_TRUE(countOccurrences(source, "line \"") >= 1040U);
+    HARU_EXPECT_TRUE(countOccurrences(source, "line \"") >= 1320U);
     HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") * 20U <=
                      countOccurrences(source, "line \""));
     HARU_EXPECT_TRUE(source.find("dialogue zh-CN modding 春伏\nbranch midnight_incident") !=
@@ -170,6 +170,12 @@ HARU_TEST(daily_dialogue_script_default_resource_has_story_scale_chinese_text) {
     HARU_EXPECT_TRUE(source.find("dialogue zh-CN study 秋起\nbranch mock_exam_return") !=
                      std::string::npos);
     HARU_EXPECT_TRUE(source.find("dialogue zh-CN harufushi 春伏\nbranch two_day_distance") !=
+                     std::string::npos);
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN modding 春伏\nbranch false_positive") !=
+                     std::string::npos);
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN study 秋起\nbranch library_closure") !=
+                     std::string::npos);
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN rest 秋起\nbranch quiet_failure") !=
                      std::string::npos);
 }
 
