@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -27,6 +28,15 @@ std::size_t countOccurrences(const std::string& source, const std::string& token
         position = source.find(token, position + token.size());
     }
     return count;
+}
+
+bool containsAny(const std::string& source, const std::vector<std::string>& tokens) {
+    for (const auto& token : tokens) {
+        if (source.find(token) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace
@@ -127,7 +137,7 @@ HARU_TEST(daily_dialogue_script_default_resource_contains_four_daily_actions) {
     const auto modBranch =
         script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, modFocused);
     HARU_EXPECT_TRUE(modBranch.has_value());
-    HARU_EXPECT_EQ(modBranch->branchId, "release_candidate");
+    HARU_EXPECT_EQ(modBranch->branchId, "scenario_candidate");
 
     haru::game::systems::DailyStats regressionStats;
     regressionStats.energy = 45;
@@ -165,7 +175,7 @@ HARU_TEST(daily_dialogue_script_default_resource_has_story_scale_chinese_text) {
                      std::string::npos);
     HARU_EXPECT_TRUE(source.find("dialogue zh-CN rest 秋起\nbranch clinic_morning") !=
                      std::string::npos);
-    HARU_EXPECT_TRUE(source.find("dialogue zh-CN modding 春伏\nbranch leak_rumor") !=
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN modding 春伏\nbranch stolen_submod_rumor") !=
                      std::string::npos);
     HARU_EXPECT_TRUE(source.find("dialogue zh-CN study 秋起\nbranch mock_exam_return") !=
                      std::string::npos);
@@ -179,19 +189,52 @@ HARU_TEST(daily_dialogue_script_default_resource_has_story_scale_chinese_text) {
                      std::string::npos);
 }
 
+HARU_TEST(daily_dialogue_script_default_resource_uses_hoi4_mod_domain_language) {
+    const std::string source = defaultDialogueSource();
+
+    HARU_EXPECT_TRUE(containsAny(source, {"AOR", "HOI4", "钢四", "Hoi4"}));
+    HARU_EXPECT_TRUE(source.find("国策") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("事件") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("本地化") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("决议") != std::string::npos);
+    HARU_EXPECT_TRUE(source.find("历史文件") != std::string::npos);
+
+    HARU_EXPECT_FALSE(containsAny(source,
+                                  {"编译",
+                                   "重编译",
+                                   "构建",
+                                   "构建灯",
+                                   "资源包",
+                                   "资源系统",
+                                   "资源保护",
+                                   "资源认证",
+                                   "manifest",
+                                   "密钥",
+                                   "开发 key",
+                                   "build",
+                                   "compile",
+                                   "commit",
+                                   "UI",
+                                   "回退按钮",
+                                   "字体 fallback",
+                                   "热修包",
+                                   "窗口卡顿",
+                                   "上传按钮"}));
+}
+
 HARU_TEST(daily_dialogue_script_default_resource_selects_story_chapter_branches) {
     const auto script = haru::game::systems::DailyDialogueScript::loadDefault();
 
-    haru::game::systems::DailyStats manifestStats;
-    manifestStats.day = 3;
-    manifestStats.energy = 65;
-    manifestStats.studyFocus = 22;
-    manifestStats.modProgress = 28;
-    const auto manifestBranch =
-        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, manifestStats);
-    HARU_EXPECT_TRUE(manifestBranch.has_value());
-    HARU_EXPECT_EQ(manifestBranch->branchId, "broken_manifest");
-    HARU_EXPECT_TRUE(manifestBranch->lines.size() >= 18U);
+    haru::game::systems::DailyStats focusTreeStats;
+    focusTreeStats.day = 3;
+    focusTreeStats.energy = 65;
+    focusTreeStats.studyFocus = 22;
+    focusTreeStats.modProgress = 28;
+    const auto focusTreeBranch =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, focusTreeStats);
+    HARU_EXPECT_TRUE(focusTreeBranch.has_value());
+    HARU_EXPECT_EQ(focusTreeBranch->branchId, "broken_focus_tree");
+    HARU_EXPECT_TRUE(focusTreeBranch->lines.size() >= 18U);
 
     haru::game::systems::DailyStats boundaryStats;
     boundaryStats.day = 5;
