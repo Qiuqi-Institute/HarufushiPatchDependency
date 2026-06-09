@@ -182,6 +182,46 @@ HARU_TEST(home_scene_uses_png_background_and_transparent_text_menu) {
     HARU_EXPECT_TRUE(boardTitle == nullptr);
 }
 
+HARU_TEST(home_scene_scales_main_menu_rendering_and_actions_to_surface_size) {
+    haru::game::scenes::HomeScene homeScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue, {640, 360}, haru::game::scenes::HomePanel::Main);
+
+    HARU_EXPECT_TRUE(hasImage(queue,
+                              "images.backgrounds.home_chunfu",
+                              {0, 0, 640, 360}));
+    HARU_EXPECT_TRUE(hasVerticalGradientAt(queue,
+                                           {0, 260, 640, 100},
+                                           {33, 47, 75, 0},
+                                           {33, 47, 75, 176}));
+
+    const auto* newGame = findText(queue, "New Game");
+    const auto* load = findText(queue, "Load");
+    const auto* settings = findText(queue, "Settings");
+    const auto* quit = findText(queue, "Quit");
+    HARU_EXPECT_TRUE(newGame != nullptr);
+    HARU_EXPECT_TRUE(load != nullptr);
+    HARU_EXPECT_TRUE(settings != nullptr);
+    HARU_EXPECT_TRUE(quit != nullptr);
+    HARU_EXPECT_EQ(newGame->rect.x, 36);
+    HARU_EXPECT_EQ(newGame->rect.y, 342);
+    HARU_EXPECT_EQ(newGame->rect.width, 118);
+    HARU_EXPECT_EQ(newGame->rect.height, 14);
+    HARU_EXPECT_TRUE(newGame->rect.x < load->rect.x);
+    HARU_EXPECT_TRUE(load->rect.x < settings->rect.x);
+    HARU_EXPECT_TRUE(settings->rect.x < quit->rect.x);
+
+    const auto action =
+        homeScene.actionAt({62, 342}, {640, 360}, haru::game::scenes::HomePanel::Main);
+    const auto oldDesignPoint =
+        homeScene.actionAt({124, 684}, {640, 360}, haru::game::scenes::HomePanel::Main);
+
+    HARU_EXPECT_TRUE(action.has_value());
+    HARU_EXPECT_EQ(*action, haru::game::scenes::HomeAction::NewGame);
+    HARU_EXPECT_FALSE(oldDesignPoint.has_value());
+}
+
 HARU_TEST(home_scene_menu_removes_old_underlines_and_dot_decorations) {
     haru::game::scenes::HomeScene homeScene;
     haru::engine::graphics::RenderQueue queue;
@@ -382,6 +422,32 @@ HARU_TEST(home_scene_renders_save_summaries_and_maps_slots) {
     HARU_EXPECT_TRUE(second.has_value());
     HARU_EXPECT_EQ(*first, haru::game::scenes::HomeAction::LoadSave0);
     HARU_EXPECT_EQ(*second, haru::game::scenes::HomeAction::LoadSave1);
+}
+
+HARU_TEST(home_scene_scales_saves_panel_slots_and_back_action_to_surface_size) {
+    haru::game::scenes::HomeScene homeScene;
+    haru::engine::graphics::RenderQueue queue;
+
+    homeScene.render(queue,
+                     {640, 360},
+                     haru::game::scenes::HomePanel::Saves,
+                     {"Save 1  Day 3  Mod 20"});
+
+    HARU_EXPECT_TRUE(hasText(queue, "Save Files"));
+    HARU_EXPECT_TRUE(hasText(queue, "Save 1  Day 3  Mod 20"));
+
+    const auto first =
+        homeScene.actionAt({130, 141}, {640, 360}, haru::game::scenes::HomePanel::Saves, 1);
+    const auto back =
+        homeScene.actionAt({47, 321}, {640, 360}, haru::game::scenes::HomePanel::Saves, 1);
+    const auto oldDesignSlot =
+        homeScene.actionAt({260, 282}, {640, 360}, haru::game::scenes::HomePanel::Saves, 1);
+
+    HARU_EXPECT_TRUE(first.has_value());
+    HARU_EXPECT_TRUE(back.has_value());
+    HARU_EXPECT_EQ(*first, haru::game::scenes::HomeAction::LoadSave0);
+    HARU_EXPECT_EQ(*back, haru::game::scenes::HomeAction::Back);
+    HARU_EXPECT_FALSE(oldDesignSlot.has_value());
 }
 
 HARU_TEST(home_scene_uses_game_text_localization) {
