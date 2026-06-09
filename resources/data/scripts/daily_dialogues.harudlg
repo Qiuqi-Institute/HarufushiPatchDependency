@@ -446,3 +446,969 @@ when energy > 60
 line "日曜になると、パッチボードでさえ自分の焦りを恥じているようだった。"
 line "ハルフシは毛布を厳かにたたみ、朝までキーボードを没収すると宣言する。"
 line "アキオキは笑い、それから人間でいることを許されたように眠る。"
+
+dialogue zh-CN study 秋起
+branch scholarship_notice
+when day >= 4
+when study >= 36
+when energy >= 35
+line "教务系统在午后发来奖学金材料补交通知。"
+line "秋起盯着那行日期，像盯着一块突然下沉的冰。"
+line "他以为自己只是忘了一个表格。"
+line "可忘记背后有更难听的名字：逃避。"
+line "春伏没有抢过鼠标，只把文件夹拖到桌面左侧。"
+line "她说，先把能证明你存在的东西找出来。"
+line "成绩单、竞赛截图、导师邮件，一件件被翻出来。"
+line "每个文件都像旧日的证词，冷淡，却并不背叛。"
+line "秋起忽然想起，大一那年他也曾很笃定。"
+line "那时没有补丁队列，没有深夜崩溃的窗口。"
+line "也没有春伏坐在旁边，替他保管沉默。"
+line "他把申请理由写到第三遍，删掉所有漂亮空话。"
+line "最后只剩一句：我想把做坏的东西修好。"
+line "春伏看完，没有笑他文采朴素。"
+line "她说，这句最像你。"
+line "窗外的云压得很低，屋里却亮了一点。"
+line "这不是胜利，只是把名字重新写回生活里。"
+line "秋起按下提交，手指第一次没有发抖。"
+
+dialogue zh-CN study 秋起
+branch borrowed_reference
+when day >= 5
+when study >= 40
+when bond >= 15
+when dependence <= 45
+line "资料室的老师把旧参考书推到柜台边。"
+line "书脊裂开，像一段被反复借走又反复归还的时间。"
+line "秋起翻到图算法章节，页角夹着陌生人的便签。"
+line "上面写着：不要只背结论，问它为什么非这样不可。"
+line "春伏凑过来看，呼吸轻轻碰到纸面。"
+line "秋起下意识要把书推给她，请她替自己判断重点。"
+line "手到一半，他停住。"
+line "他把问题写到自己的笔记上，字很慢，横竖都像在找骨头。"
+line "春伏看见了，却装作只是在读目录。"
+line "这份体贴比夸奖更重。"
+line "他终于明白，独立不是把她关在门外。"
+line "独立是她在门边，而他仍能自己走过去。"
+line "傍晚归还借书证时，管理员问他们是不是同组。"
+line "春伏说，是，也不是。"
+line "秋起没有反驳。"
+line "他们带着一沓复印纸出门，像带走一小片可靠的雪。"
+line "今晚的学习线没有烟花，只有编号整齐的疑问。"
+line "而疑问第一次不再像敌人。"
+
+dialogue zh-CN study 秋起
+branch transcript_margin
+when day >= 6
+when study >= 56
+when energy <= 65
+line "秋起把成绩单打印出来，发现边角被机器压出一道浅痕。"
+line "那道痕迹正好穿过上学期最低的一门课。"
+line "他盯了很久，像被一枚钉子钉回原地。"
+line "春伏问，要不要把这一页重打。"
+line "秋起摇头，说不用。"
+line "有些难看的东西不必藏起来，藏久了才会发臭。"
+line "他在页边写下那学期的真实原因。"
+line "失眠、迟到、逃课、把问题推给坏运气。"
+line "每写一个词，他都像从水底抬起一点。"
+line "春伏没有靠近，也没有离开。"
+line "她只是把台灯调暗，给他留出能承认失败的光。"
+line "秋起忽然笑了一下，说这也算注释吗。"
+line "春伏说，算，人生没有干净的提交记录。"
+line "于是他继续写，写补救，写重修，写明天。"
+line "那张纸不再像判决书。"
+line "它变成地图，丑陋，但方向清楚。"
+line "夜里风从窗缝进来，吹动页角。"
+line "秋起第一次没有按住它。"
+
+dialogue zh-CN study 秋起
+branch whiteboard_dawn
+when day >= 7
+when study >= 72
+when mod >= 40
+when energy >= 30
+line "凌晨五点，活动室的白板还留着上一组人的公式。"
+line "秋起用袖口擦掉一半，留下另一半作为提醒。"
+line "春伏把马克笔按颜色排开，像排一支小小的仪仗。"
+line "他们把补丁里的路径问题画成图。"
+line "节点是资源，边是依赖，错误像雾一样挂在线上。"
+line "秋起讲到第三遍，忽然停住。"
+line "他终于看见，自己一直修的是症状，不是结构。"
+line "春伏把蓝色笔递给他，说，那就把结构画出来。"
+line "白板上的线越来越少，关系却越来越清楚。"
+line "天亮前，窗玻璃映出两个人并肩的影子。"
+line "那影子不像恋爱小说，更像共同守过一场病。"
+line "秋起把最后一个箭头改成单向。"
+line "他说，不能再让业务层绕开资源系统。"
+line "春伏笑了，说你终于开始像自己讨厌的严肃大人。"
+line "他也笑，笑声干哑，却稳。"
+line "日出从楼缝里挤进来，照在尚未擦掉的图上。"
+line "白板没有给他们答案。"
+line "它只证明，有些问题已经值得被正面称呼。"
+
+dialogue zh-CN study 秋起
+branch last_review
+when day >= 9
+when study >= 80
+when dependence <= 50
+line "期末复习的最后一晚，秋起没有打开编辑器。"
+line "这件事本身就像一个隐秘的奇迹。"
+line "他把错题本摊开，从第一页读到最后一页。"
+line "每个红叉都还在，却不再向他索命。"
+line "春伏坐在床沿削铅笔，木屑落进纸杯里。"
+line "她问，你怕明天吗。"
+line "秋起想说不怕，可诚实已经被训练得更锋利。"
+line "他说，怕，但不是那种会把我拖走的怕。"
+line "春伏把削好的铅笔放到他手边。"
+line "那就带着它去。"
+line "窗外有人拖着行李箱经过，轮子声很长。"
+line "秋起忽然意识到，所有人都在奔赴自己的考场。"
+line "他不是唯一一个狼狈的人。"
+line "这发现并不浪漫，却异常宽恕。"
+line "他合上错题本，把准考证压在最上面。"
+line "春伏替他检查证件，没有替他检查人生。"
+line "凌晨一点，他们关灯。"
+line "黑暗落下时，秋起没有伸手去摸电脑。"
+
+dialogue zh-CN modding 春伏
+branch broken_manifest
+when day >= 3
+when mod >= 25
+when study >= 20
+line "资源 manifest 在构建后拒绝加载，像一扇突然反锁的门。"
+line "秋起第一反应是去怀疑打包器。"
+line "春伏却把日志拉回最上面，说，先看第一处撒谎的地方。"
+line "他们从路径、版本、认证标签一路查下去。"
+line "每一行都很枯燥，每一行又都在决定游戏能否诚实启动。"
+line "秋起想起自己以前最爱写临时绕过。"
+line "绕过像止痛药，吞下去很快，醒来时病还在。"
+line "这一次他没有加开关。"
+line "他写测试，让篡改的 manifest 必须失败。"
+line "红色输出弹出来时，他反而松了口气。"
+line "至少这一次，门锁真的在工作。"
+line "春伏把失败截图存进文档，名字起得很冷。"
+line "她说，冷一点好，安全设计不能靠热血。"
+line "秋起点头，删掉最后一段调试日志。"
+line "那些日志曾经泄露太多路径和心虚。"
+line "夜里十一点，构建仍未成功。"
+line "但他们终于知道，失败站在哪一侧。"
+line "这比盲目的绿色更像进展。"
+
+dialogue zh-CN modding 春伏
+branch midnight_incident
+when day >= 5
+when mod >= 50
+when energy <= 55
+line "午夜零点二十七分，窗口在点击加载存档时卡死。"
+line "没有崩溃报告，没有异常弹窗，只有标题栏灰白地写着未响应。"
+line "秋起的胃沉下去，像被人从里面拽了一下。"
+line "春伏让他先离开键盘。"
+line "她说，你现在每按一次，都会把恐惧提交进去。"
+line "他们等了十秒，进程恢复，随后又在同一点停住。"
+line "真正的罪魁不是慢，而是主线程在等一件不该等的事。"
+line "秋起把启动前的资源计算拆开，列出能提前做的部分。"
+line "引擎开屏期间只处理引擎级准备。"
+line "制作方开屏期间才处理进入主菜单的游戏数据。"
+line "界限写在纸上，像给混乱画一条岸。"
+line "春伏说，异步不是把所有东西丢进黑箱。"
+line "异步是知道谁可以先走，谁必须等门开。"
+line "秋起没有反驳。"
+line "他把那句听上去漂亮的加速注释删掉。"
+line "因为问题从来不是动画太慢。"
+line "是有人把沉重的计算藏在幕布后面。"
+line "凌晨一点半，未响应终于从他们面前消失。"
+
+dialogue zh-CN modding 春伏
+branch build_room_fire
+when day >= 6
+when mod >= 70
+when energy >= 25
+when dependence <= 55
+line "构建室的空调坏了，机器风扇像小型暴雨。"
+line "秋起坐在最靠门的位置，方便随时逃出去。"
+line "春伏把错误列表打印成纸，厚得像一份不近人情的合同。"
+line "他们从最底层的资源 lease 开始复盘。"
+line "哪里能拿到明文字节，哪里必须只给句柄。"
+line "哪里允许回调，哪里绝不许缓存。"
+line "这些规则听起来像铁丝网。"
+line "可秋起知道，没有铁丝网，素材迟早会被裸露在路边。"
+line "春伏问，你真的愿意为这些麻烦负责吗。"
+line "秋起把纸翻到下一页，说，愿意。"
+line "不是因为他忽然变得高尚。"
+line "而是他终于承认，喜欢一个作品就不能只爱它发光的时候。"
+line "也要爱它笨重的门、锁、清理过的缓冲区。"
+line "下午四点，第一轮测试通过。"
+line "他们没有欢呼，只是同时往椅背上靠。"
+line "热风从机箱后面涌出来。"
+line "春伏说，像灾后厨房。"
+line "秋起说，至少还有饭。"
+
+dialogue zh-CN modding 春伏
+branch rollback_letter
+when day >= 7
+when mod >= 65
+when dependence >= 30
+line "公开测试群里有人说，新版本不如旧版本。"
+line "那句话没有脏字，却比脏字更准地刺中秋起。"
+line "他想立刻解释，想贴出工作量，想证明自己不是在乱改。"
+line "春伏按住发送键，说，先别把委屈当更新说明。"
+line "他们读完所有反馈，把情绪和事实分开。"
+line "事实是一个回退按钮变远了。"
+line "事实是旧存档转换时少提示了一步。"
+line "事实是玩家没有义务理解开发者的疲惫。"
+line "秋起把道歉信写到第二版，删掉所有自我辩护。"
+line "他说，我是不是太软了。"
+line "春伏说，不，把责任说清楚不是下跪。"
+line "窗外傍晚的灯一盏盏亮起来。"
+line "秋起发布热修说明，承诺明早给出回退补丁。"
+line "发送后，他没有立刻刷新评论。"
+line "这比任何技术动作都难。"
+line "春伏把手机扣到桌上。"
+line "她说，今晚你先做一个能睡着的人。"
+line "他听见自己答应，声音很轻，却没有碎。"
+
+dialogue zh-CN modding 春伏
+branch release_postmortem
+when day >= 8
+when mod >= 80
+when study >= 48
+line "发布复盘会只有两个人，却摆了三把椅子。"
+line "第三把留给那个总被他们推迟的真相。"
+line "秋起把事故时间线贴到墙上。"
+line "从错误报告出现，到热修包上线，一共十七小时四十二分。"
+line "每个节点都写着人名，决定，后果。"
+line "春伏看着那张纸，说，别只写哪里错了。"
+line "也写哪里救了你。"
+line "于是秋起补上测试、日志清理、资源认证、还有那杯冷掉的茶。"
+line "他写到最后，忽然发现复盘不是审判。"
+line "复盘是在废墟里标出承重墙。"
+line "下次再塌，至少知道往哪里跑。"
+line "春伏把第三把椅子推进桌底。"
+line "她说，今天真相可以坐下了。"
+line "秋起笑了，但眼眶发热。"
+line "他终于懂得，成熟不是永不出错。"
+line "成熟是错误来敲门时，不再假装家里没人。"
+line "夜色落在窗外，像一份盖章后的文件。"
+line "他们把复盘存入资源文档，而不是聊天记录。"
+
+dialogue zh-CN modding 春伏
+branch public_bug_report
+when day >= 9
+when mod >= 90
+when bond >= 50
+line "第一个真正陌生的 bug 报告来自海外玩家。"
+line "截图里语言不是他们熟悉的任何一种。"
+line "可按钮错位、文本裁切、窗口卡顿，这些痛苦都不需要翻译。"
+line "秋起看着那张截图，忽然感到一种远方的重量。"
+line "他做的东西已经离开房间，走到别人桌面上。"
+line "春伏把报告编号，建立复现步骤。"
+line "她没有说恭喜，因为这不是领奖。"
+line "这是作品第一次要求他们像成年人一样回应。"
+line "秋起切换语言包，发现一处回退字体缺字。"
+line "他想起那些被自己忽略的边角。"
+line "每一个边角，在陌生人那里都可能是正门。"
+line "修复用了一整个下午。"
+line "他们把答复写得克制、准确，并附上临时解决办法。"
+line "发送前，春伏问，要不要署名。"
+line "秋起说，署团队名吧。"
+line "虽然团队只有两个人，一盏灯，和一堆未关闭的 issue。"
+line "春伏笑了，说足够了。"
+line "那天晚上，秋起第一次觉得公开并不只是暴露。"
+
+dialogue zh-CN harufushi 春伏
+branch shared_umbrella
+when day >= 3
+when bond >= 15
+when energy >= 25
+line "雨下得突然，像有人把天空的缓存一次性清空。"
+line "春伏撑开伞，伞面小得过分。"
+line "秋起说我跑回去就行。"
+line "她没有回答，只把伞柄往他手里塞。"
+line "两个人走在同一块阴影里，肩膀偶尔碰到。"
+line "这不是电影里会慢放的场景。"
+line "路边水坑脏，风也不懂礼貌。"
+line "秋起却忽然想把这六分钟保存下来。"
+line "春伏问，你是不是又在脑内写剧情。"
+line "他说，没有，只是在想伞骨结构。"
+line "她笑出声，笑声撞在雨里，轻得像没保存的文件。"
+line "到宿舍楼下时，秋起的右肩还是湿了。"
+line "春伏伸手想替他拍掉水。"
+line "手停在半空，最终只指了指楼梯。"
+line "她说，上去换衣服，别把感冒写进主线。"
+line "秋起点头，却在转身前说，谢谢。"
+line "这两个字很普通。"
+line "普通到足够让春伏低头看了很久伞尖。"
+
+dialogue zh-CN harufushi 春伏
+branch boundary_confession
+when day >= 5
+when bond >= 55
+when dependence >= 30
+line "春伏把电脑合上时，秋起的手还停在快捷键上。"
+line "他说，只差一点。"
+line "她说，你每次都只差一点。"
+line "房间里的声音忽然变少，连风扇都像退到门外。"
+line "秋起终于听见自己呼吸里的慌张。"
+line "他问，你是不是累了。"
+line "春伏没有立刻答。"
+line "她看着桌上两只杯子，一只空，一只冷。"
+line "然后她说，我不是累于帮你。"
+line "我累于你把被帮助当成唯一能留下我的办法。"
+line "这句话落下来，没有砸碎任何东西。"
+line "可秋起觉得屋子里的摆设都换了位置。"
+line "他想解释，却发现解释会显得更像索取。"
+line "于是他只说，对不起。"
+line "春伏点头，像收下一封还没写完的信。"
+line "她说，我可以在这里，但不能成为你的逃生出口。"
+line "秋起看着自己的手，慢慢从键盘上拿开。"
+line "那一刻，喜欢第一次有了边界，也第一次像真的。"
+
+dialogue zh-CN harufushi 春伏
+branch apology_protocol
+when day >= 6
+when dependence >= 55
+when bond >= 40
+line "秋起把道歉写在聊天框里，又删掉。"
+line "太短像敷衍，太长像自辩。"
+line "春伏坐在旁边，没有催他。"
+line "她只是把手机屏幕朝下，给他一个不用表演的空间。"
+line "秋起说，我以前总觉得只要我足够痛苦，你就会知道我认真。"
+line "春伏说，痛苦不是凭证。"
+line "他点头，喉咙像被细线勒住。"
+line "真正该说的是，我把你的耐心当成资源池了。"
+line "我以为只要不把它用完，就不用问你愿不愿意。"
+line "春伏抬眼，眼神没有责备，只有清醒。"
+line "她说，那以后要问。"
+line "秋起说，好。"
+line "不是那种为了过关而说的好。"
+line "是把自己从旧习惯里拔出来时，牙关发紧的好。"
+line "窗外有车经过，灯影从墙上滑过去。"
+line "春伏把手机翻回来，却没有立刻看消息。"
+line "她说，今天的道歉先到这里。"
+line "剩下的，用明天的行动补。"
+
+dialogue zh-CN harufushi 春伏
+branch ordinary_room
+when day >= 8
+when bond >= 70
+when dependence <= 60
+line "他们终于有一晚没有谈补丁。"
+line "没有谈考试，没有谈资源包，也没有谈未来规划。"
+line "春伏盘腿坐在地毯上，拆一盒拼图。"
+line "秋起负责找边框，找得很慢，却没有求助。"
+line "房间里铺着细碎纸片，像一场温和的雪。"
+line "春伏问，如果明天没有我，你会做什么。"
+line "这个问题曾经像刀。"
+line "今天它只是一个问题。"
+line "秋起想了想，说，先吃早饭，再跑测试，然后给你发一张截图。"
+line "春伏说，为什么还要发给我。"
+line "他说，因为我想分享，不是因为我活不下去。"
+line "她低头拼上一片蓝色天空。"
+line "那片天空很小，却让整幅图有了方向。"
+line "秋起忽然觉得，普通房间也能像结局。"
+line "没有烟花，没有誓言，只有不再互相消耗的安静。"
+line "十点半，他们把未完成的拼图收进盒盖。"
+line "春伏说，明天继续。"
+line "秋起说，好，明天继续。"
+
+dialogue zh-CN harufushi 春伏
+branch train_platform
+when day >= 9
+when bond >= 80
+when dependence >= 45
+line "春伏要回家两天，站台风很大。"
+line "秋起替她拎包，手指抓得太紧。"
+line "广播提醒列车进站，他才意识到自己一句话也没说。"
+line "春伏看着他，说，别把离别想成惩罚。"
+line "他说，我知道。"
+line "可知道和做到之间，隔着一条很吵的铁轨。"
+line "春伏把一张便签塞进他口袋。"
+line "上面不是情话，是三条待办：吃饭，睡觉，自己决定一个问题。"
+line "秋起看完，差点笑出来。"
+line "她说，别笑，这是严肃协议。"
+line "列车门打开，人群向前涌。"
+line "秋起终于松开包带。"
+line "他说，我会想你，但我不会拿想你当借口。"
+line "春伏的眼睛红了一点，却只点头。"
+line "她上车后，隔着玻璃举起手。"
+line "秋起也举手，没有追着车跑。"
+line "列车离站时，他站在原地。"
+line "口袋里的便签很轻，像一枚能压住风的石头。"
+
+dialogue zh-CN rest 秋起
+branch clinic_morning
+when day >= 4
+when energy <= 45
+line "早晨的诊所闻起来像消毒水和潮湿外套。"
+line "秋起坐在塑料椅上，号码牌夹在指间。"
+line "春伏去缴费，背影在白灯下显得很薄。"
+line "他忽然羞愧。"
+line "不是因为生病，而是因为他把身体当成可以延期维护的模块。"
+line "医生问作息，他沉默了三秒。"
+line "春伏替他回答，没有夸张，也没有遮掩。"
+line "连续熬夜，饮食不稳，压力大。"
+line "每个词都像一颗被摆上桌面的螺丝。"
+line "秋起听着，发现自己没有资格生气。"
+line "输液时，液体一滴一滴落下。"
+line "它不像剧情里的治愈魔法，更像迟来的账单。"
+line "春伏把毯子盖到他膝上。"
+line "她说，休息不是奖励，是维护成本。"
+line "秋起闭上眼，第一次没有在心里打开任务列表。"
+line "窗外有人骑车经过，铃声清脆。"
+line "生活没有因为他停下而坍塌。"
+line "这个事实让他既难过，又放松。"
+
+dialogue zh-CN rest 秋起
+branch fever_log
+when day >= 5
+when energy <= 35
+when dependence >= 25
+line "发烧让房间边缘变得柔软。"
+line "秋起醒来时，屏幕还亮着，像一只没有闭上的眼。"
+line "春伏坐在椅子上，手里拿着体温计。"
+line "她没有责备，只说，三十八度七。"
+line "这个数字比任何批评都冷静。"
+line "秋起想坐起来解释进度。"
+line "春伏按住被角，说，今天没有进度。"
+line "他说，可是版本。"
+line "她说，版本不会因为你死撑就更爱你。"
+line "话说得重，却没有恶意。"
+line "秋起在热意里笑了一下，笑得很难看。"
+line "他终于承认，自己害怕的不是延期。"
+line "是停下来后，发现别人依然能往前走。"
+line "春伏把退烧贴放到他额头。"
+line "她说，那你更该练习停下。"
+line "夜里雨声很密，像系统在慢慢清理缓存。"
+line "秋起睡过去前，听见她合上电脑。"
+line "那声音轻得像替他关掉一场战争。"
+
+dialogue zh-CN rest 秋起
+branch long_sleep
+when day >= 7
+when energy <= 50
+when study >= 40
+line "长睡醒来时，天已经完全黑了。"
+line "秋起以为自己浪费了一整天。"
+line "他摸到手机，看见春伏留下的消息。"
+line "饭在锅里，测试没跑，世界还在。"
+line "最后四个字让他盯了很久。"
+line "世界还在。"
+line "原来它没有因为自己缺席几个小时就停止编译。"
+line "厨房的灯被留着，米饭温热。"
+line "秋起站在水槽前，忽然有点想哭。"
+line "不是悲伤，更像长期紧绷的线终于松了一寸。"
+line "他盛饭，坐下，按春伏写的顺序吃药。"
+line "没有人监督他。"
+line "这自由反而让他更认真。"
+line "饭后他打开笔记本，只写三行复盘。"
+line "今天睡了很久。"
+line "醒来后没有惩罚自己。"
+line "明天从最小任务开始。"
+line "写完，他把本子合上，像合上一扇终于肯休息的门。"
+
+dialogue zh-CN rest 秋起
+branch kitchen_afterword
+when day >= 8
+when bond >= 50
+when energy >= 70
+line "厨房里有番茄汤的味道。"
+line "春伏切菜很慢，每一刀都像在给晚饭留出耐心。"
+line "秋起负责洗碗，水声盖过楼下的车流。"
+line "他们没有谈今天完成了多少。"
+line "只谈盐是不是放多了，明天会不会下雨。"
+line "这些话题小得几乎不配进入故事。"
+line "可秋起忽然明白，故事不能只靠事故推进。"
+line "人真正活下去，靠的是这些不会被写进更新日志的间隙。"
+line "春伏尝了一口汤，皱眉说酸。"
+line "秋起说那我加糖。"
+line "她说别，酸也有酸的道理。"
+line "这句话太像她，秋起笑得差点把碗滑进水槽。"
+line "晚饭后他们把垃圾带下楼。"
+line "楼道灯坏了一盏，影子被拉得很长。"
+line "春伏问，今天算休息吗。"
+line "秋起想了想，说，算，而且比睡觉难。"
+line "她说，那就记下来。"
+line "于是这一天被记作：没有燃烧，也没有逃走。"
+
+dialogue en-US study Akioki
+branch scholarship_notice
+when day >= 4
+when study >= 36
+when energy >= 35
+line "The scholarship notice arrives in the afternoon."
+line "Akioki gathers proof that he has not vanished from his own life."
+line "Harufushi does not write the reason for him."
+line "She only asks him to keep the sentence that still sounds true."
+line "He submits the form with one plain line: I want to repair what I broke."
+line "The room brightens, not with victory, but with a name written back in place."
+
+dialogue en-US study Akioki
+branch borrowed_reference
+when day >= 5
+when study >= 40
+when bond >= 15
+when dependence <= 45
+line "The reference book smells of old paper and other people's patience."
+line "Akioki almost asks Harufushi to choose the important parts."
+line "Instead, he writes the question in his own notebook."
+line "She sees it and pretends to read the contents page."
+line "Independence is not sending her away."
+line "It is crossing the room while she stays by the door."
+
+dialogue en-US study Akioki
+branch transcript_margin
+when day >= 6
+when study >= 56
+when energy <= 65
+line "A crease runs through the worst grade on the transcript."
+line "Akioki decides not to reprint it."
+line "He writes the true reasons in the margin: insomnia, absence, excuses."
+line "Harufushi lowers the lamp and lets failure become visible."
+line "The paper stops being a sentence."
+line "It becomes an ugly map with a readable direction."
+
+dialogue en-US study Akioki
+branch whiteboard_dawn
+when day >= 7
+when study >= 72
+when mod >= 40
+when energy >= 30
+line "At dawn, the clubroom whiteboard turns the patch into a graph."
+line "Akioki sees that he has been fixing symptoms, not structure."
+line "Harufushi hands him the blue marker."
+line "The arrows grow fewer and the responsibility grows clearer."
+line "Sunlight reaches the board before the answer does."
+line "That is enough to keep working honestly."
+
+dialogue en-US study Akioki
+branch last_review
+when day >= 9
+when study >= 80
+when dependence <= 50
+line "On the last review night, Akioki does not open the editor."
+line "Fear is still there, but it no longer drags him away."
+line "Harufushi places a sharpened pencil by his hand."
+line "Everyone is walking toward some examination."
+line "He puts the admission slip on top of the notebook."
+line "When the light goes out, he does not reach for the laptop."
+
+dialogue en-US modding Harufushi
+branch broken_manifest
+when day >= 3
+when mod >= 25
+when study >= 20
+line "The resource manifest refuses to load after packaging."
+line "This time Akioki writes the tamper test instead of adding a bypass."
+line "The red output feels almost merciful."
+line "At least the lock is failing closed."
+line "Harufushi saves the evidence with a cold filename."
+line "Security design cannot live on enthusiasm."
+
+dialogue en-US modding Harufushi
+branch midnight_incident
+when day >= 5
+when mod >= 50
+when energy <= 55
+line "At 12:27, loading a save makes the window stop responding."
+line "The problem is not a slow animation."
+line "The main thread is waiting for work that should have started earlier."
+line "Engine preparation belongs under the engine opening."
+line "Game preparation belongs under the studio splash."
+line "Async work is a boundary, not a hiding place."
+
+dialogue en-US modding Harufushi
+branch build_room_fire
+when day >= 6
+when mod >= 70
+when energy >= 25
+when dependence <= 55
+line "The build room is hot enough to make the machines sound angry."
+line "They audit every resource lease from plaintext to opaque handle."
+line "The rules feel like wire."
+line "Akioki accepts them because love for a work includes its locks."
+line "The first pass turns green without applause."
+line "Harufushi calls it a kitchen after a fire."
+
+dialogue en-US modding Harufushi
+branch rollback_letter
+when day >= 7
+when mod >= 65
+when dependence >= 30
+line "A tester says the old version was better."
+line "Harufushi stops Akioki from sending his hurt as a changelog."
+line "They separate facts from bruises."
+line "The rollback note becomes short, responsible, and useful."
+line "He sends it and does not refresh the comments."
+line "That restraint is harder than the patch."
+
+dialogue en-US modding Harufushi
+branch release_postmortem
+when day >= 8
+when mod >= 80
+when study >= 48
+line "The postmortem has two people and three chairs."
+line "The empty chair is for the truth they kept postponing."
+line "Akioki writes decisions, names, and consequences."
+line "Harufushi asks him to mark what saved them too."
+line "A postmortem is not a trial."
+line "It is finding the load-bearing walls in the ruin."
+
+dialogue en-US modding Harufushi
+branch public_bug_report
+when day >= 9
+when mod >= 90
+when bond >= 50
+line "The first stranger's bug report arrives with an unfamiliar language."
+line "Misaligned buttons need no translation."
+line "Akioki realizes the work has left the room."
+line "Every overlooked edge can be someone else's front door."
+line "They answer clearly, with steps and a workaround."
+line "The team name is only two people, and it is enough."
+
+dialogue en-US harufushi Harufushi
+branch shared_umbrella
+when day >= 3
+when bond >= 15
+when energy >= 25
+line "Rain empties the sky without warning."
+line "Harufushi's umbrella is too small for two honest shoulders."
+line "Akioki pretends to think about its frame."
+line "She laughs into the rain."
+line "The six-minute walk is not cinematic."
+line "That is why he wants to remember it."
+
+dialogue en-US harufushi Harufushi
+branch boundary_confession
+when day >= 5
+when bond >= 55
+when dependence >= 30
+line "Harufushi closes the laptop while his hand is still on the shortcut."
+line "She is not tired of helping him."
+line "She is tired of help becoming the only proof she will stay."
+line "Akioki has no clean defense."
+line "She says she can be here, but not as an emergency exit."
+line "For the first time, affection has a boundary and becomes real."
+
+dialogue en-US harufushi Harufushi
+branch apology_protocol
+when day >= 6
+when dependence >= 55
+when bond >= 40
+line "Akioki writes an apology, deletes it, and starts again."
+line "Pain is not proof, Harufushi says."
+line "He admits he treated her patience like a resource pool."
+line "The room does not forgive him for free."
+line "It gives him tomorrow."
+line "The rest of the apology must be behavior."
+
+dialogue en-US harufushi Harufushi
+branch ordinary_room
+when day >= 8
+when bond >= 70
+when dependence <= 60
+line "They spend a night without patches, exams, or plans."
+line "A puzzle spreads over the carpet like quiet snow."
+line "Akioki says he would share a screenshot because he wants to, not because he cannot survive."
+line "Harufushi places a piece of blue sky."
+line "The ordinary room feels almost like an ending."
+line "Tomorrow continues without consuming either of them."
+
+dialogue en-US harufushi Harufushi
+branch train_platform
+when day >= 9
+when bond >= 80
+when dependence >= 45
+line "Harufushi leaves for two days, and the platform wind is loud."
+line "Her note lists food, sleep, and one decision made alone."
+line "Akioki says he will miss her without using it as an excuse."
+line "The train takes her away without cruelty."
+line "He does not run after it."
+line "The note in his pocket is light enough to hold down the wind."
+
+dialogue en-US rest Akioki
+branch clinic_morning
+when day >= 4
+when energy <= 45
+line "The morning clinic smells of disinfectant and wet coats."
+line "The doctor names the cost of treating his body like postponed maintenance."
+line "Harufushi answers without exaggerating or hiding."
+line "Rest is not a reward, she says."
+line "It is maintenance cost."
+line "The world does not collapse while he stops."
+
+dialogue en-US rest Akioki
+branch fever_log
+when day >= 5
+when energy <= 35
+when dependence >= 25
+line "Fever softens the edges of the room."
+line "Harufushi reads the number on the thermometer with terrible calm."
+line "There is no progress today."
+line "The version will not love him more for collapsing."
+line "Rain cleans the night in slow lines."
+line "She closes the laptop like ending a small war."
+
+dialogue en-US rest Akioki
+branch long_sleep
+when day >= 7
+when energy <= 50
+when study >= 40
+line "Akioki wakes after dark and expects punishment."
+line "Harufushi's note says dinner is warm, tests did not run, the world remains."
+line "Those last words stay with him."
+line "He eats, takes medicine, and writes three honest lines."
+line "Slept long. Did not punish myself."
+line "Tomorrow starts from the smallest task."
+
+dialogue en-US rest Akioki
+branch kitchen_afterword
+when day >= 8
+when bond >= 50
+when energy >= 70
+line "Tomato soup makes the kitchen smell like patience."
+line "They talk about salt, weather, and a broken hallway light."
+line "A story cannot live only on accidents."
+line "People survive inside the intervals that never enter changelogs."
+line "Akioki writes the day down."
+line "No burning, no running away."
+
+dialogue ja-JP study アキオキ
+branch scholarship_notice
+when day >= 4
+when study >= 36
+when energy >= 35
+line "奨学金の通知が午後に届く。"
+line "アキオキは、自分が生活から消えていない証拠を集める。"
+line "ハルフシは理由を代筆しない。"
+line "まだ本当らしい一文だけ残して、と言う。"
+line "壊したものを直したい、と彼は書く。"
+line "勝利ではなく、名前が戻る明るさが部屋に残る。"
+
+dialogue ja-JP study アキオキ
+branch borrowed_reference
+when day >= 5
+when study >= 40
+when bond >= 15
+when dependence <= 45
+line "古い参考書は、紙と他人の忍耐の匂いがした。"
+line "アキオキは重点を選んでもらいそうになる。"
+line "けれど自分のノートに問いを書く。"
+line "ハルフシはそれを見て、目次を読んでいるふりをする。"
+line "独立は彼女を遠ざけることではない。"
+line "彼女が扉にいるまま、自分で渡ることだ。"
+
+dialogue ja-JP study アキオキ
+branch transcript_margin
+when day >= 6
+when study >= 56
+when energy <= 65
+line "成績表の折れ目が、いちばん悪い点を横切っていた。"
+line "アキオキは刷り直さないと決める。"
+line "余白に本当の理由を書く。眠れなかった、逃げた、言い訳した。"
+line "ハルフシは灯りを少し落とす。"
+line "紙は判決ではなくなる。"
+line "醜いが、方向の読める地図になる。"
+
+dialogue ja-JP study アキオキ
+branch whiteboard_dawn
+when day >= 7
+when study >= 72
+when mod >= 40
+when energy >= 30
+line "夜明けの白板に、パッチはグラフとして現れる。"
+line "アキオキは症状だけ直していたことに気づく。"
+line "ハルフシが青いペンを渡す。"
+line "矢印は減り、責任ははっきりする。"
+line "答えより先に朝日が白板へ届く。"
+line "それで十分、正直に続けられる。"
+
+dialogue ja-JP study アキオキ
+branch last_review
+when day >= 9
+when study >= 80
+when dependence <= 50
+line "最後の復習の夜、アキオキはエディタを開かない。"
+line "怖さはあるが、もう彼を連れ去らない。"
+line "ハルフシは削った鉛筆を置く。"
+line "誰もが何かの試験へ歩いている。"
+line "彼は受験票をノートの上に置く。"
+line "灯りが消えても、ノートPCへ手を伸ばさない。"
+
+dialogue ja-JP modding ハルフシ
+branch broken_manifest
+when day >= 3
+when mod >= 25
+when study >= 20
+line "パッケージ後、manifestが読み込みを拒む。"
+line "今回は抜け道ではなく、改ざんテストを書く。"
+line "赤い出力は、少しだけ慈悲深い。"
+line "少なくとも鍵は閉じて失敗している。"
+line "ハルフシは冷たい名前で証拠を保存する。"
+line "安全設計は熱意だけでは生きられない。"
+
+dialogue ja-JP modding ハルフシ
+branch midnight_incident
+when day >= 5
+when mod >= 50
+when energy <= 55
+line "零時二十七分、セーブ読み込みでウィンドウが固まる。"
+line "遅いアニメーションが原因ではない。"
+line "メインスレッドが、先に始めるべき仕事を待っていた。"
+line "エンジン準備はエンジン開幕の下へ。"
+line "ゲーム準備は制作クレジットの下へ。"
+line "非同期は隠し場所ではなく、境界だ。"
+
+dialogue ja-JP modding ハルフシ
+branch build_room_fire
+when day >= 6
+when mod >= 70
+when energy >= 25
+when dependence <= 55
+line "ビルド室は暑く、機械が怒っているように鳴る。"
+line "二人は平文からopaque handleまでleaseを点検する。"
+line "規則は針金のように感じる。"
+line "作品を愛するなら、鍵も愛さねばならない。"
+line "最初のテストが静かに緑になる。"
+line "ハルフシは、火事のあとの台所みたいだと言う。"
+
+dialogue ja-JP modding ハルフシ
+branch rollback_letter
+when day >= 7
+when mod >= 65
+when dependence >= 30
+line "テスターが、前の版のほうが良かったと言う。"
+line "ハルフシは、傷ついた心を更新履歴として送らせない。"
+line "二人は事実と痛みを分ける。"
+line "ロールバック文は短く、責任があり、役に立つ。"
+line "彼は送信し、コメントを更新しない。"
+line "その我慢はパッチより難しい。"
+
+dialogue ja-JP modding ハルフシ
+branch release_postmortem
+when day >= 8
+when mod >= 80
+when study >= 48
+line "振り返りには二人と三つの椅子がある。"
+line "空いた椅子は、先延ばしにした真実のため。"
+line "アキオキは決定、名前、結果を書く。"
+line "ハルフシは、救ったものも印をつけてと言う。"
+line "振り返りは裁判ではない。"
+line "瓦礫の中で、承重壁を見つけることだ。"
+
+dialogue ja-JP modding ハルフシ
+branch public_bug_report
+when day >= 9
+when mod >= 90
+when bond >= 50
+line "知らない言語のバグ報告が初めて届く。"
+line "ずれたボタンに翻訳はいらない。"
+line "アキオキは作品が部屋を出たことを知る。"
+line "見落とした端は、誰かの正面玄関になる。"
+line "二人は手順と回避策を添えて答える。"
+line "チーム名は二人だけでも、十分だった。"
+
+dialogue ja-JP harufushi ハルフシ
+branch shared_umbrella
+when day >= 3
+when bond >= 15
+when energy >= 25
+line "雨は予告なしに空を空にする。"
+line "ハルフシの傘は、二人の肩には小さすぎる。"
+line "アキオキは骨組みを考えているふりをする。"
+line "彼女は雨の中で笑う。"
+line "六分の道は映画的ではない。"
+line "だからこそ、彼は覚えていたくなる。"
+
+dialogue ja-JP harufushi ハルフシ
+branch boundary_confession
+when day >= 5
+when bond >= 55
+when dependence >= 30
+line "ハルフシは、彼の手がショートカットにあるままPCを閉じる。"
+line "助けることに疲れたわけではない。"
+line "助けが、彼女が残る証拠になることに疲れた。"
+line "アキオキにはきれいな弁解がない。"
+line "ここにはいられる。でも非常口にはなれない。"
+line "好意は初めて境界を持ち、本物になる。"
+
+dialogue ja-JP harufushi ハルフシ
+branch apology_protocol
+when day >= 6
+when dependence >= 55
+when bond >= 40
+line "アキオキは謝罪を書き、消し、また書く。"
+line "痛みは証明じゃない、とハルフシは言う。"
+line "彼は彼女の忍耐を資源プールのように扱ったと認める。"
+line "部屋は無料では許してくれない。"
+line "ただ明日をくれる。"
+line "謝罪の残りは、行動で払う。"
+
+dialogue ja-JP harufushi ハルフシ
+branch ordinary_room
+when day >= 8
+when bond >= 70
+when dependence <= 60
+line "パッチも試験も予定も話さない夜。"
+line "パズルが静かな雪のように絨毯へ広がる。"
+line "生きるためではなく、共有したいからスクショを送ると言う。"
+line "ハルフシは青い空のピースを置く。"
+line "普通の部屋が、ほとんど結末のように感じる。"
+line "明日は、互いを消耗せずに続く。"
+
+dialogue ja-JP harufushi ハルフシ
+branch train_platform
+when day >= 9
+when bond >= 80
+when dependence >= 45
+line "ハルフシは二日だけ帰省し、ホームの風は強い。"
+line "メモには食事、睡眠、自分で決める一問がある。"
+line "アキオキは、寂しさを言い訳にしないと言う。"
+line "電車は残酷ではなく彼女を連れていく。"
+line "彼は追いかけない。"
+line "ポケットのメモは、風を押さえるほど軽い。"
+
+dialogue ja-JP rest アキオキ
+branch clinic_morning
+when day >= 4
+when energy <= 45
+line "朝の診療所は消毒液と濡れた上着の匂いがする。"
+line "医者は、身体を延期メンテ扱いした代金を告げる。"
+line "ハルフシは大げさにも隠しもせず答える。"
+line "休息はご褒美じゃない、と彼女は言う。"
+line "それは維持費だ。"
+line "彼が止まっても、世界は崩れない。"
+
+dialogue ja-JP rest アキオキ
+branch fever_log
+when day >= 5
+when energy <= 35
+when dependence >= 25
+line "熱で部屋の輪郭がやわらかくなる。"
+line "ハルフシは体温計の数字を恐ろしく静かに読む。"
+line "今日は進捗がない。"
+line "倒れたからといって、版は彼をもっと愛さない。"
+line "雨が夜をゆっくり掃除する。"
+line "彼女は小さな戦争を終えるようにノートPCを閉じる。"
+
+dialogue ja-JP rest アキオキ
+branch long_sleep
+when day >= 7
+when energy <= 50
+when study >= 40
+line "暗くなってから目覚め、罰を予想する。"
+line "ハルフシのメモには、夕飯は温かい、テストは走っていない、世界はある、と書いてある。"
+line "最後の言葉が彼に残る。"
+line "彼は食べ、薬を飲み、三行だけ書く。"
+line "長く寝た。自分を罰しなかった。"
+line "明日は最小の作業から。"
+
+dialogue ja-JP rest アキオキ
+branch kitchen_afterword
+when day >= 8
+when bond >= 50
+when energy >= 70
+line "トマトスープが台所を忍耐の匂いにする。"
+line "二人は塩、天気、壊れた廊下灯の話をする。"
+line "物語は事故だけでは生きられない。"
+line "人は更新履歴に載らない隙間で生き延びる。"
+line "アキオキはその日を書き留める。"
+line "燃えず、逃げず。"

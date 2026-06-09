@@ -2,7 +2,34 @@
 
 #include "game/systems/DailyDialogueScript.hpp"
 
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <string>
+
+namespace {
+
+std::string defaultDialogueSource() {
+    const std::filesystem::path path =
+        std::filesystem::path(HARUFUSHI_SOURCE_DIR) / "resources" / "data" /
+        "scripts" / "daily_dialogues.harudlg";
+    std::ifstream input(path, std::ios::binary);
+    std::ostringstream buffer;
+    buffer << input.rdbuf();
+    return buffer.str();
+}
+
+std::size_t countOccurrences(const std::string& source, const std::string& token) {
+    std::size_t count = 0;
+    std::size_t position = source.find(token);
+    while (position != std::string::npos) {
+        ++count;
+        position = source.find(token, position + token.size());
+    }
+    return count;
+}
+
+} // namespace
 
 HARU_TEST(daily_dialogue_script_parses_activity_dialogues_by_locale) {
     const std::string source =
@@ -119,4 +146,60 @@ HARU_TEST(daily_dialogue_script_default_resource_contains_four_daily_actions) {
         script.entryFor("zh-CN", haru::game::systems::DailyAction::Rest, recoveredAfterLowEnergy);
     HARU_EXPECT_TRUE(recoveryBranch.has_value());
     HARU_EXPECT_EQ(recoveryBranch->branchId, "recovery_day");
+}
+
+HARU_TEST(daily_dialogue_script_default_resource_has_story_scale_chinese_text) {
+    const std::string source = defaultDialogueSource();
+
+    HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") >= 28U);
+    HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") ==
+                     countOccurrences(source, "dialogue en-US "));
+    HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") ==
+                     countOccurrences(source, "dialogue ja-JP "));
+    HARU_EXPECT_TRUE(countOccurrences(source, "line \"") >= 360U);
+    HARU_EXPECT_TRUE(countOccurrences(source, "dialogue zh-CN ") * 18U <=
+                     countOccurrences(source, "line \""));
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN modding 春伏\nbranch midnight_incident") !=
+                     std::string::npos);
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN harufushi 春伏\nbranch boundary_confession") !=
+                     std::string::npos);
+    HARU_EXPECT_TRUE(source.find("dialogue zh-CN rest 秋起\nbranch clinic_morning") !=
+                     std::string::npos);
+}
+
+HARU_TEST(daily_dialogue_script_default_resource_selects_story_chapter_branches) {
+    const auto script = haru::game::systems::DailyDialogueScript::loadDefault();
+
+    haru::game::systems::DailyStats manifestStats;
+    manifestStats.day = 3;
+    manifestStats.energy = 65;
+    manifestStats.studyFocus = 22;
+    manifestStats.modProgress = 28;
+    const auto manifestBranch =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Modding, manifestStats);
+    HARU_EXPECT_TRUE(manifestBranch.has_value());
+    HARU_EXPECT_EQ(manifestBranch->branchId, "broken_manifest");
+    HARU_EXPECT_TRUE(manifestBranch->lines.size() >= 18U);
+
+    haru::game::systems::DailyStats boundaryStats;
+    boundaryStats.day = 5;
+    boundaryStats.energy = 55;
+    boundaryStats.harufushiBond = 58;
+    boundaryStats.dependence = 34;
+    const auto boundaryBranch =
+        script.entryFor("zh-CN",
+                        haru::game::systems::DailyAction::SpendTimeWithHarufushi,
+                        boundaryStats);
+    HARU_EXPECT_TRUE(boundaryBranch.has_value());
+    HARU_EXPECT_EQ(boundaryBranch->branchId, "boundary_confession");
+    HARU_EXPECT_TRUE(boundaryBranch->lines.size() >= 18U);
+
+    haru::game::systems::DailyStats clinicStats;
+    clinicStats.day = 4;
+    clinicStats.energy = 40;
+    const auto clinicBranch =
+        script.entryFor("zh-CN", haru::game::systems::DailyAction::Rest, clinicStats);
+    HARU_EXPECT_TRUE(clinicBranch.has_value());
+    HARU_EXPECT_EQ(clinicBranch->branchId, "clinic_morning");
+    HARU_EXPECT_TRUE(clinicBranch->lines.size() >= 18U);
 }
