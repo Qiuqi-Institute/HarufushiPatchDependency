@@ -1,6 +1,7 @@
 #include "TitleScene.hpp"
 
 #include <algorithm>
+#include <string>
 #include <utility>
 
 namespace haru::game::scenes {
@@ -125,7 +126,8 @@ void renderStatusPanel(engine::graphics::RenderQueue& queue,
 void renderDialoguePanel(engine::graphics::RenderQueue& queue,
                          int width,
                          int height,
-                         const systems::DailyDialogueEntry& dialogue) {
+                         const systems::DailyDialogueEntry& dialogue,
+                         std::size_t dialoguePage) {
     const int panelY = std::max(height - 150, 1);
     queue.fillRoundedRect({92, panelY, 208, 38}, sakuraStrong, 18);
     queue.strokeRect({92, panelY, 208, 38}, warmWhite, 2);
@@ -133,15 +135,26 @@ void renderDialoguePanel(engine::graphics::RenderQueue& queue,
 
     const int textX = 326;
     const int textWidth = std::max(width - textX - 112, 1);
-    if (!dialogue.lines.empty()) {
-        queue.drawText({textX, panelY + 8, textWidth, 26}, dialogue.lines[0], ink);
+    const std::size_t firstLine = dialoguePage * 3U;
+    if (firstLine < dialogue.lines.size()) {
+        queue.drawText({textX, panelY + 8, textWidth, 26},
+                       dialogue.lines[firstLine],
+                       ink);
     }
-    if (dialogue.lines.size() > 1U) {
-        queue.drawText({textX, panelY + 38, textWidth, 26}, dialogue.lines[1], deepInk);
+    if (firstLine + 1U < dialogue.lines.size()) {
+        queue.drawText({textX, panelY + 38, textWidth, 26},
+                       dialogue.lines[firstLine + 1U],
+                       deepInk);
     }
-    if (dialogue.lines.size() > 2U) {
-        queue.drawText({textX, panelY + 68, textWidth, 26}, dialogue.lines[2], ink);
+    if (firstLine + 2U < dialogue.lines.size()) {
+        queue.drawText({textX, panelY + 68, textWidth, 26},
+                       dialogue.lines[firstLine + 2U],
+                       ink);
     }
+    const std::size_t pageCount = std::max<std::size_t>((dialogue.lines.size() + 2U) / 3U, 1U);
+    const std::string pageText = std::to_string(std::min(dialoguePage + 1U, pageCount)) +
+                                 "/" + std::to_string(pageCount);
+    queue.drawText({std::max(width - 180, 1), panelY + 66, 64, 24}, pageText, disabledText);
     queue.fillRoundedRect({std::max(width - 190, 1), panelY + 96, 76, 8}, sky, 4);
     queue.fillEllipse({std::max(width - 98, 1), panelY + 90, 14, 14}, sakuraStrong);
 }
@@ -153,7 +166,8 @@ TitleScene::TitleScene(localization::GameText text) : text_(std::move(text)) {}
 void TitleScene::render(engine::graphics::RenderQueue& queue,
                         engine::graphics::Size surfaceSize,
                         const systems::DailyStats& stats,
-                        const systems::DailyDialogueEntry* activeDialogue) const {
+                        const systems::DailyDialogueEntry* activeDialogue,
+                        std::size_t dialoguePage) const {
     queue.clear(bgCream);
 
     const int width = std::max(surfaceSize.width, 1);
@@ -224,7 +238,7 @@ void TitleScene::render(engine::graphics::RenderQueue& queue,
     drawProgressBar(queue, {650, 384, 360, 12}, stats.harufushiBond, mint);
 
     if (activeDialogue != nullptr) {
-        renderDialoguePanel(queue, width, height, *activeDialogue);
+        renderDialoguePanel(queue, width, height, *activeDialogue, dialoguePage);
     } else {
         renderStatusPanel(queue, text_, width, height, stats);
     }
@@ -277,6 +291,17 @@ std::optional<TitleNavigationAction> TitleScene::navigationActionAt(
     }
 
     return std::nullopt;
+}
+
+bool TitleScene::dialogueAdvanceAt(engine::graphics::Point point,
+                                   engine::graphics::Size surfaceSize) const {
+    if (surfaceSize.width <= 0 || surfaceSize.height <= 0) {
+        return false;
+    }
+
+    return point.x >= 64 && point.x <= surfaceSize.width - 64 &&
+           point.y >= std::max(surfaceSize.height - 168, 1) &&
+           point.y <= surfaceSize.height - 50;
 }
 
 } // namespace haru::game::scenes

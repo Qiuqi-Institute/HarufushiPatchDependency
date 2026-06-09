@@ -209,6 +209,35 @@ HARU_TEST(title_scene_renders_daily_activity_dialogue_panel) {
     HARU_EXPECT_TRUE(thirdLine->rect.y > secondLine->rect.y);
 }
 
+HARU_TEST(title_scene_renders_later_dialogue_pages) {
+    haru::game::scenes::TitleScene titleScene;
+    haru::game::systems::DailyDialogueEntry dialogue;
+    dialogue.speaker = "Harufushi";
+    dialogue.lines = {"Page one line one",
+                      "Page one line two",
+                      "Page one line three",
+                      "Page two line one",
+                      "Page two line two",
+                      "Page two line three"};
+    haru::engine::graphics::RenderQueue queue;
+
+    titleScene.render(queue, {1280, 720}, {}, &dialogue, 1);
+
+    HARU_EXPECT_FALSE(hasText(queue, "Page one line one"));
+    HARU_EXPECT_TRUE(hasText(queue, "Page two line one"));
+    HARU_EXPECT_TRUE(hasText(queue, "Page two line two"));
+    HARU_EXPECT_TRUE(hasText(queue, "Page two line three"));
+    HARU_EXPECT_TRUE(hasText(queue, "2/2"));
+}
+
+HARU_TEST(title_scene_maps_dialogue_panel_to_advance_action) {
+    haru::game::scenes::TitleScene titleScene;
+
+    HARU_EXPECT_TRUE(titleScene.dialogueAdvanceAt({640, 610}, {1280, 720}));
+    HARU_EXPECT_FALSE(titleScene.dialogueAdvanceAt({640, 120}, {1280, 720}));
+    HARU_EXPECT_FALSE(titleScene.dialogueAdvanceAt({640, 610}, {0, 720}));
+}
+
 HARU_TEST(title_scene_uses_game_text_localization) {
     haru::game::localization::GameText text =
         haru::game::localization::GameText::loadDefault("zh-CN");

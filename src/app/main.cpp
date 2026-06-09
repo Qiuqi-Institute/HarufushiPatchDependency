@@ -17,6 +17,7 @@
 #include <filesystem>
 #include <iostream>
 #include <optional>
+#include <cstddef>
 #include <thread>
 #include <vector>
 
@@ -91,6 +92,7 @@ int main(int argc, char** argv) {
         haru::game::scenes::TitleScene dailyScene(gameText);
         std::optional<haru::game::systems::DailyAction> latestDailyAction;
         std::optional<haru::game::systems::DailyDialogueEntry> latestDialogue;
+        std::size_t latestDialoguePage = 0;
         haru::game::scenes::HomePanel homePanel = haru::game::scenes::HomePanel::Main;
         GameScreen screen = GameScreen::StudioSplash;
         haru::game::systems::DailyLoopState dailyLoopState;
@@ -203,6 +205,7 @@ int main(int argc, char** argv) {
                             dailyLoopState = haru::game::systems::DailyLoopState{};
                             latestDailyAction.reset();
                             latestDialogue.reset();
+                            latestDialoguePage = 0;
                             saveManager.createNewGame(gameText.activeLocale());
                             cachedSaveSummariesDirty = true;
                             screen = GameScreen::DailyLoop;
@@ -225,6 +228,7 @@ int main(int argc, char** argv) {
                                         haru::game::systems::DailyLoopState(save.stats);
                                     latestDailyAction.reset();
                                     latestDialogue.reset();
+                                    latestDialoguePage = 0;
                                     applyLocale(save.localeTag.c_str(), false);
                                     homePanel = haru::game::scenes::HomePanel::Main;
                                     screen = GameScreen::DailyLoop;
@@ -328,6 +332,22 @@ int main(int argc, char** argv) {
                             screen = GameScreen::Home;
                             continue;
                         }
+                        if (latestDialogue.has_value()) {
+                            const std::size_t pageCount =
+                                std::max<std::size_t>((latestDialogue->lines.size() + 2U) / 3U,
+                                                       1U);
+                            const bool hasUnreadPage = latestDialoguePage + 1U < pageCount;
+                            if (dailyScene.dialogueAdvanceAt(*designPoint,
+                                                             {surface.width(), surface.height()})) {
+                                if (hasUnreadPage) {
+                                    ++latestDialoguePage;
+                                }
+                                continue;
+                            }
+                            if (hasUnreadPage) {
+                                continue;
+                            }
+                        }
                         const auto action =
                             dailyScene.actionAt(*designPoint,
                                                 {surface.width(), surface.height()},
@@ -341,6 +361,7 @@ int main(int argc, char** argv) {
                                 dailyDialogueScript.entryFor(gameText.activeLocale(),
                                                              *action,
                                                              dailyLoopState.stats());
+                            latestDialoguePage = 0;
                             cachedSaveSummariesDirty = true;
                         }
                     }
@@ -376,7 +397,8 @@ int main(int argc, char** argv) {
                 dailyScene.render(queue,
                                   {surface.width(), surface.height()},
                                   dailyLoopState.stats(),
-                                  latestDialogue.has_value() ? &*latestDialogue : nullptr);
+                                  latestDialogue.has_value() ? &*latestDialogue : nullptr,
+                                  latestDialoguePage);
             }
 
             surface.draw(queue, haru::engine::graphics::TextRasterization::Skip);

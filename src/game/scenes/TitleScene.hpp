@@ -21,7 +21,8 @@ public:
     void render(engine::graphics::RenderQueue& queue,
                 engine::graphics::Size surfaceSize,
                 const systems::DailyStats& stats = systems::DailyStats{},
-                const systems::DailyDialogueEntry* activeDialogue = nullptr) const;
+                const systems::DailyDialogueEntry* activeDialogue = nullptr,
+                std::size_t dialoguePage = 0) const;
     std::optional<systems::DailyAction> actionAt(engine::graphics::Point point,
                                                  engine::graphics::Size surfaceSize) const;
     std::optional<systems::DailyAction> actionAt(engine::graphics::Point point,
@@ -30,6 +31,8 @@ public:
     std::optional<TitleNavigationAction> navigationActionAt(
         engine::graphics::Point point,
         engine::graphics::Size surfaceSize) const;
+    bool dialogueAdvanceAt(engine::graphics::Point point,
+                           engine::graphics::Size surfaceSize) const;
 
 private:
     localization::GameText text_;
